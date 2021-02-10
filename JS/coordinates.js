@@ -67,11 +67,8 @@ $(document).ready(() => {
         //console.log("c: "+c);
         /////////////////////////////////////////////console.log("lat: "+c.coords.latitude+", lng: "+c.coords.longitude);
         
-        /*
-        if(mymap) {
-            mymap.remove();
-        }
-        */
+        
+        
 
         
         const $placesArray = [];
@@ -79,6 +76,10 @@ $(document).ready(() => {
         let $countryCode = await getCountryCode(c.latitude, c.longitude);
 
         let $obj = await getCountryBounds($countryCode);
+
+        if(mymap) {
+            mymap.remove();
+        }
 
         //OpenStreetMap_Mapnik
         const map1 = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -170,7 +171,7 @@ $(document).ready(() => {
         ////////////////////////////////////////////////////////////////////////////
 
 
-        $countryCode = await getCountryCode(c.latitude, c.longitude);
+        //$countryCode = await getCountryCode(c.latitude, c.longitude);
         //console.log("Country name: "+$countryName);
 
         if(c.latitude === '27.09611' && c.longitude === '-13.41583') {
@@ -197,7 +198,7 @@ $(document).ready(() => {
 
 
 
-        $obj = await getCountryBounds($countryCode);
+        //$obj = await getCountryBounds($countryCode);
         let $places = await getPlaces($obj);
         
         let myBlueIcon = L.icon({
@@ -279,11 +280,14 @@ $(document).ready(() => {
 
         const $cities = L.layerGroup($placesArray);
 
-        const mymap = L.map('mapid', {
+        mymap = L.map('mapid', {
             center: [c.latitude, c.longitude],
             zoom: 2,
             layers: [map1, $cities]
         });
+
+        
+        
 
 
         let $geojson = await getGeoJSON($countryCode);

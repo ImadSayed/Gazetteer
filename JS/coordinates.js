@@ -200,40 +200,23 @@ $(document).ready(() => {
 
         //$obj = await getCountryBounds($countryCode);
         let $places = await getPlaces($obj);
+
         
-        let myBlueIcon = L.icon({
-            iconUrl: 'Images/my_blue_svg_icon.svg',
-            iconSize: [24, 37.5],
-            iconAnchor: [12, 37.5],
-            popupAnchor: [0, -30],
-            shadowUrl: 'Images/my_icon_shadow.svg',
-            shadowSize: [18, 37.5],
-            shadowAnchor: [-4, 32]
+        const LeafIcon = L.Icon.extend({
+            options: {
+                shadowUrl: 'Images/my_icon_shadow.svg',
+                iconSize: [24, 37.5],
+                shadowSize: [18, 37.5],
+                iconAnchor: [12, 37.5],
+                shadowAnchor: [-4, 32],
+                popupAnchor: [0, -30],
+            }
         });
-        let myBrownIcon = L.icon({
-            iconUrl: 'Images/my_brown_svg_icon.svg',
-            iconSize: [24, 37.5],
-            iconAnchor: [12, 37.5],
-            popupAnchor: [0, -30],
-            shadowUrl: 'Images/my_icon_shadow.svg',
-            shadowSize: [18, 37.5],
-            shadowAnchor: [-4, 32]
-        });
-        let myRedIcon = L.icon({
-            iconUrl: 'Images/my_red_svg_icon.svg',
-            iconSize: [24, 37.5],
-            iconAnchor: [12, 37.5],
-            popupAnchor: [0, -30],
-            shadowUrl: 'Images/my_icon_shadow.svg',
-            shadowSize: [18, 37.5],
-            shadowAnchor: [-4, 32]
-        });
-        /*
-        ,
-            shadowUrl: 'my-icon-shadow.png',
-            shadowSize: [68, 95],
-            shadowAnchor: [22, 94]
-        */
+        
+        const myBlueIcon = new LeafIcon({iconUrl: 'Images/my_blue_svg_icon.svg'}), 
+        myBrownIcon = new LeafIcon({iconUrl: 'Images/my_brown_svg_icon.svg'}),
+        myRedIcon = new LeafIcon({iconUrl: 'Images/my_red_svg_icon.svg'});
+
         if($places!=null) {
         let popupContent; 
             for(let $i = 0; $i < $places.length; $i++) {

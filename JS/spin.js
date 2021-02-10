@@ -79,6 +79,7 @@ var Spinner = /** @class */ (function () {
     };
     return Spinner;
 }());
+
 export { Spinner };
 /**
  * Sets multiple style properties at once.

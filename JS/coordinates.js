@@ -1,8 +1,38 @@
 
-
-
+//const Spinner = require('spin.js');
+//import { Spinner } from './spin.js';
+//import { Spinner } from './spin'
 
 $(document).ready(() => {
+    
+    /*
+    const $target = $('#spinner');
+    
+    var opts = {
+        lines: 13, // The number of lines to draw
+        length: 38, // The length of each line
+        width: 17, // The line thickness
+        radius: 45, // The radius of the inner circle
+        scale: 1, // Scales overall size of the spinner
+        corners: 1, // Corner roundness (0..1)
+        speed: 1, // Rounds per second
+        rotate: 0, // The rotation offset
+        animation: 'spinner-line-fade-quick', // The CSS animation name for the lines
+        direction: 1, // 1: clockwise, -1: counterclockwise
+        color: '#ffffff', // CSS color or array of colors
+        fadeColor: 'transparent', // CSS color or array of colors
+        top: '50%', // Top position relative to parent
+        left: '50%', // Left position relative to parent
+        shadow: '0 0 1px transparent', // Box-shadow for the lines
+        zIndex: 2000000000, // The z-index (defaults to 2e9)
+        className: 'spinner', // The CSS class to assign to the spinner
+        position: 'absolute', // Element positioning
+    };
+    
+
+    const $spinner = new Spinner(opts);//(opts)
+    $spinner.spin($target);
+    */
 
     //let x = document.getElementById("coordinatesDiv");
     let p;
@@ -37,32 +67,119 @@ $(document).ready(() => {
         //console.log("c: "+c);
         /////////////////////////////////////////////console.log("lat: "+c.coords.latitude+", lng: "+c.coords.longitude);
         
+        /*
         if(mymap) {
             mymap.remove();
         }
-
-        mymap = L.map('mapid').setView([c.latitude, c.longitude], 5);
-            
-            
-        
-        
-
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        }).addTo(mymap);
+        */
 
         
-        
+        const $placesArray = [];
 
         let $countryCode = await getCountryCode(c.latitude, c.longitude);
-        //console.log("Country name: "+$countryName);
+
+        let $obj = await getCountryBounds($countryCode);
+
+        //OpenStreetMap_Mapnik
+        const map1 = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        });
+
+        /*
+        //OpenStreetMap_HOT
+        const map2 = L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Tiles style by <a href="https://www.hotosm.org/" target="_blank">Humanitarian OpenStreetMap Team</a> hosted by <a href="https://openstreetmap.fr/" target="_blank">OpenStreetMap France</a>'
+        });
+
+        //OpenTopoMap
+        const map3 = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+            maxZoom: 17,
+            attribution: 'Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, <a href="http://viewfinderpanoramas.org">SRTM</a> | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)'
+        });
+        */
+
+        //Stadia_AlidadeSmoothDark
+        const map4 = L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png', {
+            maxZoom: 20,
+            attribution: '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors'
+        });
         
+        //NASAGIBS_ViirsEarthAtNight2012
+        const map5 = L.tileLayer('https://map1.vis.earthdata.nasa.gov/wmts-webmerc/VIIRS_CityLights_2012/default/{time}/{tilematrixset}{maxZoom}/{z}/{y}/{x}.{format}', {
+            attribution: 'Imagery provided by services from the Global Imagery Browse Services (GIBS), operated by the NASA/GSFC/Earth Science Data and Information System (<a href="https://earthdata.nasa.gov">ESDIS</a>) with funding provided by NASA/HQ.',
+            bounds: [[-85.0511287776, -179.999999975], [85.0511287776, 179.999999975]],
+            minZoom: 1,
+            maxZoom: 8,
+            format: 'jpg',
+            time: '',
+            tilematrixset: 'GoogleMapsCompatible_Level'
+        });
+
+        /*
+        //Wikimedia
+        const map66 = L.tileLayer('https://maps.wikimedia.org/osm-intl/{z}/{x}/{y}{r}.png', {
+            attribution: '<a href="https://wikimediafoundation.org/wiki/Maps_Terms_of_Use">Wikimedia</a>',
+            minZoom: 1,
+            maxZoom: 19
+        });
+
+        */
+        //OpenRailwayMap
+        const map6 = L.tileLayer('https://{s}.tiles.openrailwaymap.org/standard/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: 'Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors | Map style: &copy; <a href="https://www.OpenRailwayMap.org">OpenRailwayMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)'
+        });
+        /*
+        //CyclOSM
+        const map7 = L.tileLayer('https://{s}.tile-cyclosm.openstreetmap.fr/cyclosm/{z}/{x}/{y}.png', {
+            maxZoom: 20,
+            attribution: '<a href="https://github.com/cyclosm/cyclosm-cartocss-style/releases" title="CyclOSM - Open Bicycle render">CyclOSM</a> | Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        });
+        */
+
+        //Stamen_Watercolor
+        const map8 = L.tileLayer('https://stamen-tiles-{s}.a.ssl.fastly.net/watercolor/{z}/{x}/{y}.{ext}', {
+            attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+            subdomains: 'abcd',
+            minZoom: 1,
+            maxZoom: 16,
+            ext: 'jpg'
+        });
+
+        //Stamen_Terrain
+        const map9 = L.tileLayer('https://stamen-tiles-{s}.a.ssl.fastly.net/terrain/{z}/{x}/{y}{r}.{ext}', {
+            attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+            subdomains: 'abcd',
+            minZoom: 0,
+            maxZoom: 18,
+            ext: 'png'
+        });
+
+        //Esri_WorldImagery
+        const map10 = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+            attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+        });
+
+        //.addTo(mymap);
+
+        //mymap = L.map('mapid').setView([c.latitude, c.longitude], 2);
+
+        
+
+        ////////////////////////////////////////////////////////////////////////////
+
+
+        $countryCode = await getCountryCode(c.latitude, c.longitude);
+        //console.log("Country name: "+$countryName);
+
         if(c.latitude === '27.09611' && c.longitude === '-13.41583') {
             $countryCode = 'EH';//W. Sahara
         } else if(c.countryName === 'Western Sahara') {
             $countryCode = 'EH'
         }
 
+        //fill country info table
         let $capital;
         let $list = await getCountryList();
         for(let $r = 0; $r < $list.length; $r++) {
@@ -77,76 +194,12 @@ $(document).ready(() => {
                 $capital = $list[$r]['capital'];
             }
         }
-        
-        //console.log("$countryName: "+$countryName);
-        let $coords = await getCountryBorder($countryCode);
-        //console.log("$coords: "+$coords);
-        /*
-        var latlngs = [
-            [40.743, -73.822],
-            [39.760979, -84.192200],
-            [54.464180, -110.182259]
-        ]
-        *
-        
-        for(let i = 0; i < $coords.length; i++) {
-            console.log($coords[i]);
-        }
-        */
 
-        //var polyline = L.polyline($coords, {color: 'red'}).addTo(mymap);
-        //console.log("X");
-        //console.log($coords[0]);
-        //var layerGroup = L.layerGroup().addTo(mymap);
-        //layerGroup.clearLayers();
-        //for(let i = 0; i < $coords.length; i++) {
-        //    marker = L.marker($coords[0]).addTo(layerGroup);
-        //}
 
-        //let $geojson = await countryOutline($countryName);
-        
-        //console.log("line 85: "+$countryName);
-        let $geojson = await getGeoJSON($countryCode);
 
-        
-
-        
-        //console.log("line 87: "+$countryName);
-        let addedGeoJSON = L.geoJSON($geojson, {
-            style : function(feature) {
-                return {
-                    color: 'green',
-                    weight: 0.7
-                }
-            }/*,
-            pointToLayer: function(geoJsonPoint, layer) {
-                return L.marker(latlng, {
-                    icon: 
-                });
-                
-            }*/
-        }).addTo(mymap);
-
-        let featureGroup = L.featureGroup([addedGeoJSON]).addTo(mymap);
-
-        mymap.fitBounds(featureGroup.getBounds()
-        /*, {
-            maxZoom
-        }*/
-        );//L.popup({maxWidth:500}).setContent("I am a standalone popup.")
-
-        let $obj = await getCountryBounds($countryCode);
+        $obj = await getCountryBounds($countryCode);
         let $places = await getPlaces($obj);
-        //let $countryInfo = await getAllGeonameCountries();
-        /*
-        console.log("places: "+$places[0]['toponymName']);
-        console.log("places: "+$places[0]['fcodeName']);
-        console.log("places: "+$places[0]['wikipedia']);
-        console.log("places: "+$places[0]['countrycode']);
-        console.log("places: "+$places[0]['geonameId']);
-        console.log("places: "+$places[0]['lng']);
-        console.log("places: "+$places[0]['lat']);
-        */
+        
         let myBlueIcon = L.icon({
             iconUrl: 'Images/my_blue_svg_icon.svg',
             iconSize: [24, 37.5],
@@ -180,7 +233,6 @@ $(document).ready(() => {
             shadowSize: [68, 95],
             shadowAnchor: [22, 94]
         */
-
         if($places!=null) {
         let popupContent; 
             for(let $i = 0; $i < $places.length; $i++) {
@@ -203,39 +255,84 @@ $(document).ready(() => {
                         title: $places[$i]['name'],
                         riseOnHover: true,
                         icon: myRedIcon
-                    }).bindPopup(popupContent, {minWidth: 350}).addTo(featureGroup);
+                    }).bindPopup(popupContent, {minWidth: 350});//.addTo(featureGroup);
+                    $placesArray.push($marker);
                 } else if($countryCode !== $places[$i]['countrycode']) {
                     let $marker = L.marker($places[$i], {
                         title: $places[$i]['name'],
                         riseOnHover: true,
                         icon: myBrownIcon
-                    }).bindPopup(popupContent, {minWidth: 350}).addTo(featureGroup);
+                    }).bindPopup(popupContent, {minWidth: 350});//.addTo(featureGroup);
+                    $placesArray.push($marker);
                 } else {
                     let $marker = L.marker($places[$i], {
                         title: $places[$i]['name'],
                         riseOnHover: true,
                         icon: myBlueIcon
-                    }).bindPopup(popupContent, {minWidth: 350}).addTo(featureGroup);
+                    }).bindPopup(popupContent, {minWidth: 350});//.addTo(featureGroup);
+                    $placesArray.push($marker);
                 }
                 
             }
        }
-        
-        
 
 
-        //$n, $s, $e, $w = 
-        /*
-        $bounds = getCountryBounds($countryName);
-        console.log($bounds);
-        mymap.fitBounds([
-            [$bounds[0], $bounds[3]],
-            [$bounds[1], $bounds[2]]
-        ]);
-        */
+        const $cities = L.layerGroup($placesArray);
+
+        const mymap = L.map('mapid', {
+            center: [c.latitude, c.longitude],
+            zoom: 2,
+            layers: [map1, $cities]
+        });
+
+
+        let $geojson = await getGeoJSON($countryCode);
+
+        let addedGeoJSON = L.geoJSON($geojson, {
+            style : function(feature) {
+                return {
+                    color: 'green',
+                    weight: 0.7
+                }
+            }
+        });//.addTo(mymap);
+
+        let featureGroup = L.featureGroup([addedGeoJSON]).addTo(mymap);
+
+        mymap.fitBounds(featureGroup.getBounds());
+
+       
         
+       var baseMaps = {
+            "Map_1": map1,
+            "Map_4": map4,
+            "Map_5": map5,
+            "Map_6": map6,
+            "Map_8": map8,
+            "Map_9": map9,
+            "map_10": map10
+        };//"Grayscale": grayscale, "Streets": streets
+        
+        var overlayMaps = {
+            "Cities": $cities
+        };
+
+        L.control.layers(baseMaps, overlayMaps).addTo(mymap);
         
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     async function getCountryName($countryCode) {
         try {

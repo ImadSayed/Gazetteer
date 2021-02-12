@@ -17,6 +17,7 @@ nav {
     position: relative; 
     width: 100%; 
     height: 95%;
+    overflow: hidden;
 }
 
 #mapid { 
@@ -86,3 +87,116 @@ nav {
     width: 99vw;
     border: 1px dashed darkblue;
 }
+
+
+/*Preloader*/
+.loaderDiv {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 11em;
+    position: absolute;
+    left: 45%;
+    top: 100px;
+    z-index: 300;
+    background-color: #fff;
+    border-radius: 15px;
+    border: 1px solid #888;
+
+}
+.loaderDiv > p {
+    font-size: large;
+    color: #000;
+    opacity: 0.5;
+    font-weight: 600;
+    text-align: center;
+}
+
+.loader,
+.loader:after {
+    border-radius: 50%;
+    width: 9em;
+    height: 9em;
+}
+.loader {
+    margin: 10px auto;
+    font-size: 10px;
+    text-indent: -9999em;
+    border-top: 1.1em solid rgba(255, 255, 255, 0.5);
+    border-right: 1.1em solid rgba(255, 255, 255, 0.5);
+    border-bottom: 1.1em solid rgba(255, 255, 255, 0.5);
+    border-left: 1.1em solid #888;
+    -webkit-transform: translateZ(0);
+    -ms-transform: translateZ(0);
+    transform: translateZ(0);
+    -webkit-animation: load8 1.1s infinite linear;
+    animation: load8 1.1s infinite linear;
+}
+@-webkit-keyframes load8 {
+  0% {
+    -webkit-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+  100% {
+    -webkit-transform: rotate(360deg);
+    transform: rotate(360deg);
+  }
+}
+@keyframes load8 {
+  0% {
+    -webkit-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+  100% {
+    -webkit-transform: rotate(360deg);
+    transform: rotate(360deg);
+  }
+}
+
+
+
+
+/*
+#preloader {  position: fixed;  
+    top: 0;  
+    left: 0;  
+    right: 0;  
+    bottom: 0;  
+    z-index: 9999;  
+    overflow: hidden;  
+    background: #000;
+}
+#preloader:before {  
+    content: "";  
+    position: fixed;  
+    top: calc(50% - 30px);  
+    left: calc(50% - 30px);  
+    border: 6px solid #f2f2f2;  
+    border-top: 6px solid #56829e ;  
+    border-radius: 50%;  
+    width: 60px;  
+    height: 60px;  
+    -webkit-animation: animate-preloader 1s linear infinite;  
+    animation: animate-preloader 1s linear infinite;
+}
+@-webkit-keyframes animate-preloader { 
+    0% {    
+        -webkit-transform: rotate(0deg);    
+        transform: rotate(0deg);  
+    }  100% {    
+        -webkit-transform: rotate(360deg);    
+        transform: rotate(360deg);  
+    }
+}
+@keyframes animate-preloader {  
+    0% {    
+        -webkit-transform: rotate(0deg);    
+        transform: rotate(0deg);  
+    }  
+    100% {    
+        -webkit-transform: rotate(360deg);    
+        transform: rotate(360deg);  
+    }
+}
+*/

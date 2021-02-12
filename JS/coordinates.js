@@ -4,7 +4,6 @@
 //import { Spinner } from './spin'
 
 $(document).ready(() => {
-    
     /*
     const $target = $('#spinner');
     
@@ -269,10 +268,6 @@ $(document).ready(() => {
             layers: [map1, $cities]
         });
 
-        
-        
-
-
         let $geojson = await getGeoJSON($countryCode);
 
         let addedGeoJSON = L.geoJSON($geojson, {
@@ -305,6 +300,9 @@ $(document).ready(() => {
         };
 
         L.control.layers(baseMaps, overlayMaps).addTo(mymap);
+
+        
+        $('.loaderDiv').css('display', 'none');
         
     }
 
@@ -618,8 +616,9 @@ $(document).ready(() => {
         */
 
        try {
-            console.log("COUNTRY NAME: "+$countryName);
-            console.log("COUNTRY CODE: "+$countryCode);
+            $('.loaderDiv').css('display', 'flex');
+            //console.log("COUNTRY NAME: "+$countryName);
+            //console.log("COUNTRY CODE: "+$countryCode);
             $result = await $.ajax({
                 url: "/map/PHP/getLatLong.php",
                 type: 'POST',
@@ -669,6 +668,7 @@ $(document).ready(() => {
     }
 
     async function begin() {
+        $('.loaderDiv').css('display', 'flex');
         let c = await get();
         main(c.coords);
     }

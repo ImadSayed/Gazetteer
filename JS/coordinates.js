@@ -34,9 +34,13 @@ $(document).ready(() => {
     */
 
     //let x = document.getElementById("coordinatesDiv");
+
+    //global variables
+
     let p;
     let mymap;
     let $countryListInfo;
+    let $currencyInfo;
 
     function getCurrentLocation() {
         
@@ -78,6 +82,8 @@ $(document).ready(() => {
         let $countryCode = await getCountryCode(c.latitude, c.longitude);
 
         let $countryBounds = await getCountryBounds($countryCode);
+
+        let $currencyCode;
 
         if(mymap) {
             mymap.remove();
@@ -194,11 +200,14 @@ $(document).ready(() => {
                 $('#mapInfoArea').html($list[$r]['areaInSqKm']);
                 $('#mapInfoLanguage').html($list[$r]['languages']);
                 $('#mapInfoCurrency').html($list[$r]['currencyCode']);
+                $currencyCode = $list[$r]['currencyCode'];
                 $capital = $list[$r]['capital'];
             }
         }
 
-
+        let $continue = await getExchangeRates($currencyCode);
+        let $newCurrencyCode = $('#CurrencyDropDown').val();
+        displayConversionRate($newCurrencyCode);
 
         //$obj = await getCountryBounds($countryCode);
         //let boundLayer = L.layerGroup();
@@ -369,8 +378,15 @@ $(document).ready(() => {
     }
 
     
-    async function displayConversionRate($countrycode) {
-        
+    async function displayConversionRate($currencyCode) {
+        try{
+            $displayRate = $currencyInfo['rates'][$currencyCode];
+            $('#mapInfoExRate').html($displayRate);
+        }
+        catch(err) {
+            console.error(err);
+        }
+
     }
 
     async function getIsoCode($countryCode) {
@@ -383,17 +399,18 @@ $(document).ready(() => {
         }
     }
 
-    async function getExchangeRates($isoCode) {
+    async function getExchangeRates($currencyCode) {
         try {
             const $rates = await $.ajax({
                 url: 'PHP/getOpenExchangeRates.php',
                 type: 'POST',
                 data: {
-                    isoCode: $isoCode
+                    currencyCode: $currencyCode
                 }
             });
             if($rates.status.name=='ok') {
-                return $rates['data'];
+                $currencyInfo = $rates['data'];
+                return true;
             }
         }
         catch(err) {
@@ -586,7 +603,7 @@ $(document).ready(() => {
 
                 $currencyArray.forEach(item => {
                     let $option = document.createElement('option');
-                    $option.value = item.isoCode;
+                    $option.value = item.currencyCode;//isoCode
                     let $optionText = document.createTextNode(item.countryName+" ("+item.currencyCode+")");
                     $option.appendChild($optionText);
                     $('#CurrencyDropDown').append($option);
@@ -596,12 +613,15 @@ $(document).ready(() => {
             $location = await get();//get current geo location
             $code = await getCountryCode($location.coords.latitude, $location.coords.longitude);//get countrycode from geo location
             $('#navDropDown option[value='+$code+']').attr('selected','selected');//set country as selected option on drop down list
-
+            /*
             let $c = 'United States';
             if($code === 'US') {
                 $c = 'United Kingdom';
             } 
             $("#CurrencyDropDown option:contains(" + $c +")").attr('selected','selected');
+            */
+            $currentCountry = await getCountryName($code);
+            $("#CurrencyDropDown option:contains(" + $currentCountry +")").attr('selected','selected');
         }
         catch(err) {
             console.error(err);
@@ -860,4 +880,10 @@ $(document).ready(() => {
         //console.log($('#navDropDown').val());
     });
     //console.log($('#navDropDown').val());
+    //displayConversionRate($('#CurrencyDropDown').val());
+    $('#CurrencyDropDown').on("change", () => {
+        displayConversionRate($('#CurrencyDropDown').val());
+    });
+
+
 });

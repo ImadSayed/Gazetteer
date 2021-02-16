@@ -11,7 +11,7 @@ https://openexchangerates.org/api/
 
     $executionStartTime = microtime(true) / 1000;
 
-    $url='https://openexchangerates.org/api/latest.json?app_id=YOUR_APP_ID&base='.$_REQUEST['isoCode'];//isoCode here must be 3-letter ISO code
+    $url='https://openexchangerates.org/api/latest.json?app_id=YOUR_APP_ID';//&base=GBP || base='.$_REQUEST['currencyCode'] //currency isocode cannot be changed on free plan
 
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);

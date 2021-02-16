@@ -368,6 +368,11 @@ $(document).ready(() => {
         
     }
 
+    
+    async function displayConversionRate($countrycode) {
+        
+    }
+
     async function getIsoCode($countryCode) {
         for(let $u=0; $u < $countryListInfo.length; $u++) {
             if($countryCode === $countryListInfo[$u]['countryCode']) {
@@ -602,7 +607,7 @@ $(document).ready(() => {
             console.error(err);
         }
     }
-    
+
     async function getCountryList() {
         try {
             $result = await $.ajax({

@@ -71,6 +71,8 @@ $(document).ready(() => {
 
         
         const $placesArray = [];
+        
+        const $boundsArray = [];
 
         let $countryCode = await getCountryCode(c.latitude, c.longitude);
 
@@ -200,6 +202,8 @@ $(document).ready(() => {
         //$obj = await getCountryBounds($countryCode);
         let $places = await getPlaces($obj);
 
+        //let boundLayer = L.layerGroup();
+
         
         const LeafIcon = L.Icon.extend({
             options: {
@@ -255,12 +259,42 @@ $(document).ready(() => {
                     }).bindPopup(popupContent, {minWidth: 350});//.addTo(featureGroup);
                     $placesArray.push($marker);
                 }
+
+                let $boundingbox = await getBoundingBox($places[$i]['lat'], $places[$i]['lng']);
+                //console.log("BoundingBox for "+$places[$i]['name']+": "+boundingbox['data']);
                 
+                /*//bounds
+                let p1 = L.point(boundingbox[0], boundingbox[1]),
+                    p2 = L.point(boundingbox[2], boundingbox[3]),
+                    bounds = L.bounds(p1, p2);
+                    
+                */
+
+                console.log($i);
+                console.log($boundingbox['boundingbox'][0]+", "+$boundingbox['boundingbox'][2]+", "+$boundingbox['boundingbox'][1]+", "+$boundingbox['boundingbox'][3]);
+                //let bounds = [[54.559322, -5.767822], [56.1210604, -3.021240]];
+                let $bounds = [[$boundingbox['boundingbox'][0], $boundingbox['boundingbox'][2]], [$boundingbox['boundingbox'][1], $boundingbox['boundingbox'][3]]];
+                let $rect = L.rectangle($bounds, {color: "#ff7800", weight: 20});//.addTo(mymap);
+                $boundsArray.push($rect);
+                //boundLayer.addLayer(rect);
+
+                //console.log("place: "+$places[$i]['name']);
+                //console.log("lat: "+$places[$i]['lat']);
+                //console.log("lng: "+$places[$i]['lng']);
+
+                //console.dir($boundingbox);
+                //console.log($boundingbox);
+                //console.log("Bounds: "+JSON.stringify(boundingbox));
+                //console.log("Bounds0: "+boundingbox[0]);
+                //console.log("Bounds1: "+boundingbox[1]);
+                //console.log("Bounds2: "+boundingbox[2]);
+                //console.log("Bounds3: "+boundingbox[3]);
             }
        }
 
 
         const $cities = L.layerGroup($placesArray);
+        const $boundsLayer = L.layerGroup($boundsArray);
 
         mymap = L.map('mapid', {
             center: [c.latitude, c.longitude],
@@ -296,7 +330,8 @@ $(document).ready(() => {
         };//"Grayscale": grayscale, "Streets": streets
         
         var overlayMaps = {
-            "Cities": $cities
+            "Cities": $cities,
+            "Bounds": $boundsLayer
         };
 
         L.control.layers(baseMaps, overlayMaps).addTo(mymap);
@@ -315,7 +350,29 @@ $(document).ready(() => {
 
 
 
+    async function getBoundingBox($lat, $lng) {
+        try {
+            let $boundingBox = await $.ajax({
+                url: "/WorldMap/PHP/getBoundingBox.php",
+                type: 'POST',
+                data: {
+                    la: $lat,
+                    ln: $lng
+                }
+            });
+            if($result.status.name == "ok") {
 
+
+                //console.log("Result: "+$result['data']);
+                //console.log("from Bounding Box");
+                //return $result['data'];//['data'];
+                return $boundingBox['data']; 
+            }  
+        }
+        catch(err) {
+            console.error(err);
+        }
+    }
 
 
 
@@ -343,7 +400,7 @@ $(document).ready(() => {
     async function getAllCountries() {
         try {
             $result = await $.ajax({
-                url: "/map/PHP/getAllCountries.php"
+                url: "/WorldMap/PHP/getAllCountries.php"
             });
             if($result.status.name == "ok") {
                 let arr = [];
@@ -396,7 +453,7 @@ $(document).ready(() => {
     async function getAllGeonameCountries() {
         try {
             $result = await $.ajax({
-                url: "/map/PHP/getCountryList.php"
+                url: "/WorldMap/PHP/getCountryList.php"
             });
             if($result.status.name == "ok") {
                 
@@ -447,7 +504,7 @@ $(document).ready(() => {
     async function getCountryList() {
         try {
             $result = await $.ajax({
-                url: "/map/PHP/getCountryList.php"
+                url: "/WorldMap/PHP/getCountryList.php"
             });
             if($result.status.name == "ok") {
                 return $result['data'];
@@ -463,7 +520,7 @@ $(document).ready(() => {
             //console.log("Lat: "+$lat);
             //console.log("Lng: "+$lng);
             $result = await $.ajax({
-                url: "/map/PHP/getCountryCode.php",
+                url: "/WorldMap/PHP/getCountryCode.php",
                 type: 'POST',
                 data: {
                     lat: $lat,
@@ -529,7 +586,7 @@ $(document).ready(() => {
         let $north, $south, $east, $west;
         try {
             $data = await $.ajax({
-            url: "/map/PHP/getCountryList.php",
+            url: "/WorldMap/PHP/getCountryList.php",
             type: 'POST'
             })
 
@@ -557,10 +614,10 @@ $(document).ready(() => {
 
     async function getPlaces($obj) {
         try {
-            console.log("OBJ north: "+$obj.north);
-            console.log("OBJ south: "+$obj.south);
-            console.log("OBJ east: "+$obj.east);
-            console.log("OBJ west: "+$obj.west);
+            //console.log("OBJ north: "+$obj.north);
+            //console.log("OBJ south: "+$obj.south);
+            //console.log("OBJ east: "+$obj.east);
+            //console.log("OBJ west: "+$obj.west);
             $results = await $.ajax({
                 url: "/map/php/getPlaces.php",
                 type: 'POST',
@@ -620,7 +677,7 @@ $(document).ready(() => {
             //console.log("COUNTRY NAME: "+$countryName);
             //console.log("COUNTRY CODE: "+$countryCode);
             $result = await $.ajax({
-                url: "/map/PHP/getLatLong.php",
+                url: "/WorldMap/PHP/getLatLong.php",
                 type: 'POST',
                 data: {
                     country: "'"+$countryName+"'",//encodeURIComponent($newName)//"'"+$newName+"'"

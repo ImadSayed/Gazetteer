@@ -28,4 +28,25 @@
 
 	echo json_encode($output); 
 
+	/*
+	//example result
+							areaInSqKm: "468.0"
+							capital: "Andorra la Vella"
+							continent: "EU"
+							continentName: "Europe"
+							countryCode: "AD"
+							countryName: "Andorra"
+							currencyCode: "EUR"
+							east: 1.786576000000025
+							fipsCode: "AN"
+							geonameId: 3041565
+							isoAlpha3: "AND"
+							isoNumeric: "020"
+							languages: "ca"
+							north: 42.65576500000003
+							population: "77006"
+							postalCodeFormat: "AD###"
+							south: 42.42874300100004
+							west: 1.4137600010000
+	*/
 ?>

@@ -1,6 +1,8 @@
 <?php
 	$executionStartTime = microtime(true) / 1000;
 
+	//echo "n: ".$_REQUEST['north'].", s: ".$_REQUEST['south'].", e: ".$_REQUEST['east'].", w: ".$_REQUEST['west'];
+
 	$url='http://api.geonames.org/citiesJSON?north='.$_REQUEST['north'].'&south='.$_REQUEST['south'].'&east='.$_REQUEST['east'].'&west='.$_REQUEST['west'].'&username=imadsayed';
 
 	$ch = curl_init();

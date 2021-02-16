@@ -36,6 +36,7 @@ $(document).ready(() => {
     //let x = document.getElementById("coordinatesDiv");
     let p;
     let mymap;
+    let $countryListInfo;
 
     function getCurrentLocation() {
         
@@ -76,7 +77,7 @@ $(document).ready(() => {
 
         let $countryCode = await getCountryCode(c.latitude, c.longitude);
 
-        let $obj = await getCountryBounds($countryCode);
+        let $countryBounds = await getCountryBounds($countryCode);
 
         if(mymap) {
             mymap.remove();
@@ -200,11 +201,7 @@ $(document).ready(() => {
 
 
         //$obj = await getCountryBounds($countryCode);
-        let $places = await getPlaces($obj);
-
         //let boundLayer = L.layerGroup();
-
-        
         const LeafIcon = L.Icon.extend({
             options: {
                 shadowUrl: 'Images/my_icon_shadow.svg',
@@ -218,10 +215,14 @@ $(document).ready(() => {
         
         const myBlueIcon = new LeafIcon({iconUrl: 'Images/my_blue_svg_icon.svg'}), 
         myBrownIcon = new LeafIcon({iconUrl: 'Images/my_brown_svg_icon.svg'}),
-        myRedIcon = new LeafIcon({iconUrl: 'Images/my_red_svg_icon.svg'});
+        myRedIcon = new LeafIcon({iconUrl: 'Images/my_red_svg_icon.svg'}),
+        myYellowIcon = new LeafIcon({iconUrl: 'Images/my_yellow_svg_icon.svg'});
+
+        
+        let $places = await getPlaces($countryBounds);
 
         if($places!=null) {
-        let popupContent; 
+            let popupContent; 
             for(let $i = 0; $i < $places.length; $i++) {
                 let $name = await getCountryName($places[$i]['countrycode']);
                 popupContent = ("<table>"+
@@ -261,45 +262,70 @@ $(document).ready(() => {
                 }
 
                 let $boundingbox = await getBoundingBox($places[$i]['lat'], $places[$i]['lng']);
-                //console.log("BoundingBox for "+$places[$i]['name']+": "+boundingbox['data']);
-                
-                /*//bounds
-                let p1 = L.point(boundingbox[0], boundingbox[1]),
-                    p2 = L.point(boundingbox[2], boundingbox[3]),
-                    bounds = L.bounds(p1, p2);
-                    
-                */
 
-                console.log($i);
-                console.log($boundingbox['boundingbox'][0]+", "+$boundingbox['boundingbox'][2]+", "+$boundingbox['boundingbox'][1]+", "+$boundingbox['boundingbox'][3]);
+                //console.log($i);
+                //console.log($boundingbox['boundingbox'][0]+", "+$boundingbox['boundingbox'][2]+", "+$boundingbox['boundingbox'][1]+", "+$boundingbox['boundingbox'][3]);
                 //let bounds = [[54.559322, -5.767822], [56.1210604, -3.021240]];
                 let $bounds = [[$boundingbox['boundingbox'][0], $boundingbox['boundingbox'][2]], [$boundingbox['boundingbox'][1], $boundingbox['boundingbox'][3]]];
                 let $rect = L.rectangle($bounds, {color: "#ff7800", weight: 20});//.addTo(mymap);
                 $boundsArray.push($rect);
-                //boundLayer.addLayer(rect);
-
-                //console.log("place: "+$places[$i]['name']);
-                //console.log("lat: "+$places[$i]['lat']);
-                //console.log("lng: "+$places[$i]['lng']);
-
-                //console.dir($boundingbox);
-                //console.log($boundingbox);
-                //console.log("Bounds: "+JSON.stringify(boundingbox));
-                //console.log("Bounds0: "+boundingbox[0]);
-                //console.log("Bounds1: "+boundingbox[1]);
-                //console.log("Bounds2: "+boundingbox[2]);
-                //console.log("Bounds3: "+boundingbox[3]);
             }
        }
 
+       /*
+       const $citties = await getAllCities($countryCode);
+       const $cityArray = [];
+       if($citties != null) {
+            let citypopupContent; 
+            console.log($citties);
+            
+            for(let $i = 0; $i < $citties['data'].length; $i++) {
+                let $n = $citties['data'][$i]['country'];
+                citypopupContent = ("<table>"+
+                    "<tr><th>Name:</th><td>"+$citties['data'][$i]['name']+"</td></tr>"+
+                    //"<tr><th>Name:</th><td>"+$places[$i]['toponymName']+"</td></tr>"+
+                    "<tr><th>Country:</th><td>"+$n+" ("+$citties['data'][$i]['countrycode']+")</td></tr>"+
+                    //"<tr><th>Entity:</th><td>"+$places[$i]['fcodeName']+"</td></tr>"+
+                    //"<tr><th>Population:</th><td>"+$places[$i]['population']+"</td></tr>"+
+                    "<tr><th>Region:</th><td>"+$citties['data'][$i]['region']+"</td></tr>"+
+                    "<tr><th>Latitude:</th><td>"+$citties['data'][$i]['latitude']+"</td></tr>"+
+                    "<tr><th>Longitude:</th><td>"+$citties['data'][$i]['longitude']+"</td></tr>"+
+                    //"<tr><th>Wikipedia:</th><td><a href='https://"+$places[$i]['wikipedia']+"' target='_blank'>"+$places[$i]['wikipedia']+"</a></td></tr>"+
+                    "</table>"
+                );
+                //console.log($citties['data'][$i]['country']);
 
-        const $cities = L.layerGroup($placesArray);
+                let $cityMarker = L.marker([$citties['data'][$i]['latitude'], $citties['data'][$i]['longitude']], {
+                    title: $citties['data'][$i]['name'],
+                    riseOnHover: true,
+                    icon: myYellowIcon
+                }).bindPopup(citypopupContent, {minWidth: 350});
+                $cityArray.push($cityMarker);
+            }
+            
+        }
+        */
+
+        /*
+        const $restCountries = await getRestCountries();
+        const $restArray = [];
+        if($restCountries != null) {
+            console.log("rest length: "+$restCountries.length);
+            console.log("rest results: "+$restCountries);
+
+        }
+        */
+
+        //console.log("length: "+$cityArray.length);
+
+        const $placesLayer = L.layerGroup($placesArray);
         const $boundsLayer = L.layerGroup($boundsArray);
+        //const $cities = L.layerGroup($cityArray);
 
         mymap = L.map('mapid', {
             center: [c.latitude, c.longitude],
             zoom: 2,
-            layers: [map1, $cities]
+            layers: [map1, $placesLayer]
         });
 
         let $geojson = await getGeoJSON($countryCode);
@@ -330,8 +356,9 @@ $(document).ready(() => {
         };//"Grayscale": grayscale, "Streets": streets
         
         var overlayMaps = {
-            "Cities": $cities,
-            "Bounds": $boundsLayer
+            "Places": $placesLayer,
+            "Bounds": $boundsLayer,
+            //"Cities": $cities
         };
 
         L.control.layers(baseMaps, overlayMaps).addTo(mymap);
@@ -341,12 +368,68 @@ $(document).ready(() => {
         
     }
 
+    async function getIsoCode($countryCode) {
+        for(let $u=0; $u < $countryListInfo.length; $u++) {
+            if($countryCode === $countryListInfo[$u]['countryCode']) {
+                return $countryListInfo[$u]['isoAlpha3'];
+            } else {
+                return null;
+            }
+        }
+    }
+
+    async function getExchangeRates($isoCode) {
+        try {
+            const $rates = await $.ajax({
+                url: 'PHP/getOpenExchangeRates.php',
+                type: 'POST',
+                data: {
+                    isoCode: $isoCode
+                }
+            });
+            if($rates.status.name=='ok') {
+                return $rates['data'];
+            }
+        }
+        catch(err) {
+            console.error(err);
+        }
+    }
+
+    async function getRestCountries() {
+        try {
+            const $rest = await $.ajax({
+                url: "PHP/getRestCountries.php"
+            });
+            if($rest.status.name == 'ok') {
+                return $rest['data'];
+            }
+        }
+        catch(err) {
+            console.error(err);
+            //console.log(err);
+        }
+    }
 
 
-
-
-
-
+    async function getAllCities($countryCode) {
+        try {
+            let $cities = await $.ajax({
+                url: "PHP/getAllCities.php",
+                type: 'POST',
+                data: {
+                    countryCode: $countryCode
+                }
+            });
+            if($cities.status.name == 'ok') {
+                return $cities['data'];
+            }
+        }
+        
+        catch(err) {
+            console.error(err);
+        }
+    }
 
 
 
@@ -457,13 +540,26 @@ $(document).ready(() => {
             });
             if($result.status.name == "ok") {
                 
+                $countryListInfo = $result['data'];//saves country list in globally declared variable
+
+                //below we populate the navDropDown list and the currencyDropDown list
+
                 $arr = [];
                 $codeArr = [];
+
+                $currencyArray = [];
+
                 for(let $o = 0; $o < $result['data'].length; $o++) {
                     $obj = {};
                     $obj['countryName'] = $result['data'][$o]['countryName'];
                     $obj['countryCode'] = $result['data'][$o]['countryCode'];
                     $arr.push($obj);
+
+                    $currencyObj = {};
+                    $currencyObj['countryName'] = $result['data'][$o]['countryName'];
+                    $currencyObj['isoCode'] = $result['data'][$o]['isoAlpha3'];
+                    $currencyObj['currencyCode'] = $result['data'][$o]['currencyCode'];
+                    $currencyArray.push($currencyObj);
 
                     //$arr.push($result['data'][$o]['countryName']);
                     //$codeArr.push($result['data'][$o]['countryCode']);
@@ -471,8 +567,10 @@ $(document).ready(() => {
                 $arr.sort((a,b) => {
                     return (a.countryName > b.countryName) ? 1 : -1;
                 });
-                //$arr.sort();
-                //$codeArr.sort();
+                $currencyArray.sort((a,b) => {
+                    return (a.countryName > b.countryName) ? 1 : -1;
+                });
+                
                 $arr.forEach(item => {
                     let $opt = document.createElement('option'); //create an option for the drop down list
                     $opt.value = item.countryCode;
@@ -481,20 +579,24 @@ $(document).ready(() => {
                     $('#navDropDown').append($opt);
                 });
 
-                /*
-                for(let $t=0; $t < $arr.length; $t++) {
-                    let $opt = document.createElement('option'); //create an option for the drop down list
-                    $opt.value = $codeArr[$t];
-                    let $text = document.createTextNode($arr[$t]);
-                    $opt.appendChild($text);
-                    $('#navDropDown').append($opt);
-                }
-                */
+                $currencyArray.forEach(item => {
+                    let $option = document.createElement('option');
+                    $option.value = item.isoCode;
+                    let $optionText = document.createTextNode(item.countryName+" ("+item.currencyCode+")");
+                    $option.appendChild($optionText);
+                    $('#CurrencyDropDown').append($option);
+                });
             
             }
             $location = await get();//get current geo location
             $code = await getCountryCode($location.coords.latitude, $location.coords.longitude);//get countrycode from geo location
             $('#navDropDown option[value='+$code+']').attr('selected','selected');//set country as selected option on drop down list
+
+            let $c = 'United States';
+            if($code === 'US') {
+                $c = 'United Kingdom';
+            } 
+            $("#CurrencyDropDown option:contains(" + $c +")").attr('selected','selected');
         }
         catch(err) {
             console.error(err);
@@ -504,7 +606,7 @@ $(document).ready(() => {
     async function getCountryList() {
         try {
             $result = await $.ajax({
-                url: "/WorldMap/PHP/getCountryList.php"
+                url: "PHP/getCountryList.php"
             });
             if($result.status.name == "ok") {
                 return $result['data'];
@@ -520,7 +622,7 @@ $(document).ready(() => {
             //console.log("Lat: "+$lat);
             //console.log("Lng: "+$lng);
             $result = await $.ajax({
-                url: "/WorldMap/PHP/getCountryCode.php",
+                url: "PHP/getCountryCode.php",
                 type: 'POST',
                 data: {
                     lat: $lat,
@@ -619,7 +721,7 @@ $(document).ready(() => {
             //console.log("OBJ east: "+$obj.east);
             //console.log("OBJ west: "+$obj.west);
             $results = await $.ajax({
-                url: "/map/php/getPlaces.php",
+                url: "PHP/getPlaces.php",
                 type: 'POST',
                 dataType: 'json',
                 data: {
@@ -635,7 +737,7 @@ $(document).ready(() => {
         }
         catch(err) {
             console.error(err);
-            console.log("status code: "+$results.status.code);
+
         }
     }
     
@@ -661,6 +763,7 @@ $(document).ready(() => {
 
 
 
+
     async function setNewCountry($countryCode, $countryName) {
         
         /*
@@ -673,9 +776,18 @@ $(document).ready(() => {
         */
 
        try {
+
+        
             $('.loaderDiv').css('display', 'flex');
-            //console.log("COUNTRY NAME: "+$countryName);
-            //console.log("COUNTRY CODE: "+$countryCode);
+
+            // 5 lines below set #currencyDropDown list value
+            let $c = 'United States';
+            if($countryCode === 'US') {
+                $c = 'United Kingdom';
+            } 
+            $("#CurrencyDropDown option:contains(" + $c +")").attr('selected','selected');
+
+            //below we set new country
             $result = await $.ajax({
                 url: "/WorldMap/PHP/getLatLong.php",
                 type: 'POST',

@@ -75,7 +75,7 @@ $(document).ready(() => {
         
 
         
-        const $placesArray = [];
+        const $citiesArray = [];
         
         const $boundsArray = [];
 
@@ -228,49 +228,49 @@ $(document).ready(() => {
         myYellowIcon = new LeafIcon({iconUrl: 'Images/my_yellow_svg_icon.svg'});
 
         
-        let $places = await getPlaces($countryBounds);
+        let $cities = await getPlaces($countryBounds);
 
-        if($places!=null) {
+        if($cities!=null) {
             let popupContent; 
-            for(let $i = 0; $i < $places.length; $i++) {
-                let $name = await getCountryName($places[$i]['countrycode']);
+            for(let $i = 0; $i < $cities.length; $i++) {
+                let $name = await getCountryName($cities[$i]['countrycode']);
                 popupContent = ("<table>"+
-                    "<tr><th>Name:</th><td>"+$places[$i]['name']+"</td></tr>"+
-                    //"<tr><th>Name:</th><td>"+$places[$i]['toponymName']+"</td></tr>"+
-                    "<tr><th>Country:</th><td>"+$name+" ("+$places[$i]['countrycode']+")</td></tr>"+
-                    "<tr><th>Entity:</th><td>"+$places[$i]['fcodeName']+"</td></tr>"+
-                    "<tr><th>Population:</th><td>"+$places[$i]['population']+"</td></tr>"+
-                    "<tr><th>Geo ID:</th><td>"+$places[$i]['geonameId']+"</td></tr>"+
-                    "<tr><th>Latitude:</th><td>"+$places[$i]['lat']+"</td></tr>"+
-                    "<tr><th>Longitude:</th><td>"+$places[$i]['lng']+"</td></tr>"+
-                    "<tr><th>Wikipedia:</th><td><a href='https://"+$places[$i]['wikipedia']+"' target='_blank'>"+$places[$i]['wikipedia']+"</a></td></tr>"+
+                    "<tr><th>Name:</th><td>"+$cities[$i]['name']+"</td></tr>"+
+                    //"<tr><th>Name:</th><td>"+$cities[$i]['toponymName']+"</td></tr>"+
+                    "<tr><th>Country:</th><td>"+$name+" ("+$cities[$i]['countrycode']+")</td></tr>"+
+                    "<tr><th>Entity:</th><td>"+$cities[$i]['fcodeName']+"</td></tr>"+
+                    "<tr><th>Population:</th><td>"+$cities[$i]['population']+"</td></tr>"+
+                    "<tr><th>Geo ID:</th><td>"+$cities[$i]['geonameId']+"</td></tr>"+
+                    "<tr><th>Latitude:</th><td>"+$cities[$i]['lat']+"</td></tr>"+
+                    "<tr><th>Longitude:</th><td>"+$cities[$i]['lng']+"</td></tr>"+
+                    "<tr><th>Wikipedia:</th><td><a href='https://"+$cities[$i]['wikipedia']+"' target='_blank'>"+$cities[$i]['wikipedia']+"</a></td></tr>"+
                     "</table>"
                     );
                 
-                if($capital === $places[$i]['name']) {
-                    let $marker = L.marker($places[$i], {
-                        title: $places[$i]['name'],
+                if($capital === $cities[$i]['name']) {
+                    let $marker = L.marker($cities[$i], {
+                        title: $cities[$i]['name'],
                         riseOnHover: true,
                         icon: myRedIcon
                     }).bindPopup(popupContent, {minWidth: 350});//.addTo(featureGroup);
-                    $placesArray.push($marker);
-                } else if($countryCode !== $places[$i]['countrycode']) {
-                    let $marker = L.marker($places[$i], {
-                        title: $places[$i]['name'],
+                    $citiesArray.push($marker);
+                } else if($countryCode !== $cities[$i]['countrycode']) {
+                    let $marker = L.marker($cities[$i], {
+                        title: $cities[$i]['name'],
                         riseOnHover: true,
                         icon: myBrownIcon
                     }).bindPopup(popupContent, {minWidth: 350});//.addTo(featureGroup);
-                    $placesArray.push($marker);
+                    $citiesArray.push($marker);
                 } else {
-                    let $marker = L.marker($places[$i], {
-                        title: $places[$i]['name'],
+                    let $marker = L.marker($cities[$i], {
+                        title: $cities[$i]['name'],
                         riseOnHover: true,
                         icon: myBlueIcon
                     }).bindPopup(popupContent, {minWidth: 350});//.addTo(featureGroup);
-                    $placesArray.push($marker);
+                    $citiesArray.push($marker);
                 }
 
-                let $boundingbox = await getBoundingBox($places[$i]['lat'], $places[$i]['lng']);
+                let $boundingbox = await getBoundingBox($cities[$i]['lat'], $cities[$i]['lng']);
 
                 //console.log($i);
                 //console.log($boundingbox['boundingbox'][0]+", "+$boundingbox['boundingbox'][2]+", "+$boundingbox['boundingbox'][1]+", "+$boundingbox['boundingbox'][3]);
@@ -327,14 +327,45 @@ $(document).ready(() => {
 
         //console.log("length: "+$cityArray.length);
 
-        const $placesLayer = L.layerGroup($placesArray);
+        let $towns = await getOpenWeatherMapCities(c.latitude, c.longitude);
+        const $townsArray = [];
+        if($towns != null) {
+            let citypopupContent; 
+            for(let $i = 0; $i < $towns.length; $i++) {
+                let $n = $towns[$i]['name'];
+                citypopupContent = ("<table>"+
+                    "<tr><th>Name:</th><td>"+$towns[$i]['name']+"</td></tr>"+
+                    "<tr><th>Latitude:</th><td>"+$towns[$i]['lat']+"</td></tr>"+
+                    "<tr><th>Longitude:</th><td>"+$towns[$i]['lon']+"</td></tr>"+
+                    "<tr><th>Country:</th><td>"+$towns[$i]['country']+"</td></tr>"+
+                    "</table>"
+                );
+                //console.log($towns['data'][$i]['country']);
+
+                let $townMarker = L.marker([$towns[$i]['lat'], $towns[$i]['lon']], {
+                    title: $towns[$i]['name'],
+                    riseOnHover: true,
+                    icon: myYellowIcon
+                }).bindPopup(citypopupContent, {minWidth: 350});
+                $townsArray.push($townMarker);
+            }
+        }
+
+
+
+
+
+
+
+        const $citiesLayer = L.layerGroup($citiesArray);
         const $boundsLayer = L.layerGroup($boundsArray);
         //const $cities = L.layerGroup($cityArray);
+        const $townsLayer = L.layerGroup($townsArray);
 
         mymap = L.map('mapid', {
             center: [c.latitude, c.longitude],
             zoom: 2,
-            layers: [map1, $placesLayer]
+            layers: [map1, $citiesLayer]
         });
 
         let $geojson = await getGeoJSON($countryCode);
@@ -365,8 +396,9 @@ $(document).ready(() => {
         };//"Grayscale": grayscale, "Streets": streets
         
         var overlayMaps = {
-            "Places": $placesLayer,
+            "Cities": $citiesLayer,
             "Bounds": $boundsLayer,
+            "Towns": $townsLayer
             //"Cities": $cities
         };
 
@@ -375,6 +407,33 @@ $(document).ready(() => {
         
         $('.loaderDiv').css('display', 'none');
         
+    }
+
+    async function getOpenWeatherMapCities($lat, $lng) {
+        try {
+            console.log("latitude: "+$lat+", logitude: "+$lng);
+            const $result = await $.ajax({
+                url: 'PHP/getOpenWeatherMapCities.php',
+                type: 'POST',
+                data: {
+                    lat: $lat,
+                    lng: $lng
+                }
+            });
+            //console.log($result.readyState);
+            //console.log($result);
+            
+            //console.log("RESULT: ");
+            //console.dir($result);
+            if($result.status.name=='ok') {
+                //console.log("results: "+$result['data']);
+                return $result['data'];
+            }
+            
+        }
+        catch(err) {
+            console.error(err);
+        }
     }
 
     

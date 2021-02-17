@@ -2,7 +2,9 @@
 //https://restcountries.eu/rest/v2/all
     $executionStartTime = microtime(true) / 1000;
 
-	$url='https://restcountries.eu/rest/v2/all?fields=name;capital;currencies';
+	//$url='https://restcountries.eu/rest/v2/all?fields=name;capital;currencies';
+    //$url='https://restcountries.eu/rest/v2/name/france?fullText=true';
+    $url='https://restcountries.eu/rest/v2/alpha/gb';
 
 	$ch = curl_init();
 	curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
@@ -37,6 +39,3 @@
 
 
 
-
-
-?>

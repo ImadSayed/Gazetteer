@@ -1,10 +1,14 @@
 <?php
 
 	//same as getCountryList.php
+
+	require 'myCredentials.php';
+
+	$username = $geonamesUsername;
 	
 	$executionStartTime = microtime(true) / 1000;
 
-	$url='http://api.geonames.org/countryInfoJSON?username=imadsayed';
+	$url='http://api.geonames.org/countryInfoJSON?username='.$username;
 
 	$ch = curl_init();
 	curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
@@ -12,9 +16,6 @@
 	curl_setopt($ch, CURLOPT_URL,$url);
 
 	$result=curl_exec($ch);
-	//echo '<script>';
-	//echo 'console.log('. $result  .')';
-	//echo '</script>';
 	
 	curl_close($ch);
 

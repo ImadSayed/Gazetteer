@@ -1,7 +1,7 @@
 <?php
 	$executionStartTime = microtime(true) / 1000;
 
-	$url='localhost/map/JSON/countryBorders.geo.json';
+	$url='../JSON/countryBorders.geo.json';
 
 	$ch = curl_init();
 	curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);

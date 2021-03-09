@@ -1,9 +1,13 @@
 <?php
 /*http://api.geonames.org/countryCode?lat=47.03&lng=10.2&username=demo*/
 
+require 'myCredentials.php';
+
+$username = $geonamesUsername;
+
 $executionStartTime = microtime(true) / 1000;
 
-$url='http://api.geonames.org/countryCodeJSON?lat='.$_REQUEST['lat'].'&lng='.$_REQUEST['lng'].'&username=imadsayed';
+$url='http://api.geonames.org/countryCodeJSON?lat='.$_REQUEST['lat'].'&lng='.$_REQUEST['lng'].'&username='.$username;
 
 $ch = curl_init();
 curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);

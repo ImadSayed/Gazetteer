@@ -1,12 +1,13 @@
 <?php
     //http://api.openweathermap.org/geo/1.0/reverse?lat={lat}&lon={lon}&limit={limit}&appid={API key}
 
-    //API_Key: {API key}
+    require 'myCredentials.php';
+
+    $key = $OpenWeatherMapKey;
 
     $executionStartTime = microtime(true) / 1000;
 
-	$url='http://api.openweathermap.org/geo/1.0/reverse?lat='.$_REQUEST['lat'].'&lon='.$_REQUEST{'lng'}.'&limit=100&appid={API key}';
-    //echo "lat: ".$_REQUEST['lat'].", lng: ".$_REQUEST['lng'];
+	$url='http://api.openweathermap.org/geo/1.0/reverse?lat='.$_REQUEST['lat'].'&lon='.$_REQUEST{'lng'}.'&limit=100&appid='.$key;
 
 	$ch = curl_init();
 	curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
@@ -16,8 +17,6 @@
 	$result=curl_exec($ch);
 	
 	curl_close($ch);
-
-    //echo "result: ".$result;
 
     $decode = json_decode($result,true);
 

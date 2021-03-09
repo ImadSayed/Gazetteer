@@ -2,7 +2,8 @@
 <html>
     <head>
         <meta charset="utf-8" >
-        <title>Geonames API Example</title>
+        <title>Gazetteer</title>
+        <link rel="shortcut icon" type="image/png" href="Images/world.png"/>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta name="keywords" content="geonames, geonames api, weather, places, timezone, imadsayed, imad sayed">
         <meta name="description" content="a basic website to display the most recent weather observations" >
@@ -16,6 +17,10 @@
         <link rel="stylesheet" type="text/css" href="./CSS/styles.css" />
         <link rel="stylesheet" type="text/css" href="./CSS/spin.css" />
 
+        <!-- Leafletjs MarkerCluster-->
+        <link rel="stylesheet" type="text/css" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" />
+        <link rel="stylesheet" type="text/css" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
+
         <!-- Leaflet css -->
 
         <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
@@ -27,55 +32,47 @@
             integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
             crossorigin=""></script>
 
+        <!--Easy Button-->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet-easybutton@2/src/easy-button.css">
 
+        <!--Font Awesome-->
+        <script src="https://kit.fontawesome.com/570b134712.js" crossorigin="anonymous"></script>
+
+        <!--Google Fonts-->
+        <!--
+        <link rel="preconnect" href="https://fonts.gstatic.com">
+        <link href="https://fonts.googleapis.com/css2?family=Lemonada:wght@400;500;600;700&display=swap" rel="stylesheet">
+        -->
     </head>
     <body>
         
-        <div class="mainDiv">
+        <div class="mainDiv container-fluid">
             <!--<div id="coordinatesDiv">xx</div>-->
             <!-- Navbar Component -->
-            <nav class="navbar navbar-expand-md navbar-light bg-light"><!--  sticky-top -->
-                <a class="navbar-brand" href="#">Boots N Straps</a>
+            <nav class="navbar navbar-expand-md navbar-light bg-light col-sm-12 row-sm-2">
+                <!--  sticky-top -->
+                <b class="navbar-brand appTitle" href="#">Gazetteer</b>
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
                 aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
                 </button>
 
-                <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                <ul class="navbar-nav mr-auto">
-                    <li class="nav-item active">
-                    <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
-                    </li>
-                    <li class="nav-item">
-                    <a class="nav-link" href="#">Boots</a>
-                    </li>
-                    <li>
-                        <select id="navDropDown" >
-                            
-                        </select>
-                    </li>
-                    <!--
-                    <li class="nav-item dropdown">
-                    </li>
-                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
-                        aria-haspopup="true" aria-expanded="false">
-                        Straps
-                    </a>
-                    
-                    <div class="dropdown-menu" aria-labelledby="navbarDropdown" id="navDropDown">
-                        <a class="dropdown-item" href="#">Nylon</a>
-                        <a class="dropdown-item" href="#">Leather</a>
-                        <a class="dropdown-item" href="#">Buckles</a>
-                    </div>
-                    </li>
-                    -->
-                </ul>
-                <!--
-                <form class="form-inline my-2 my-lg-0">
-                    <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
-                    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
-                </form>
-                -->
+                <div class="collapse navbar-collapse nav_countrySelectDiv" id="navbarSupportedContent">
+                    <ul class="navbar-nav mr-2">
+                        <li class="nav-item pr-1">
+                            Select A Country: 
+                        </li>
+                        <li>
+                            <select id="navDropDown" >
+                                
+                            </select>
+                        </li>
+                    </ul>
+                    <ul class="navbar-nav ml-auto mr-0 ">
+                        <li>
+                            <div><span id="exRate"></span><span id="currency"></span><span> = $1 (USD)</span></div>
+                        </li>
+                    </ul>
                 </div>
             </nav>
             <!-- End of navbar -->
@@ -87,30 +84,23 @@
                 <div class="loaderDiv">
                     <div class="loader">Loading...</div>
                     <p>Loading...</p>
+                    <div class="progressBarDiv">
+                        <div id="myBar" class="progressBar" style="height:24px;width:0"></div>
+                    </div>
                 </div>
+                <div class="widgetDiv">
+                    <div id="openweathermapwidget11" class="showDisplay">
+                        <div id="closeIconDiv" class="closeIconDiv hideDisplay">
+                            <!--<img class="closeImg" src="Images/close.png" alt="close icon" />-->
+                            <i class="fas fa-times"></i>
+                            <p class="closeP">Close</p>
+                        </div>
+                    </div>
+                </div>
+                <!--
                 <div id="mapInfo">
                     <table class="mapInfoTbl">
-                        <tr>
-                            <th>Country</th><td id="mapInfoCountry"></td>
-                        </tr>
-                        <tr>
-                            <th>Continent</th><td id="mapInfoContinent"></td>
-                        </tr>
-                        <tr>
-                            <th>Capital<div><img src="Images/my_red_icon.png" alt="red icon highlighting capital" class="mapInfoTblImg" /></div><td id="mapInfoCapital"></td>
-                        </tr>
-                        <tr>
-                            <th>Area In Sq Km</th><td id="mapInfoArea"></td>
-                        </tr>
-                        <tr>
-                            <th>Language</th><td id="mapInfoLanguage"></td>
-                        </tr>
-                        <tr>
-                            <th>Population</th><td id="mapInfoPopulation"></td>
-                        </tr>
-                        <tr>
-                            <th>Currency Code</th><td id="mapInfoCurrency"></td>
-                        </tr>
+                        
                         <tr>
                             <th>Select Country </th>
                             <td id="mapInfoConversion">
@@ -119,13 +109,10 @@
                                 </select>
                             </td>
                         </tr>
-                        <tr>
-                            <th>Exchange Rate ($1 USD)</th><td id="mapInfoExRate"></td>
-                        </tr>
 
                     </table>
                 </div>
-                
+                -->
             </div>
 
             <!--
@@ -180,7 +167,13 @@
         <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/spin.js/2.3.2/spin.min.js"></script>-->
         <script type="application/javascript" src="JS/jquery-2.2.3.min.js"></script>
         <script type="application/javascript" src="JS/mapScript.js"></script>
+        <script type="text/javascript" src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
+        <script src='//openweathermap.org/themes/openweathermap/assets/vendor/owm/js/d3.min.js'></script>
+        <script src="https://cdn.jsdelivr.net/npm/leaflet-easybutton@2/src/easy-button.js"></script>
+        <script src="JS/Polyline.encoded.js"></script>
+        <script src="JS/routeInstructionsOverlay.js"></script>
         <script type="application/javascript" src="JS/coordinates.js"></script>
+
 
     </body>
 </html>

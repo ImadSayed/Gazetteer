@@ -1,19 +1,11 @@
 <?php
-//echo "lat=".$_REQUEST['lat']."&lon=".$_REQUEST['lng'];
+require 'myCredentials.php';
 
-/*
-	CURLOPT_SSL_VERIFYHOST => 0,
-    CURLOPT_SSL_VERIFYPEER => 0,
-*/
-
+$APIKEY = $rapidAPIKEY;
 
 $executionStartTime = microtime(true) / 1000;
 
 $curl = curl_init();
-//".$_REQUEST['la']."
-//".$_REQUEST['ln']."
-//51.5085287758629
-//-0.125741958618164
 curl_setopt_array($curl, [
 	CURLOPT_URL => "https://forward-reverse-geocoding.p.rapidapi.com/v1/reverse?lat=".$_REQUEST['la']."&lon=".$_REQUEST['ln']."&format=json&accept-language=en&polygon_threshold=0.0",
 	CURLOPT_SSL_VERIFYHOST => 0,
@@ -27,7 +19,7 @@ curl_setopt_array($curl, [
 	CURLOPT_CUSTOMREQUEST => "GET",
 	CURLOPT_HTTPHEADER => [
 		"x-rapidapi-host: forward-reverse-geocoding.p.rapidapi.com",
-		"x-rapidapi-key: 96d9f588b9msh0530d69b07375e0p1d75d2jsn159acfb32dd0"
+		"x-rapidapi-key: ".$APIKEY
 	],
 ]);
 
@@ -39,14 +31,14 @@ curl_close($curl);
 if ($err) {
 	echo "cURL Error #:" . $err;
 } else {
-	//echo $response;
+	
 	$decode = json_decode($response,true);
 
 	$output['status']['code'] = "200";
 	$output['status']['name'] = "ok";
 	$output['status']['description'] = "places received";
 	$output['status']['returnedIn'] = (microtime(true) - $executionStartTime) / 1000 . " ms";
-	$output['data'] = $decode;//$response;//
+	$output['data'] = $decode;
 
 	header('Content-Type: application/json; charset=UTF-8');
 

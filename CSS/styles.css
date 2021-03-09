@@ -1,5 +1,7 @@
+@import url('https://fonts.googleapis.com/css2?family=Lemonada:wght@400;500;600;700&family=Roboto&display=swap');
+
 body {
-    
+    font-family: 'Roboto', sans-serif;
 }
 
 nav {
@@ -7,16 +9,33 @@ nav {
     height: 5%;
 }
 
+nav div ul li {
+    /*padding-top: 0px;*/
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+nav div ul li p {
+    padding: 0px;
+}
+
+.appTitle {
+    font-family: 'Lemonada', cursive;
+    font-weight: 600;
+}
+
 .mainDiv {
     position: relative; 
+    /*
     width: 100%; 
     height: 100vh;
+    */
 }
 
 .mapDiv {
     position: relative; 
     width: 100%; 
-    height: 95%;
+    height: 95vh;
     overflow: hidden;
 }
 
@@ -88,6 +107,217 @@ nav {
     border: 1px dashed darkblue;
 }
 
+/*Popup*/
+.tablePopup {
+    border: 1px solid #fff;
+    max-width: 250px;
+
+    margin: 0;
+
+}
+.tablePopup td, .tablePopup th {
+    font-size: small;
+    font-weight: 400;
+    font-family: 'Roboto', sans-serif;
+}
+
+.routeDirections {
+    height: 50px;
+    border: 1px solid #000;
+    text-align: center;
+    background-color: rgb(5, 163, 202);
+    color: #fff;
+    margin-bottom: 5px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    font-weight: 600;
+    border-radius: 10px;
+    padding-top: 10px;
+}
+.popupUL {
+    list-style: none;
+    padding-left: 0px;
+}
+.popupLI {
+    font-weight: 600;
+}
+.easyPopup {
+    max-width: 200px;
+    text-align: center;
+    font-weight: 500;
+}
+
+/*Maps control*/
+.mapStyle {
+    font-size: large;
+    font-weight: 600;
+    display: inline;
+}
+.roadMaps {
+    color: rgb(219, 3, 3);
+}
+.named {
+    color: rgb(52, 61, 61);
+}
+.nightTime {
+    color: rgb(18, 18, 150);
+}
+.railWay {
+    color: rgb(255, 69, 0);
+}
+.drawnBorders {
+    color: rgb(137, 190, 31);
+}
+.satellite {
+    color: rgb(116, 64, 4);
+}
+.citiesDiv {
+    color:rgb(7, 85, 230);
+}
+.circleMarker {
+    color: deeppink;
+}
+.owmLocations {
+    color:rgb(255, 136, 0);
+}
+.countiesDiv {
+    color: rgb(231, 4, 231);
+}
+.clusterMarkerDiv {
+    color: rgb(26, 156, 26);
+}
+
+
+/*Polyline*/
+.polyline {
+    z-index: 250;
+}
+.polyline:hover {
+    z-index: 300;
+    color: 'green'
+}
+/*Weather*/
+.widgetDiv {
+    position: absolute;
+    top: 0px;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    
+}
+#openweathermapwidget11 {
+    
+    position: absolute;
+    top: 0px;
+    width: fit-content;
+    /*
+    left: 20%;
+    top: 0;
+    /*
+    z-index: 200;
+    */
+}
+.hideDisplay{
+    
+    z-index: 0;
+    display: none;
+    
+}
+.showDisplay{    
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    z-index: 200;
+}
+.my_btn_element {
+    height: 50px;
+    border: 1px solid #000;
+    text-align: center;
+    background-color: rgb(5, 163, 202);
+    color: #fff;
+    margin-bottom: 5px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    font-size: small;
+    font-weight: 400;
+    border-radius: 20px;
+    padding-top: 10px;
+    padding-bottom: 5px;
+}
+.btnTD {
+    width: 100%;
+    text-align: center;
+    padding-top: 15px;
+    cursor: pointer;
+}
+.owmWidget {
+    position: relative;
+}
+.closeIconDiv {
+    align-items: center;
+    width: 20px;
+    position: absolute;
+    right: 20px;
+    top: 5px;
+    z-index: 400;
+    cursor: pointer;
+}
+
+.closeIconDiv:hover .closeP {
+    display: block;
+    /*position: absolute;*/
+}
+
+.closeImg {
+    width: 100%;
+}
+.closeP {
+    display: none;
+    font-weight: 600;
+    font-size: medium;
+    padding: 0px 5px;
+    margin-top: 0px;
+    color: #fff;
+    /*
+    -webkit-text-stroke-width: 0.6px;
+    -webkit-text-stroke-color: #fff;
+    */
+    background-color: #000;
+    border: 0.5px solid #fff;
+    border-radius: 15%;
+}
+
+/*Polygon*/
+.boundaryDiv {
+    height: 50px;
+    border: 1px solid #000;
+    text-align: center;
+    background-color: rgb(5, 163, 202);
+    color: #fff;
+    margin-bottom: 5px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    font-size: small;
+    font-weight: 400;
+    border-radius: 20px;
+    padding-top: 10px;
+}
+
+/*Exchange Rate*/
+#currency {
+    padding-right: 10px;
+}
+#exRate {
+    padding-right: 10px;
+}
 
 /*Preloader*/
 .loaderDiv {
@@ -97,7 +327,7 @@ nav {
     align-items: center;
     width: 11em;
     position: absolute;
-    left: 45%;
+    left: 20%;
     top: 100px;
     z-index: 300;
     background-color: #fff;
@@ -154,49 +384,18 @@ nav {
   }
 }
 
+.progressBarDiv {
+    width: 100%;
+    color:#000!important;
+    background-color:#f1f1f1!important;
+    border-bottom-right-radius: 15px;
+    border-bottom-left-radius: 15px;
+    overflow: hidden;
+}
+.progressBar {
+    color:#fff!important;
+    background-color:#4CAF50!important;
+    border-bottom-left-radius: 15px;
+}
 
 
-
-/*
-#preloader {  position: fixed;  
-    top: 0;  
-    left: 0;  
-    right: 0;  
-    bottom: 0;  
-    z-index: 9999;  
-    overflow: hidden;  
-    background: #000;
-}
-#preloader:before {  
-    content: "";  
-    position: fixed;  
-    top: calc(50% - 30px);  
-    left: calc(50% - 30px);  
-    border: 6px solid #f2f2f2;  
-    border-top: 6px solid #56829e ;  
-    border-radius: 50%;  
-    width: 60px;  
-    height: 60px;  
-    -webkit-animation: animate-preloader 1s linear infinite;  
-    animation: animate-preloader 1s linear infinite;
-}
-@-webkit-keyframes animate-preloader { 
-    0% {    
-        -webkit-transform: rotate(0deg);    
-        transform: rotate(0deg);  
-    }  100% {    
-        -webkit-transform: rotate(360deg);    
-        transform: rotate(360deg);  
-    }
-}
-@keyframes animate-preloader {  
-    0% {    
-        -webkit-transform: rotate(0deg);    
-        transform: rotate(0deg);  
-    }  
-    100% {    
-        -webkit-transform: rotate(360deg);    
-        transform: rotate(360deg);  
-    }
-}
-*/

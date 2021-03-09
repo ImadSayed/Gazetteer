@@ -1,8 +1,12 @@
 <?php
 
+	require 'myCredentials.php';
+
+	$username = $geonamesUsername;
+
 	$executionStartTime = microtime(true) / 1000;
 
-	$url='http://api.geonames.org/countryInfoJSON?username=imadsayed';
+	$url='http://api.geonames.org/countryInfoJSON?username='.$username;
 
 	$ch = curl_init();
 	curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);

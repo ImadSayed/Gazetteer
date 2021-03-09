@@ -1,9 +1,12 @@
 <?php
-/*http://api.geonames.org/searchJSON?*/ 
+
+require 'myCredentials.php';
+
+$username = $geonamesUsername;
 
 $executionStartTime = microtime(true) / 1000;
 
-$url='localhost/map/JSON/countryBorders.geo.json';
+$url='../JSON/countryBorders.geo.json';
 
 $ch = curl_init();
 curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
@@ -18,25 +21,9 @@ $decode = json_decode($result,true);
 
 $country = $_REQUEST['country'];
 $countryCode = $_REQUEST['countryCode'];
-//echo $country;
-/*
-$index = 0;
-$countryCode;
-
-for($n = 0; $n < sizeof($decode['features']); $n++) {
-    if($country === "'".$decode['features'][$n]['properties']['name']."'") {
-        $index = $n;
-        $countryCode = $decode['features'][$n]['properties']['iso_a2'];
-        //echo "index".$index."  -  cc: ".$countryCode;
-    } 
-}
-*/
-//echo "   afterwards";
-
-//echo "CC: ".$countryCode;
 
 $executionStartTime = microtime(true) / 1000;
-$url2='http://api.geonames.org/searchJSON?country='.$countryCode.'&maxRows=1&username=imadsayed';
+$url2='http://api.geonames.org/searchJSON?country='.$countryCode.'&maxRows=1&username='.$username;
 
 $ph = curl_init();
 curl_setopt($ph, CURLOPT_SSL_VERIFYPEER, false);
@@ -58,7 +45,6 @@ $output['data'] = $decode['geonames'];
 
 header('Content-Type: application/json; charset=UTF-8');
 
-//print_r("name: ".$country);
 echo json_encode($output); 
 
 ?>

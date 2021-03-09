@@ -4,14 +4,17 @@ https://openexchangerates.org/api/
                                     latest.json
                                     currencies.json
                                     historical/2013-02-16.json
-                                                                    ?app_id=YOUR_APP_ID         //
+                                                                    ?app_id=YOUR_APP_ID         
                                                                     &base=GBP
                                                                     &callback=someCallbackFunction
                                     */
+    require 'myCredentials.php';
+
+    $key = $openExchangeRatesAPIKEY;
 
     $executionStartTime = microtime(true) / 1000;
 
-    $url='https://openexchangerates.org/api/latest.json?app_id=YOUR_APP_ID';//&base=GBP || base='.$_REQUEST['currencyCode'] //currency isocode cannot be changed on free plan
+    $url='https://openexchangerates.org/api/latest.json?app_id='.$key;//&base=GBP || base='.$_REQUEST['currencyCode'] //currency isocode cannot be changed on free plan
 
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);

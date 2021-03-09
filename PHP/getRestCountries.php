@@ -17,14 +17,6 @@
 
     $decode = json_decode($result,true);
 
-    /*
-    $a = array();
-
-    for($i = 0; $i < sizeof($decode); $i++) {
-        array_push($a, $decode[$i]['name']);
-    }
-
-    */
 
 	$output['status']['code'] = "200";
 	$output['status']['name'] = "ok";

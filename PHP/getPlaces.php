@@ -1,9 +1,9 @@
 <?php
+	require 'myCredentials.php';
+	$username = $geonamesUsername;
 	$executionStartTime = microtime(true) / 1000;
 
-	//echo "n: ".$_REQUEST['north'].", s: ".$_REQUEST['south'].", e: ".$_REQUEST['east'].", w: ".$_REQUEST['west'];
-
-	$url='http://api.geonames.org/citiesJSON?north='.$_REQUEST['north'].'&south='.$_REQUEST['south'].'&east='.$_REQUEST['east'].'&west='.$_REQUEST['west'].'&username=imadsayed';
+	$url='http://api.geonames.org/citiesJSON?north='.$_REQUEST['north'].'&south='.$_REQUEST['south'].'&east='.$_REQUEST['east'].'&west='.$_REQUEST['west'].'&username='.$username;
 
 	$ch = curl_init();
 	curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
@@ -15,13 +15,6 @@
 	curl_close($ch);
 
     $decode = json_decode($result,true);
-    /*
-    if($decode['geonames']==='undefined') {
-        $decode['geonames'] = "nothing";
-    }
-    */
-    //echo $decode[0]['name'];
-    
 
 	$output['status']['code'] = "200";
 	$output['status']['name'] = "ok";
@@ -31,7 +24,6 @@
 	
 	header('Content-Type: application/json; charset=UTF-8');
 
-    //echo $decode['geonames'];
 	echo json_encode($output); 
 ?>
 

@@ -1,17 +1,17 @@
 <?php
 
-$hereAPIKEY = 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx';
+$hereAPIKEY = 'xxx';
                
 
-$openCageAPIKEY = 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx';
+$openCageAPIKEY = 'xxx';
 
-$universalAPIToken = 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx';
-$universalUserEmail = 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx';
+$universalAPIToken = 'xxx';
+$universalUserEmail = 'xxx';
 
-$geonamesUsername = 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx';
+$geonamesUsername = 'xxx';
 
-$rapidAPIKEY = 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx';
+$rapidAPIKEY = 'xxx';
 
-$OpenWeatherMapKey = 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx';
+$OpenWeatherMapKey = 'xxx';
 
-$openExchangeRatesAPIKEY = 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx';
+$openExchangeRatesAPIKEY = 'xxx';

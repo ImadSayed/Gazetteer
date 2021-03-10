@@ -1755,7 +1755,7 @@ $(document).ready(() => {
         document.getElementById('openweathermapwidget11').appendChild(div);
 
         window.myWidgetParam ? window.myWidgetParam : window.myWidgetParam = [];
-        window.myWidgetParam.push({id: 11,cityid: $id,appid: '7e76719165837bd7b020d8c33a8f0621',units: 'metric',containerid: $id  });  
+        window.myWidgetParam.push({id: 12,cityid: $id,appid: '7e76719165837bd7b020d8c33a8f0621',units: 'metric',containerid: $id  });  
         (function() {
             var script = document.createElement('script');
             script.async = true;

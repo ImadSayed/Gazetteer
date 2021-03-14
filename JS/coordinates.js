@@ -4,8 +4,9 @@ $(document).ready(() => {
     let $progress = 0;
     let p;
     let mymap;
-    let $countryListInfo;
+    //let $countryListInfo;//getCountryList return
     let $currencyInfo;
+    let $currencyCode;
     let $c;
     let $mapControl = null;
     let $globalFeatureGroup;
@@ -19,12 +20,37 @@ $(document).ready(() => {
     let $boundsArray = [];
     let $townsArray = [];
     let $capital;
-    let $countryCode;
+    let $countryCode;//used
+    let $countryName;//used
+
+    //country list
+    let $globalCountryList = [];//getCountryList return, assigned in getAllGeonameCountries
+    //countryList data
+    let $globalCountryData_areaInSqKm;
+    let $globalCountryData_capital;
+    let $globalCountryData_continent;
+    let $globalCountryData_continentName;
+    let $globalCountryData_countryCode;
+    let $globalCountryData_countryName;
+    let $globalCountryData_currencyCode;
+    let $globalCountryData_east;
+    let $globalCountryData_fipsCode;
+    let $globalCountryData_geonameId;
+    let $globalCountryData_isoAlpha3;
+    let $globalCountryData_isoNumeric;
+    let $globalCountryData_languages;
+    let $globalCountryData_north;
+    let $globalCountryData_population;
+    let $globalCountryData_postalCodeFormat;
+    let $globalCountryData_south;
+    let $globalCountryData_west;
 
     //global layers
     let $globalTownsLayerGroup = L.layerGroup();
     let $globalCitiesLayerGroup = L.layerGroup();
     let $globalBoundsLayerGroup = L.layerGroup();
+    let $globalClusterLayerGroup = L.layerGroup();
+    let $globalUniversalLayerGroup = L.layerGroup();
 
     //leaflet icon
     const LeafIcon = L.Icon.extend({
@@ -61,13 +87,6 @@ $(document).ready(() => {
             //x.innerHTML = "Geolocation is not supported by this browser.";
         }
     }
-
-    /*
-    function showPosition(position) {
-        //x.innerHTML = "Latitude: " + position.coords.latitude + 
-        //"<br>Longitude: " + position.coords.longitude;
-    }
-    */
     
     async function get() {
         p = await getCurrentLocation();//get current location
@@ -77,35 +96,82 @@ $(document).ready(() => {
 
     async function main(c) {
 
-        //let $t = await getHereToken();
-        //console.log("token");
-        //console.dir($t);
+        $globalCitiesLayerGroup.clearLayers();
+        $globalTownsLayerGroup.clearLayers();
+        $globalBoundsLayerGroup.clearLayers();
+        $globalClusterLayerGroup.clearLayers();
+        $globalUniversalLayerGroup.clearLayers();
 
         $c = c; //assign to global variable
 
-        addProgress(3);                                                                                     //addProgress(3);
+        addProgress(10);                                                                                     //addProgress(10);
         
-        //const $citiesArray = [];
-        
-        //const $boundsArray = [];
-
-        //let $townsArray = [];
 
         $countryCode = await getCountryCode(c.latitude, c.longitude);
-        let $countryName = c.countryName;
 
-        //get current country bounds N,E,S,W
-        let $countryBounds = await getCountryBounds($countryCode);
+        //fill country info table
+        let $countryData;
+        //let $continent, $population, $areaInSqKm, $languages;
+        let $list = await getCountryList();
+        for(let $r = 0; $r < $list.length; $r++) {
+            if($countryCode === $list[$r]['countryCode']) {
+                /*
+                $globalCountryData_areaInSqKm = $list[$r]['areaInSqKm'];
+                $globalCountryData_capital = $list[$r]['capital'];
+                $globalCountryData_continent = $list[$r]['continent'];
+                $globalCountryData_continentName = $list[$r]['continentName'];
+                $globalCountryData_countryCode = $list[$r]['countryCode'];
+                $globalCountryData_countryName = $list[$r]['countryName'];
+                $globalCountryData_currencyCode = $list[$r]['currencyCode'];
+                $globalCountryData_east = $list[$r]['east'];
+                $globalCountryData_fipsCode = $list[$r]['fipsCode'];
+                $globalCountryData_geonameId = $list[$r]['geonameId'];
+                $globalCountryData_isoAlpha3 = $list[$r]['isoAlpha3'];
+                $globalCountryData_isoNumeric = $list[$r]['isoNumeric'];
+                $globalCountryData_languages = $list[$r]['languages'];
+                $globalCountryData_north = $list[$r]['north'];
+                $globalCountryData_population = $list[$r]['population'];
+                $globalCountryData_postalCodeFormat = $list[$r]['postalCodeFormat'];
+                $globalCountryData_south = $list[$r]['south'];
+                $globalCountryData_west = $list[$r]['west'];
+                */
 
-        $globalCountryBounds = $countryBounds;
-        
+                $('#currency').html($list[$r]['currencyCode']); //nav bar right - display currency code
+
+                $currencyCode = $list[$r]['currencyCode'];  //used to fetch exchange rate
+                $capital = $list[$r]['capital'];            //used for capital marker icon
+                
+                //for EasyButton Popup
+                $countryData = (
+                    "<table>"+
+                    "<tr><th>Country Name:</th><td>"+$list[$r]['countryName']+"</td></tr>"+
+                    "<tr><th>Country Code:</th><td>"+$list[$r]['countryCode']+"</td></tr>"+
+                    "<tr><th>Capital:</th><td>"+$list[$r]['capital']+"</td></tr>"+
+                    "<tr><th>Population</th><td>"+$list[$r]['population']+"</td></tr>"+
+                    "<tr><th>Area In Sq Km:</th><td>"+$list[$r]['areaInSqKm']+"</td></tr>"+
+                    "<tr><th>Currency Code:</th><td>"+$list[$r]['currencyCode']+"</td></tr>"+
+                    "<tr><th>Continent:</th><td>"+$list[$r]['continentName']+"</td></tr>"+
+                    "</table>"
+                )
+            }
+        }
+
+
+
+
         if(c.latitude === '27.09611' && c.longitude === '-13.41583') {
             $countryCode = 'EH';//W. Sahara
         } else if(c.countryName === 'Western Sahara') {
             $countryCode = 'EH'
         }
 
-        let $currencyCode;
+
+        $countryName = await getCountryName($countryCode); //assigned to global variable
+
+        //get current country bounds N,E,S,W
+        let $countryBounds = await getCountryBounds($countryCode);
+
+        $globalCountryBounds = $countryBounds;
 
         if(mymap) {
             mymap.remove();
@@ -155,40 +221,7 @@ $(document).ready(() => {
         });
         /**----------------------------------------------------------------------------------------------------------------------------------------------------- */
 
-        addProgress(3);                                                                                     //addProgress(3);
-
-        /**---------------------------------------------------------------------------------DETAILS ON COUNTRY----------------------------------------------------------- */
-        //fill country info table
-        let $countryData;
-        let $capital, $continent, $population, $areaInSqKm, $languages;
-        let $list = await getCountryList();
-        for(let $r = 0; $r < $list.length; $r++) {
-            if($countryCode === $list[$r]['countryCode']) {
-
-                $('#currency').html($list[$r]['currencyCode']); //nav bar right - display currency code
-
-                $currencyCode = $list[$r]['currencyCode'];  //used to fetch exchange rate
-                $capital = $list[$r]['capital'];            //used for capital marker icon
-                
-                //for EasyButton Popup
-                $countryData = (
-                    "<table>"+
-                    "<tr><th>Country Name:</th><td>"+$list[$r]['countryName']+"</td></tr>"+
-                    "<tr><th>Country Code:</th><td>"+$list[$r]['countryCode']+"</td></tr>"+
-                    "<tr><th>Capital:</th><td>"+$list[$r]['capital']+"</td></tr>"+
-                    "<tr><th>Population</th><td>"+$list[$r]['population']+"</td></tr>"+
-                    "<tr><th>Area In Sq Km:</th><td>"+$list[$r]['areaInSqKm']+"</td></tr>"+
-                    "<tr><th>Currency Code:</th><td>"+$list[$r]['currencyCode']+"</td></tr>"+
-                    "<tr><th>Continent:</th><td>"+$list[$r]['continentName']+"</td></tr>"+
-                    //"<tr><th>Languages:</th><td>"+$list[$r]['languages']+"</td></tr>"+
-                    "</table>"
-                )
-            }
-        }
-
-        /**-------------------------------------------------------------------------------------------------------------------------------------------------------------- */
-
-        addProgress(5);                                                                                     //addProgress(5);
+        addProgress(10);                                                                                     //addProgress(10);
 
         /**-----------------------------------------------EXCHANGE RATES------------------------------------------------------------------- */
 
@@ -197,339 +230,34 @@ $(document).ready(() => {
 
         //allowance 1000 api requests per month (months starts 16th month)
 
-        //let $continue = await getExchangeRates($currencyCode);  //get exchange rate data and store in global variable
-        //displayConversionRate($currencyCode);   //display exchangeRate
+        let $continue = await getExchangeRates($currencyCode);  //get exchange rate data and store in global variable
+        displayConversionRate($currencyCode);   //display exchangeRate
 
-        addProgress(3);                                                                                     //addProgress(3);
+        addProgress(10);                                                                                     //addProgress(10);
 
-        //let $newCurrencyCode = $('#CurrencyDropDown').val();
+        //let $newCurrencyCode = $('#CurrencyDropDown').val();      //would use if we were able to change exchange rate base
         //displayConversionRate($newCurrencyCode);
         /**--------------------------------------------------------------------------------------------------------------------------------- */
 
 
-        /**----------------------------------------CUSTOM ICON------------------------------------------------- */
+        /**----------------------------------------CUSTOM ICON FOR ROUTES ------------------------------------------------- */
         
-        /*
-        const LeafIcon = L.Icon.extend({
-            options: {
-                shadowUrl: 'Images/my_icon_shadow.svg',
-                iconSize: [24, 37.5],
-                shadowSize: [18, 37.5],
-                iconAnchor: [12, 37.5],
-                shadowAnchor: [-4, 32],
-                popupAnchor: [0, -30],
-            }
-        }); 
-         */
-        //const myBlueIcon = new LeafIcon({iconUrl: 'Images/my_blue_svg_icon.svg'}), 
-        //myBrownIcon = new LeafIcon({iconUrl: 'Images/my_brown_svg_icon.svg'}),
-        //myRedIcon = new LeafIcon({iconUrl: 'Images/my_red_svg_icon.svg'}),
-        myPurpleIcon = new LeafIcon({iconUrl: 'Images/my_purple_svg_icon.svg'}),
-        //myOrangeIcon = new LeafIcon({iconUrl: 'Images/my_orange_svg_icon.svg'}),
         myDarkGreenIcon = new LeafIcon({iconUrl: 'Images/my_dark_green_svg_icon.svg'}),
         myPurpleIcon2 = new LeafIcon({iconUrl: 'Images/my_purple2_svg_icon.svg'});
-        /**----------------------------------------------------------------------------------------------------- */
 
-        addProgress(3);                                                                                     //addProgress(3);
 
+       /**-----------------------------------------------------------------GET CITIES & TOWNS for current location----------------------------------------------------- */
         
-        /**-----------------------------------------------------FETCH CITIES------------------------------------------------------------------- */
-        //using country Bounds
-        /*
-        let $cities = await getPlaces($countryBounds);
-        let $counter = 0;
-
-        while($cities == null && $counter < 5) {
-            $counter++;
-            addProgress(1);                                                                                 //addProgress(1)
-            $cities = await getPlaces($countryBounds);
-        }
-
-        addProgress(3);                                                                                     //addProgress(3);
-
-        /**-----------------------------------------------------MARKER PLACEMENTS------------------------------------------------------------------- 
-        
-        if($cities!=null) {
-            let popupContent; 
-            for(let $i = 0; $i < $cities.length; $i++) {
-
-                
-                let $cityWeatherResponse = await getCityWeatherDetails($cities[$i]['lat'],$cities[$i]['lng']);
-                let $cityID = $cityWeatherResponse.list[0].id;
-
-                let $wik = decodeURI($cities[$i]['wikipedia']);
-                let $name = await getCountryName($cities[$i]['countrycode']);
-                popupContent = ("<table class='tablePopup'>"+
-                    "<tr><th>Name:</th><td>"+$cities[$i]['name']+"</td></tr>"+
-                    "<tr><th>Country:</th><td>"+$name+" ("+$cities[$i]['countrycode']+")</td></tr>"+
-                    "<tr><th>Entity:</th><td>"+$cities[$i]['fcodeName']+"</td></tr>"+
-                    "<tr><th>Population:</th><td>"+$cities[$i]['population']+"</td></tr>"+
-                    "<tr><th>Latitude:</th><td>"+$cities[$i]['lat']+"</td></tr>"+
-                    "<tr><th>Longitude:</th><td>"+$cities[$i]['lng']+"</td></tr>"+
-                    "<tr><th>Wikipedia:</th><td><a href='https://"+$wik+"' target='_blank'>View Info</a></td></tr>"+//"+$cities[$i]['wikipedia']+"
-                    "<tr><td colspan='2' class='btnTD'>"+
-                        "<div class='my_btn_element' id='we"+$cityID+"' ><i id='ie"+$cityID+"' class='fas fa-cloud-sun-rain fa-lg'></i>  Check Local Weather</div>"+
-                        "<div class='boundaryDiv noBoundary' id='ub"+$cities[$i]['lng']+"_"+$cities[$i]['lat']+"'> View Boundary</div>"+//<i class='fas fa-border-style fa-lg'></i>
-                    "</td></tr>"+
-                    "</table>"
-                );
-
-
-                addProgress(1);                                                                                     //addProgress(1);
-
-
-                /* ----------------vvvvvvvv------------------------TOWNS---------------vvvvvvvv--------------------- 
-                //keep
-                
-                let $towns = await getOpenWeatherMapCities($cities[$i]['lat'], $cities[$i]['lng']);
-                //$townsArray = [];
-                if($towns != null) {
-                    let townpopupContent; 
-                    for(let $i = 0; $i < $towns.length; $i++) {
-
-                        let $townWeatherResponse = await getCityWeatherDetails($towns[$i]['lat'],$towns[$i]['lon']);
-
-                        let $townID = $townWeatherResponse.list[0].id;
-
-
-                        let $n = $towns[$i]['name'];
-                        townpopupContent = ("<table class='tablePopup'>"+
-                            "<tr><th>Name:</th><td>"+$towns[$i]['name']+"</td></tr>"+
-                            "<tr><th>Latitude:</th><td>"+$towns[$i]['lat']+"</td></tr>"+
-                            "<tr><th>Longitude:</th><td>"+$towns[$i]['lon']+"</td></tr>"+
-                            "<tr><th>Country:</th><td>"+$towns[$i]['country']+"</td></tr>"+
-                            "<tr><td colspan='2' class='btnTD'>"+
-                                "<div class='my_btn_element' id='we"+$townID+"' ><i id='ie"+$townID+"' class='fas fa-cloud-sun-rain fa-lg'></i>  Check Local Weather</div>"+
-                                "<div class='boundaryDiv noBoundary' id='tb"+$towns[$i]['lon']+"_"+$towns[$i]['lat']+"' >View Boundary</div>"+
-                            "</td></tr>"+
-                            "</table>"
-                        );
-                        let $townMarker = L.marker([$towns[$i]['lat'], $towns[$i]['lon']], {
-                            title: $towns[$i]['name'],
-                            riseOnHover: true,
-                            icon: myOrangeIcon
-                        }).bindPopup(townpopupContent, {maxWidth: "auto"});
-                        $townsArray.push($townMarker);
-
-
-
-                        addProgress(0.5);                                                                                     //addProgress(0.5);
-                    }
-                }
-                /* ----------------^^^^^^^^^^------------------------TOWNS---------------^^^^^^^^^^--------------------- 
-                
-                if($capital === $cities[$i]['name']) {
-                    let $marker = L.marker($cities[$i], {
-                        title: $cities[$i]['name'],
-                        riseOnHover: true,
-                        icon: myRedIcon
-                    }).bindPopup(popupContent, {maxWidth: 'auto'}).setZIndexOffset(100);//popupContent, {minWidth: 'auto'}
-                    $citiesArray.push($marker);
-                } else if($countryCode !== $cities[$i]['countrycode']) {
-                    let $marker = L.marker($cities[$i], {
-                        title: $cities[$i]['name'],
-                        riseOnHover: true,
-                        icon: myBrownIcon
-                    }).bindPopup(popupContent, {maxWidth: 'auto'}).setZIndexOffset(100);
-                    $citiesArray.push($marker);
-                } else {
-                    let $marker = L.marker($cities[$i], {
-                        title: $cities[$i]['name'],
-                        riseOnHover: true,
-                        icon: myBlueIcon
-                    }).bindPopup(popupContent, {maxWidth: 'auto'}).setZIndexOffset(100);
-                    $citiesArray.push($marker);
-                }
-                /* ----------------^^^^^^^^^^------------------------CITIES---------------^^^^^^^^^^--------------------- 
-
-                //let $boundingbox = await getBoundingBox($cities[$i]['lat'], $cities[$i]['lng']);
-                //let $bounds = [[$boundingbox['boundingbox'][0], $boundingbox['boundingbox'][2]], [$boundingbox['boundingbox'][1], $boundingbox['boundingbox'][3]]];
-                //let $rect = L.rectangle($bounds, {color: "deeppink", weight: 20});
-                //$boundsArray.push($rect);
-                let latlng = [$cities[$i]['lat'], $cities[$i]['lng']];
-                let $circle = L.circleMarker(latlng, {radius: 20, color: 'deeppink'})
-                $boundsArray.push($circle);
-
-                addProgress(1);                                                                                     //addProgress(1);
-
-            }
-       }
-
-       /**---------------------------------------------------------------------------------------------------------------------------------------------------- */
-
-       /**-----------------------------------------------------------------GET TOWNS for current location----------------------------------------------------- */
-        //keep
         fetchCitiesAndTowns();
         fetchLocalTowns();
-        /*
-        let $myTowns = await getOpenWeatherMapCities(c.latitude, c.longitude);
-        //$townsArray = [];
-        if($myTowns != null) {
-            let citypopupContent; 
-            for(let $i = 0; $i < $myTowns.length; $i++) {
 
-                let $myTownWeatherResponse = await getCityWeatherDetails($myTowns[$i]['lat'],$myTowns[$i]['lon']);
-                let $myTownID = $myTownWeatherResponse.list[0].id;
-
-                let $n = $myTowns[$i]['name'];
-                citypopupContent = ("<table class='tablePopup'>"+
-                    "<tr><th>Name:</th><td>"+$myTowns[$i]['name']+"</td></tr>"+
-                    "<tr><th>Latitude:</th><td>"+$myTowns[$i]['lat']+"</td></tr>"+
-                    "<tr><th>Longitude:</th><td>"+$myTowns[$i]['lon']+"</td></tr>"+
-                    "<tr><th>Country:</th><td>"+$myTowns[$i]['country']+"</td></tr>"+
-                    "<tr><td colspan='2' class='btnTD'>"+
-                                "<div class='my_btn_element' id='we"+$myTownID+"' ><i id='ye"+$myTownID+"' class='fas fa-cloud-sun-rain fa-lg'></i>  Check Local Weather</div>"+
-                                "<div class='boundaryDiv noBoundary' id='tb"+$myTowns[$i]['lon']+"_"+$myTowns[$i]['lat']+"'>View Boundary</div>"+
-                            "</td></tr>"+
-                    "</table>"
-                );
-                //console.log($towns['data'][$i]['country']);
-
-                let $townMarker = L.marker([$myTowns[$i]['lat'], $myTowns[$i]['lon']], {
-                    title: $myTowns[$i]['name'],
-                    riseOnHover: true,
-                    icon: myOrangeIcon
-                }).bindPopup(citypopupContent, {maxWidth: "auto"});
-                $townsArray.push($townMarker);
-            }
-        }
-        */
-
-        addProgress(2);                                                                                     //addProgress(2);
+        addProgress(10);                                                                                     //addProgress(10);
         
-        /**--------------------------------------------------------------------------------------------------------------------------------------------- */
-
-        //keep
-        //let $places = await getOpenCage(c.latitude, c.longitude);
-
         /**-----------------------------------------------------------UNIVERSAL STATES----------------------------------------------------------------- */
+        fetchUniversalStates();
+        //fetchTestData();
 
-        //$universalCountries = await getUniversalCountries();
-
-        $countryName = await getCountryName($countryCode);
-        
-        $universalStates = await getUniversalStates($countryName);
-        
-        //$placeData1 = await getOpenCage('Little Bollington', 'gb');
-        //console.dir($placeData1);
-        
-        const $markerCluster = L.markerClusterGroup();
-
-        $universalDataArray = []; 
-
-        /**--------------------------------------------------------------CLUSTERING & STATES----------------------------------------------------------------------- */
-        /*
-        for(let $e=0; $e < $universalStates.length; $e++) {
-            
-            const $stateName = $universalStates[$e].state_name;
-            
-            $placeData = await getOpenCage($stateName, $countryCode);
-
-                if($placeData.features.length > 0) {
-                    let $feature = $placeData.features[0];
-
-                    let $cityWeatherResults = await getCityWeatherDetails($feature.geometry.coordinates[1],$feature.geometry.coordinates[0]);
-                    let $cityId = $cityWeatherResults.list[0].id;
-                    
-                    let $featurePopup = ("<table class='tablePopup'>"+
-                    "<tr><th>Address:</th><td>"+$feature.properties.formatted+"</td></tr>"+
-                    "<tr><th>Type:</th><td>"+$feature.properties.components._type+"</td></tr>"+
-                    "<tr><th>Country:</th><td>"+$feature.properties.components.country+")</td></tr>"+
-                    "<tr><th>Latitude:</th><td>"+$feature.geometry.coordinates[0]+"</td></tr>"+
-                    "<tr><th>Longitude:</th><td>"+$feature.geometry.coordinates[1]+"</td></tr>"+
-                    "<tr><td colspan='2' class='btnTD'>"+
-                        "<div class='my_btn_element' id='ue"+$cityId+"' ><i id='eu"+$cityId+"' class='fas fa-cloud-sun-rain fa-lg'></i>Check Local Weather</div>"+
-                        "<div class='boundaryDiv noBoundary' id='vb"+$feature.geometry.coordinates[0]+"_"+$feature.geometry.coordinates[1]+"'>View Boundary</div>"+
-                    "</td></tr>"+
-                    "</table>"
-                    );
-
-                    function onEachFeature(feature, layer) {
-                        if (feature.properties) {
-                            layer.bindPopup($featurePopup, {maxWidth: "auto"});
-                        }
-                    }
-
-                    $markerCluster.addLayer(L.geoJSON($placeData.features[0], {
-                        onEachFeature: onEachFeature
-                    }));//[1],$placeData.features[0].geometry.coordinates[0]//.bindPopup($featurePopup, {minWidth: 350})
-                    //.bindPopup($featurePopup, {minWidth: 350})
-                    //.setZIndexOffset(50)
-                    
-                    let $markerGeoJSON = L.geoJSON($placeData.features[0], {
-                        onEachFeature: onEachFeature,
-                        pointToLayer: function (geoJsonPoint, latlng) {
-                            return L.marker(latlng, {icon: myPurpleIcon});
-                        }
-                    });
-
-                    $universalDataArray.push($markerGeoJSON);
-                    //$universalDataArray.push(L.marker($placeData.features[0].geometry.coordinates));//[1],$placeData.features[0].geometry.coordinates[0]//.bindPopup($featurePopup, {minWidth: 350})
-                } else {
-                    continue;
-                }
-
-            addProgress(0.2);                                                                                     //addProgress(0.2);
-               
-        }//end for
-
-        console.log("OpenCage Rate: "+$openCageRate);
-        //console.log("OpenCage Reset: "+$openCageReset);
-
-        /**--------------------------------------------------------------------Single Feature------------------------------------ */
-        /*
-        let $feature = $placeData1.features[0];
-
-        let $cityWeatherResults = await getCityWeatherDetails($feature.geometry.coordinates[1],$feature.geometry.coordinates[0]);
-        let $cityId = $cityWeatherResults.list[0].id;
-        
-        let $featurePopup = ("<table class='tablePopup'>"+
-            "<tr><th>Address:</th><td>"+$feature.properties.formatted+"</td></tr>"+
-            "<tr><th>Type:</th><td>"+$feature.properties.components._type+"</td></tr>"+
-            "<tr><th>Country:</th><td>"+$feature.properties.components.country+")</td></tr>"+
-            "<tr><th>Latitude:</th><td>"+$feature.geometry.coordinates[0]+"</td></tr>"+
-            "<tr><th>Longitude:</th><td>"+$feature.geometry.coordinates[1]+"</td></tr>"+
-            "<tr><td colspan='2' class='btnTD'>"+
-                //"<button type='submit' name='weatherBtn' value="+$cityId+" class='my_btn_element'>Check Local Weather</button>"+
-                "<div class='my_btn_element' id='we"+$cityId+"' ><i id='oe"+$cityId+"' class='fas fa-cloud-sun-rain fa-lg'></i>Check Local Weather</div>"+
-                "<div class='boundaryDiv noBoundary' id='vb"+$feature.geometry.coordinates[0]+"_"+$feature.geometry.coordinates[1]+"'>View Boundary</div>"+
-            "</td></tr>"+
-            "</table>"
-        );
-
-        function onEachFeature(feature, layer) {
-            if (feature.properties) {
-                layer.bindPopup($featurePopup, {maxWidth: "auto"});
-            }
-        }
-
-        let $placeGeoJSON = L.geoJSON($placeData1.features[0], {
-            //riseOnHover: true,
-            //icon: myPurpleIcon,
-            onEachFeature: onEachFeature,
-            pointToLayer: function (geoJsonPoint, latlng) {
-                return L.marker(latlng, {icon: myPurpleIcon});
-            }
-        });
-        $universalDataArray.push($placeGeoJSON);
-        /*
-
-        addProgress(5);                                                                                     //addProgress(5);
-
-
-        /**------------------------------------------------------------------------------------------------------------------------------------------------ */
-
-        const $universalLayer = L.layerGroup($universalDataArray);
-
-
-
-        /**------------------------------------------------------------CREATE MAP AND MAP CONTROL----------------------------------------------------- */
-        /**------------------------------------------------------------LAYER GROUPS & FEATURE GROUPS----------------------------------------------------- */
-        //const $citiesLayer = L.layerGroup($citiesArray);
-        //const $boundsLayer = L.layerGroup($boundsArray);
-        //const $cities = L.layerGroup($cityArray);
-        //const $townsLayer = L.layerGroup($townsArray);
-
+        /**-----------------------------------------------------------adding MAP----------------------------------------------------------------- */
         mymap = L.map('mapid', {
             center: [c.latitude, c.longitude],
             zoom: 2,
@@ -540,7 +268,7 @@ $(document).ready(() => {
 
         let $geojson = await getGeoJSON($countryCode);
 
-        addProgress(3);                                                                                     //addProgress(3);
+        addProgress(10);                                                                                     //addProgress(10);
         
         let addedGeoJSON = L.geoJSON($geojson, {
             style : function(feature) {
@@ -558,7 +286,7 @@ $(document).ready(() => {
 
         mymap.fitBounds(featureGroup.getBounds());
 
-        addProgress(3);                                                                                     //addProgress(3);
+        addProgress(10);                                                                                     //addProgress(10);
 
        var baseMaps = {
             "<div class='roadMaps mapStyle'>Road Map</div>": map1,
@@ -570,17 +298,17 @@ $(document).ready(() => {
         };
         
         var overlayMaps = {
-            "<div class='citiesDiv mapStyle'>Cities</div>": $globalCitiesLayerGroup,
-            "<div class='circleMarker mapStyle'>Circle Marker</div>": $globalBoundsLayerGroup,
-            "<div class='owmLocations mapStyle'>OWM Locations</div>": $globalTownsLayerGroup,
-            "<div class='countiesDiv mapStyle'>Counties</div>": $universalLayer,
-            "<div class='clusterMarkerDiv mapStyle'>Cluster Marker</div>": $markerCluster
+            "<div class='citiesDiv mapStyle'>Cities</div><div id='cities_lds' class='lds display_lds'><div class='lds-spinner'><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div></div>": $globalCitiesLayerGroup,
+            "<div class='circleMarker mapStyle'>Circle Marker</div><div id='circle_lds' class='lds display_lds'><div class='lds-spinner'><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div></div>": $globalBoundsLayerGroup,
+            "<div class='owmLocations mapStyle'>OWM Locations</div><div id='owm_lds' class='lds display_lds'><div class='lds-spinner'><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div></div>": $globalTownsLayerGroup,
+            "<div class='countiesDiv mapStyle'>States</div><div id='counties_lds' class='lds display_lds'><div class='lds-spinner'><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div></div>": $globalUniversalLayerGroup,
+            "<div class='clusterMarkerDiv mapStyle'>Cluster Marker</div><div id='cluster_lds' class='lds display_lds'><div class='lds-spinner'><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div></div>": $globalClusterLayerGroup
         };
 
         L.control.layers(baseMaps, overlayMaps).addTo(mymap);
 
 
-        addProgress(2);                                                                                     //addProgress(2);
+        addProgress(10);                                                                                     //addProgress(10);
 
 
         /**--------------------------------------------------EASY BUTTON For Country Info----------------------------------------------------- */
@@ -607,7 +335,7 @@ $(document).ready(() => {
             }]
         }).addTo(mymap);
 
-        addProgress(2);                                                                                     //addProgress(2);
+        addProgress(10);                                                                                     //addProgress(10);
 
         /**-------------------------------------------------EASY BUTTON For Creating Own Markers------------------------------------------------------------------------------- */
 
@@ -692,7 +420,7 @@ $(document).ready(() => {
                             
                             let $routeData = await getRoute($origin, $destination);
 
-                            addProgress(10);                                                            //addProgress(10)
+                            addProgress(20);                                                            //addProgress(20)
 
                             if($routeData.data == undefined ) {
                                 if(!$atLeast1) {
@@ -757,21 +485,12 @@ $(document).ready(() => {
 
                             }
 
-                            
                         }
 
                         if($progress < 80) {
                             $progress = 90;
                             addProgress(10);                                                                        //addProgress(10)
                         }
-
-                        /*
-                        function onEachMarker(feature, layer) {
-                            if (feature.properties) {
-                                layer.bindPopup($featurePopup, {maxWidth: "auto"});
-                            }
-                        }
-                        */
 
                         $myGlobalPolylineLayer.clearLayers();
                         if($ok) {
@@ -802,7 +521,7 @@ $(document).ready(() => {
             }]
         }).addTo(mymap);
 
-        addProgress(2);                                                                                     //addProgress(2);
+        addProgress(10);                                                                                     //addProgress(10);
 
         
 
@@ -841,8 +560,6 @@ $(document).ready(() => {
                     console.dir(err);
                 }
             });
-            //console.log("token: ");
-            //console.dir($result);
             return $result;
         }
         catch(err) {
@@ -1210,10 +927,6 @@ $(document).ready(() => {
                 }
                 /* ----------------^^^^^^^^^^------------------------CITIES---------------^^^^^^^^^^--------------------- */
 
-                //let $boundingbox = await getBoundingBox($cities[$i]['lat'], $cities[$i]['lng']);
-                //let $bounds = [[$boundingbox['boundingbox'][0], $boundingbox['boundingbox'][2]], [$boundingbox['boundingbox'][1], $boundingbox['boundingbox'][3]]];
-                //let $rect = L.rectangle($bounds, {color: "deeppink", weight: 20});
-                //$boundsArray.push($rect);
                 let latlng = [$cities[$i]['lat'], $cities[$i]['lng']];
                 let $circle = L.circleMarker(latlng, {radius: 20, color: 'deeppink'})
                 $boundsArray.push($circle);
@@ -1222,12 +935,18 @@ $(document).ready(() => {
        }
        $globalCitiesLayer = new L.layerGroup($citiesArray);
        $globalCitiesLayerGroup.addLayer($globalCitiesLayer);
+       document.getElementById('cities_lds').classList.remove('display_lds');
+       document.getElementById('cities_lds').classList.add('hide_lds');
        
        $globalTownsLayer = new L.layerGroup($townsArray);
        $globalTownsLayerGroup.addLayer($globalTownsLayer);
+       document.getElementById('owm_lds').classList.remove('display_lds');
+       document.getElementById('owm_lds').classList.add('hide_lds');
 
        $globalBoundsLayer = new L.layerGroup($boundsArray);
        $globalBoundsLayerGroup.addLayer($globalBoundsLayer);
+       document.getElementById('circle_lds').classList.remove('display_lds');
+       document.getElementById('circle_lds').classList.add('hide_lds');
        
     }
 
@@ -1270,7 +989,8 @@ $(document).ready(() => {
 
         $globalTownsLayer = new L.layerGroup($townsArray);
         $globalTownsLayerGroup.addLayer($globalTownsLayer);
-        //$townsArray.addTo($globalTownsLayer);
+        //document.getElementById('owm_lds').classList.remove('display_lds');
+        //document.getElementById('owm_lds').classList.add('hide_lds');
     }
 
     async function getCityWeatherDetails($lat, $lng) {
@@ -1291,26 +1011,6 @@ $(document).ready(() => {
             console.error(err);
         }
     }
-
-    /*
-    async function getUniversalCountries() {
-        try {
-            let $result = await $.ajax({
-                url: 'PHP/getUniversal.php',
-                type: 'POST',
-                data: {
-                    toGet: 'countries'
-                }
-            });
-            if($result.status.name=='ok') {
-                return $result['data'];
-            }
-        }
-        catch(err) {
-            console.error(err);
-        }
-    }
-    */
 
     async function getUniversalStates($countryName) {
         try {
@@ -1350,32 +1050,122 @@ $(document).ready(() => {
         }
     }
 
+    async function fetchUniversalStates() {
 
+        $universalStates = await getUniversalStates($countryName);
 
-    /*
-    async function getGeonamesPostcodes($n, $s, $e, $w) { //we've not used this
-        try {
-            const $res = await $.ajax({
-                url: 'PHP/getGeonamesPostcodes.php',
-                type: 'POST',
-                data: {
-                    north: $n,
-                    south: $s,
-                    east: $e,
-                    west: $w
+        let $markerCluster = L.markerClusterGroup();
+        $universalDataArray = []; 
+
+        myPurpleIcon = new LeafIcon({iconUrl: 'Images/my_purple_svg_icon.svg'});
+
+        for(let $e=0; $e < $universalStates.length; $e++) {
+            
+            const $stateName = $universalStates[$e].state_name;
+            
+            $placeData = await getOpenCage($stateName, $countryCode);
+
+                if($placeData.features.length > 0) {
+                    let $feature = $placeData.features[0];
+
+                    let $cityWeatherResults = await getCityWeatherDetails($feature.geometry.coordinates[1],$feature.geometry.coordinates[0]);
+                    let $cityId = $cityWeatherResults.list[0].id;
+                    
+                    let $featurePopup = ("<table class='tablePopup'>"+
+                    "<tr><th>Address:</th><td>"+$feature.properties.formatted+"</td></tr>"+
+                    "<tr><th>Type:</th><td>"+$feature.properties.components._type+"</td></tr>"+
+                    "<tr><th>Country:</th><td>"+$feature.properties.components.country+")</td></tr>"+
+                    "<tr><th>Latitude:</th><td>"+$feature.geometry.coordinates[0]+"</td></tr>"+
+                    "<tr><th>Longitude:</th><td>"+$feature.geometry.coordinates[1]+"</td></tr>"+
+                    "<tr><td colspan='2' class='btnTD'>"+
+                        "<div class='my_btn_element' id='ue"+$cityId+"' ><i id='eu"+$cityId+"' class='fas fa-cloud-sun-rain fa-lg'></i>Check Local Weather</div>"+
+                        "<div class='boundaryDiv noBoundary' id='vb"+$feature.geometry.coordinates[0]+"_"+$feature.geometry.coordinates[1]+"'>View Boundary</div>"+
+                    "</td></tr>"+
+                    "</table>"
+                    );
+
+                    function onEachFeature(feature, layer) {
+                        if (feature.properties) {
+                            layer.bindPopup($featurePopup, {maxWidth: "auto"});
+                        }
+                    }
+
+                    $markerCluster.addLayer(L.geoJSON($placeData.features[0], {
+                        onEachFeature: onEachFeature
+                    }));
+                    
+                    let $markerGeoJSON = L.geoJSON($placeData.features[0], {
+                        onEachFeature: onEachFeature,
+                        pointToLayer: function (geoJsonPoint, latlng) {
+                            return L.marker(latlng, {icon: myPurpleIcon});
+                        }
+                    });
+
+                    $universalDataArray.push($markerGeoJSON);
+                    
+                } else {
+                    continue;
                 }
-            });
-            if($res.status.name=='ok') {
-                //console.log("Geonames Postcodes");
-                //console.dir($res['data']);
-                return $res['data'];
+               
+        }//end for
+
+        $globalClusterLayerGroup.addLayer($markerCluster);
+        document.getElementById('cluster_lds').classList.remove('display_lds');
+        document.getElementById('cluster_lds').classList.add('hide_lds');
+
+        let $universalLayer = L.layerGroup($universalDataArray);
+        $globalUniversalLayerGroup.addLayer($universalLayer);
+        document.getElementById('counties_lds').classList.remove('display_lds');
+        document.getElementById('counties_lds').classList.add('hide_lds');
+
+        
+    }
+
+    async function fetchTestData() {
+
+        let $universalDataArray2 = [];
+        $placeData1 = await getOpenCage('Little Bollington', 'gb');
+        console.dir($placeData1);
+        myTestPurpleIcon = new LeafIcon({iconUrl: 'Images/my_purple_svg_icon.svg'});
+        
+        let $feature = $placeData1.features[0];
+
+        let $cityWeatherResults = await getCityWeatherDetails($feature.geometry.coordinates[1],$feature.geometry.coordinates[0]);
+        let $cityId = $cityWeatherResults.list[0].id;
+        
+        let $featurePopup = ("<table class='tablePopup'>"+
+            "<tr><th>Address:</th><td>"+$feature.properties.formatted+"</td></tr>"+
+            "<tr><th>Type:</th><td>"+$feature.properties.components._type+"</td></tr>"+
+            "<tr><th>Country:</th><td>"+$feature.properties.components.country+")</td></tr>"+
+            "<tr><th>Latitude:</th><td>"+$feature.geometry.coordinates[0]+"</td></tr>"+
+            "<tr><th>Longitude:</th><td>"+$feature.geometry.coordinates[1]+"</td></tr>"+
+            "<tr><td colspan='2' class='btnTD'>"+
+                "<div class='my_btn_element' id='we"+$cityId+"' ><i id='oe"+$cityId+"' class='fas fa-cloud-sun-rain fa-lg'></i>Check Local Weather</div>"+
+                "<div class='boundaryDiv noBoundary' id='vb"+$feature.geometry.coordinates[0]+"_"+$feature.geometry.coordinates[1]+"'>View Boundary</div>"+
+            "</td></tr>"+
+            "</table>"
+        );
+
+        function onEachFeature(feature, layer) {
+            if (feature.properties) {
+                layer.bindPopup($featurePopup, {maxWidth: "auto"});
             }
         }
-        catch(err) {
-            console.error(err);
-        }
+
+        let $placeGeoJSON = L.geoJSON($placeData1.features[0], {
+            onEachFeature: onEachFeature,
+            pointToLayer: function (geoJsonPoint, latlng) {
+                return L.marker(latlng, {icon: myTestPurpleIcon});
+            }
+        });
+        $universalDataArray2.push($placeGeoJSON);
+        let $universalLayer2 = L.layerGroup($universalDataArray2);
+        $globalUniversalLayerGroup.addLayer($universalLayer2);
+        document.getElementById('counties_lds').classList.remove('display_lds');
+        document.getElementById('counties_lds').classList.add('hide_lds');
+
+        console.log("OpenCage Rate: "+$openCageRate);
     }
-    */
 
     async function getOpenCage($placeName, $countryCode) {
         try {
@@ -1464,45 +1254,6 @@ $(document).ready(() => {
         }
     }
 
-    /*
-    async function getRestCountries() {
-        try {
-            //this only returns countries, no city info so will not be using
-            const $rest = await $.ajax({
-                url: "PHP/getRestCountries.php"
-            });
-            if($rest.status.name == 'ok') {
-                return $rest['data'];
-            }
-        }
-        catch(err) {
-            console.error(err);
-        }
-    }
-
-    /*
-    async function getAllCities($countryCode) {
-        try {
-            //Free service only returns 10 results so will not be using this.
-            let $cities = await $.ajax({
-                url: "PHP/getAllCities.php",
-                type: 'POST',
-                data: {
-                    countryCode: $countryCode
-                }
-            });
-            if($cities.status.name == 'ok') {
-                return $cities['data'];
-            }
-        }
-        
-        catch(err) {
-            console.error(err);
-        }
-    }
-    */
-
-
     async function getBoundingBox($lat, $lng) {
         try {
             let $boundingBox = await $.ajax({
@@ -1524,20 +1275,14 @@ $(document).ready(() => {
 
 
 
-    async function getCountryName($countryCode) {
-        try {
-            let $countryList = await getCountryList();
-            let $name = "country name not found";
-            for(let k = 0; k < $countryList.length; k++) {
-                if($countryCode === $countryList[k]['countryCode']) {
-                    $name = $countryList[k]['countryName'];
-                }
+    function getCountryName($countryCode) {
+        let $name = "country name not found";
+        for(let k = 0; k < $globalCountryList.length; k++) {
+            if($countryCode === $globalCountryList[k]['countryCode']) {
+                $name = $globalCountryList[k]['countryName'];
             }
-            return $name;
         }
-        catch(err) {
-            console.error(err);
-        }
+        return $name;
     }
 
     /*
@@ -1545,66 +1290,17 @@ $(document).ready(() => {
         let $geojson = await getGeoJSON($countryName);
         return $geojson;
     }
-
-    /*
-    async function getAllCountries() {
-        try {
-            $result = await $.ajax({
-                url: "/WorldMap/PHP/getAllCountries.php"
-            });
-            if($result.status.name == "ok") {
-                let arr = [];
-                //let codeArray = [];
-                for(let $o = 0; $o < $result['data'].length; $o++) {
-
-                    let $obj = {
-                        countryName: $result['data'][$o]['name'],
-                        countryCode: $result['data'][$o]['iso_a2']
-                    };
-                    arr[$result['data'][$o]['name']] = ($obj);
-                }
-                arr.sort();
-                //codeArray.sort();
-                //for(let $t=0; $t < arr.length; $t++) {
-                arr.forEach((key, value)=> {
-                    let $opt = document.createElement('option'); //create an option for the drop down list
-                    
-                    $opt.value = value.countryCode; //assign option value
-                    let $text = document.createTextNode(key);
-                    
-
-                    $opt.appendChild($text);
-                    $('#navDropDown').append($opt);
-                    console.log("opt: "+$opt);
-                })
-                  
-                
-
-                /**
-                 * let $opt = document.createElement('option'); //create an option for the drop down list
-                    //$a.value = result['data'][i]['countryCode']; //assign option value
-                    let $text = document.createTextNode($result['data'][$o]);
-                    $opt.appendChild($text);
-                    $('#navDropDown').append($opt);
-                 */
-                /*
-            }
-        }
-        catch(err) {
-            console.error(err);
-        }
-    }
     */
-
 
     async function getAllGeonameCountries() {
         try {
             $result = await $.ajax({
-                url: "/WorldMap/PHP/getCountryList.php"
+                url: "PHP/getCountryList.php"
+                //"/WorldMap/PHP/getCountryList.php"
             });
             if($result.status.name == "ok") {
-                
-                $countryListInfo = $result['data'];//saves country list in globally declared variable
+
+                $globalCountryList = $result['data'];//saves country list in globally declared variable
 
                 //below we populate the navDropDown list and the currencyDropDown list
 
@@ -1669,17 +1365,21 @@ $(document).ready(() => {
     }
 
     async function getCountryList() {
+        return $globalCountryList;
+        /*
         try {
             $result = await $.ajax({
                 url: "PHP/getCountryList.php"
             });
             if($result.status.name == "ok") {
+
                 return $result['data'];
             }
         }   
         catch(err) {
             console.error(err);
         }
+        */
     }
 
     async function getCountryCode($lat, $lng) {
@@ -1730,25 +1430,16 @@ $(document).ready(() => {
 
     async function getCountryBounds($countryCode) {
         let $north, $south, $east, $west;
-        try {
-            $data = await $.ajax({
-            url: "/WorldMap/PHP/getCountryList.php",
-            type: 'POST'
-            })
-            for(let i = 0; i < $data['data'].length; i++) {
-                if($countryCode === $data['data'][i]['countryCode']) {
-                    $north = $data['data'][i]['north'];
-                    $south = $data['data'][i]['south'];
-                    $east = $data['data'][i]['east'];
-                    $west = $data['data'][i]['west'];
-                }
+        for(let i = 0; i < $globalCountryList.length; i++) {
+            if($countryCode === $globalCountryList[i]['countryCode']) {
+                $north = $globalCountryList[i]['north'];
+                $south = $globalCountryList[i]['south'];
+                $east = $globalCountryList[i]['east'];
+                $west = $globalCountryList[i]['west'];
             }
-            $obj = {north: $north, south: $south, east: $east, west: $west};
-            return $obj;
         }
-        catch(err) {
-            console.error(err);
-        }
+        $obj = {north: $north, south: $south, east: $east, west: $west};
+        return $obj;
     }
 
     async function getPlaces($obj) {
@@ -1847,7 +1538,7 @@ $(document).ready(() => {
 
     async function begin() {
         $('.loaderDiv').css('display', 'flex');
-        let c = await get();
+        let c = await get();//get current location
         main(c.coords);
     }
     
@@ -1878,7 +1569,7 @@ $(document).ready(() => {
     //view place polygon
     $(document).on('click', '.boundaryDiv', async function(event) {
         let $id = event.target.id;
-        console.log("boundaryDiv id: "+$id);
+        //console.log("boundaryDiv id: "+$id);
         let $element = document.getElementById($id);
         
         let $str = $id.substring(2);

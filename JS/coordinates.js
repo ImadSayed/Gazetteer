@@ -25,25 +25,6 @@ $(document).ready(() => {
 
     //country list
     let $globalCountryList = [];//getCountryList return, assigned in getAllGeonameCountries
-    //countryList data
-    let $globalCountryData_areaInSqKm;
-    let $globalCountryData_capital;
-    let $globalCountryData_continent;
-    let $globalCountryData_continentName;
-    let $globalCountryData_countryCode;
-    let $globalCountryData_countryName;
-    let $globalCountryData_currencyCode;
-    let $globalCountryData_east;
-    let $globalCountryData_fipsCode;
-    let $globalCountryData_geonameId;
-    let $globalCountryData_isoAlpha3;
-    let $globalCountryData_isoNumeric;
-    let $globalCountryData_languages;
-    let $globalCountryData_north;
-    let $globalCountryData_population;
-    let $globalCountryData_postalCodeFormat;
-    let $globalCountryData_south;
-    let $globalCountryData_west;
 
     //global layers
     let $globalTownsLayerGroup = L.layerGroup();
@@ -115,26 +96,6 @@ $(document).ready(() => {
         let $list = await getCountryList();
         for(let $r = 0; $r < $list.length; $r++) {
             if($countryCode === $list[$r]['countryCode']) {
-                /*
-                $globalCountryData_areaInSqKm = $list[$r]['areaInSqKm'];
-                $globalCountryData_capital = $list[$r]['capital'];
-                $globalCountryData_continent = $list[$r]['continent'];
-                $globalCountryData_continentName = $list[$r]['continentName'];
-                $globalCountryData_countryCode = $list[$r]['countryCode'];
-                $globalCountryData_countryName = $list[$r]['countryName'];
-                $globalCountryData_currencyCode = $list[$r]['currencyCode'];
-                $globalCountryData_east = $list[$r]['east'];
-                $globalCountryData_fipsCode = $list[$r]['fipsCode'];
-                $globalCountryData_geonameId = $list[$r]['geonameId'];
-                $globalCountryData_isoAlpha3 = $list[$r]['isoAlpha3'];
-                $globalCountryData_isoNumeric = $list[$r]['isoNumeric'];
-                $globalCountryData_languages = $list[$r]['languages'];
-                $globalCountryData_north = $list[$r]['north'];
-                $globalCountryData_population = $list[$r]['population'];
-                $globalCountryData_postalCodeFormat = $list[$r]['postalCodeFormat'];
-                $globalCountryData_south = $list[$r]['south'];
-                $globalCountryData_west = $list[$r]['west'];
-                */
 
                 $('#currency').html($list[$r]['currencyCode']); //nav bar right - display currency code
 

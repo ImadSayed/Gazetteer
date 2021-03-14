@@ -6,6 +6,7 @@ $(document).ready(() => {
     let mymap;
     let $countryListInfo;
     let $currencyInfo;
+    let $c;
     let $mapControl = null;
     let $globalFeatureGroup;
     let $polygonLayer;
@@ -13,6 +14,29 @@ $(document).ready(() => {
     let $globalMarkerArray = [];
     let $openCageRate = 0;
     let $openCageReset = 0;
+    let $globalCountryBounds;
+    let $citiesArray = [];
+    let $boundsArray = [];
+    let $townsArray = [];
+    let $capital;
+    let $countryCode;
+
+    //global layers
+    let $globalTownsLayerGroup = L.layerGroup();
+    let $globalCitiesLayerGroup = L.layerGroup();
+    let $globalBoundsLayerGroup = L.layerGroup();
+
+    //leaflet icon
+    const LeafIcon = L.Icon.extend({
+        options: {
+            shadowUrl: 'Images/my_icon_shadow.svg',
+            iconSize: [24, 37.5],
+            shadowSize: [18, 37.5],
+            iconAnchor: [12, 37.5],
+            shadowAnchor: [-4, 32],
+            popupAnchor: [0, -30],
+        }
+    });
 
     //progressbar
     const elem = document.getElementById("myBar");   
@@ -53,19 +77,27 @@ $(document).ready(() => {
 
     async function main(c) {
 
+        //let $t = await getHereToken();
+        //console.log("token");
+        //console.dir($t);
+
+        $c = c; //assign to global variable
+
         addProgress(3);                                                                                     //addProgress(3);
         
-        const $citiesArray = [];
+        //const $citiesArray = [];
         
-        const $boundsArray = [];
+        //const $boundsArray = [];
 
-        let $townsArray = [];
+        //let $townsArray = [];
 
-        let $countryCode = await getCountryCode(c.latitude, c.longitude);
+        $countryCode = await getCountryCode(c.latitude, c.longitude);
         let $countryName = c.countryName;
 
         //get current country bounds N,E,S,W
         let $countryBounds = await getCountryBounds($countryCode);
+
+        $globalCountryBounds = $countryBounds;
         
         if(c.latitude === '27.09611' && c.longitude === '-13.41583') {
             $countryCode = 'EH';//W. Sahara
@@ -165,8 +197,8 @@ $(document).ready(() => {
 
         //allowance 1000 api requests per month (months starts 16th month)
 
-        let $continue = await getExchangeRates($currencyCode);  //get exchange rate data and store in global variable
-        displayConversionRate($currencyCode);   //display exchangeRate
+        //let $continue = await getExchangeRates($currencyCode);  //get exchange rate data and store in global variable
+        //displayConversionRate($currencyCode);   //display exchangeRate
 
         addProgress(3);                                                                                     //addProgress(3);
 
@@ -176,6 +208,8 @@ $(document).ready(() => {
 
 
         /**----------------------------------------CUSTOM ICON------------------------------------------------- */
+        
+        /*
         const LeafIcon = L.Icon.extend({
             options: {
                 shadowUrl: 'Images/my_icon_shadow.svg',
@@ -185,13 +219,13 @@ $(document).ready(() => {
                 shadowAnchor: [-4, 32],
                 popupAnchor: [0, -30],
             }
-        });
-        
-        const myBlueIcon = new LeafIcon({iconUrl: 'Images/my_blue_svg_icon.svg'}), 
-        myBrownIcon = new LeafIcon({iconUrl: 'Images/my_brown_svg_icon.svg'}),
-        myRedIcon = new LeafIcon({iconUrl: 'Images/my_red_svg_icon.svg'}),
+        }); 
+         */
+        //const myBlueIcon = new LeafIcon({iconUrl: 'Images/my_blue_svg_icon.svg'}), 
+        //myBrownIcon = new LeafIcon({iconUrl: 'Images/my_brown_svg_icon.svg'}),
+        //myRedIcon = new LeafIcon({iconUrl: 'Images/my_red_svg_icon.svg'}),
         myPurpleIcon = new LeafIcon({iconUrl: 'Images/my_purple_svg_icon.svg'}),
-        myOrangeIcon = new LeafIcon({iconUrl: 'Images/my_orange_svg_icon.svg'}),
+        //myOrangeIcon = new LeafIcon({iconUrl: 'Images/my_orange_svg_icon.svg'}),
         myDarkGreenIcon = new LeafIcon({iconUrl: 'Images/my_dark_green_svg_icon.svg'}),
         myPurpleIcon2 = new LeafIcon({iconUrl: 'Images/my_purple2_svg_icon.svg'});
         /**----------------------------------------------------------------------------------------------------- */
@@ -201,6 +235,7 @@ $(document).ready(() => {
         
         /**-----------------------------------------------------FETCH CITIES------------------------------------------------------------------- */
         //using country Bounds
+        /*
         let $cities = await getPlaces($countryBounds);
         let $counter = 0;
 
@@ -212,7 +247,7 @@ $(document).ready(() => {
 
         addProgress(3);                                                                                     //addProgress(3);
 
-        /**-----------------------------------------------------MARKER PLACEMENTS------------------------------------------------------------------- */
+        /**-----------------------------------------------------MARKER PLACEMENTS------------------------------------------------------------------- 
         
         if($cities!=null) {
             let popupContent; 
@@ -243,7 +278,7 @@ $(document).ready(() => {
                 addProgress(1);                                                                                     //addProgress(1);
 
 
-                /* ----------------vvvvvvvv------------------------TOWNS---------------vvvvvvvv--------------------- */
+                /* ----------------vvvvvvvv------------------------TOWNS---------------vvvvvvvv--------------------- 
                 //keep
                 
                 let $towns = await getOpenWeatherMapCities($cities[$i]['lat'], $cities[$i]['lng']);
@@ -265,7 +300,7 @@ $(document).ready(() => {
                             "<tr><th>Country:</th><td>"+$towns[$i]['country']+"</td></tr>"+
                             "<tr><td colspan='2' class='btnTD'>"+
                                 "<div class='my_btn_element' id='we"+$townID+"' ><i id='ie"+$townID+"' class='fas fa-cloud-sun-rain fa-lg'></i>  Check Local Weather</div>"+
-                                "<div class='boundaryDiv noBoundary' id='tb"+$towns[$i]['lon']+"_"+$towns[$i]['lat']+"'>View Boundary</div>"+
+                                "<div class='boundaryDiv noBoundary' id='tb"+$towns[$i]['lon']+"_"+$towns[$i]['lat']+"' >View Boundary</div>"+
                             "</td></tr>"+
                             "</table>"
                         );
@@ -281,7 +316,7 @@ $(document).ready(() => {
                         addProgress(0.5);                                                                                     //addProgress(0.5);
                     }
                 }
-                /* ----------------^^^^^^^^^^------------------------TOWNS---------------^^^^^^^^^^--------------------- */
+                /* ----------------^^^^^^^^^^------------------------TOWNS---------------^^^^^^^^^^--------------------- 
                 
                 if($capital === $cities[$i]['name']) {
                     let $marker = L.marker($cities[$i], {
@@ -305,11 +340,9 @@ $(document).ready(() => {
                     }).bindPopup(popupContent, {maxWidth: 'auto'}).setZIndexOffset(100);
                     $citiesArray.push($marker);
                 }
-                /* ----------------^^^^^^^^^^------------------------CITIES---------------^^^^^^^^^^--------------------- */
+                /* ----------------^^^^^^^^^^------------------------CITIES---------------^^^^^^^^^^--------------------- 
 
-                let $boundingbox = await getBoundingBox($cities[$i]['lat'], $cities[$i]['lng']);
-
-                
+                //let $boundingbox = await getBoundingBox($cities[$i]['lat'], $cities[$i]['lng']);
                 //let $bounds = [[$boundingbox['boundingbox'][0], $boundingbox['boundingbox'][2]], [$boundingbox['boundingbox'][1], $boundingbox['boundingbox'][3]]];
                 //let $rect = L.rectangle($bounds, {color: "deeppink", weight: 20});
                 //$boundsArray.push($rect);
@@ -326,7 +359,9 @@ $(document).ready(() => {
 
        /**-----------------------------------------------------------------GET TOWNS for current location----------------------------------------------------- */
         //keep
-        
+        fetchCitiesAndTowns();
+        fetchLocalTowns();
+        /*
         let $myTowns = await getOpenWeatherMapCities(c.latitude, c.longitude);
         //$townsArray = [];
         if($myTowns != null) {
@@ -358,6 +393,7 @@ $(document).ready(() => {
                 $townsArray.push($townMarker);
             }
         }
+        */
 
         addProgress(2);                                                                                     //addProgress(2);
         
@@ -382,7 +418,7 @@ $(document).ready(() => {
         $universalDataArray = []; 
 
         /**--------------------------------------------------------------CLUSTERING & STATES----------------------------------------------------------------------- */
-        
+        /*
         for(let $e=0; $e < $universalStates.length; $e++) {
             
             const $stateName = $universalStates[$e].state_name;
@@ -437,7 +473,7 @@ $(document).ready(() => {
                
         }//end for
 
-        //console.log("OpenCage Rate: "+$openCageRate);
+        console.log("OpenCage Rate: "+$openCageRate);
         //console.log("OpenCage Reset: "+$openCageReset);
 
         /**--------------------------------------------------------------------Single Feature------------------------------------ */
@@ -489,19 +525,18 @@ $(document).ready(() => {
 
         /**------------------------------------------------------------CREATE MAP AND MAP CONTROL----------------------------------------------------- */
         /**------------------------------------------------------------LAYER GROUPS & FEATURE GROUPS----------------------------------------------------- */
-        const $citiesLayer = L.layerGroup($citiesArray);
-        const $boundsLayer = L.layerGroup($boundsArray);
+        //const $citiesLayer = L.layerGroup($citiesArray);
+        //const $boundsLayer = L.layerGroup($boundsArray);
         //const $cities = L.layerGroup($cityArray);
-        const $townsLayer = L.layerGroup($townsArray);
+        //const $townsLayer = L.layerGroup($townsArray);
 
         mymap = L.map('mapid', {
             center: [c.latitude, c.longitude],
             zoom: 2,
-            layers: [map1, $citiesLayer]
+            layers: [map1, $globalCitiesLayerGroup]
         });
 
         $mapControl = mymap;
-        //console.dir($mapControl);
 
         let $geojson = await getGeoJSON($countryCode);
 
@@ -535,9 +570,9 @@ $(document).ready(() => {
         };
         
         var overlayMaps = {
-            "<div class='citiesDiv mapStyle'>Cities</div>": $citiesLayer,
-            "<div class='circleMarker mapStyle'>Circle Marker</div>": $boundsLayer,
-            "<div class='owmLocations mapStyle'>OWM Locations</div>": $townsLayer,
+            "<div class='citiesDiv mapStyle'>Cities</div>": $globalCitiesLayerGroup,
+            "<div class='circleMarker mapStyle'>Circle Marker</div>": $globalBoundsLayerGroup,
+            "<div class='owmLocations mapStyle'>OWM Locations</div>": $globalTownsLayerGroup,
             "<div class='countiesDiv mapStyle'>Counties</div>": $universalLayer,
             "<div class='clusterMarkerDiv mapStyle'>Cluster Marker</div>": $markerCluster
         };
@@ -598,10 +633,7 @@ $(document).ready(() => {
                     $instructPopup.setLatLng(mymap.getCenter()).openOn(mymap);
                     setTimeout(function() {
                         mymap.addEventListener('click',createMarkers);
-                    }, 500);
-                    setTimeout(function() {
-                        $instructPopup.removeFrom(mymap);
-                    }, 10000);
+                    }, 300);
 
                     control.state('GetRoute');
                     
@@ -611,13 +643,8 @@ $(document).ready(() => {
                 icon: '<i class="fas fa-route fa-lg"></i>',
                 title: 'Calculate Route',
                 onClick: async function(control) {
-                    
-                    //console.log("getRoute state btn just got clicked");
 
                     $viewRoutePopup.setLatLng(mymap.getCenter()).openOn(mymap);
-                    setTimeout(function() {
-                        $viewRoutePopup.removeFrom(mymap);
-                    }, 10000);
 
                     control.state('Stop');
                     let $ok = true;
@@ -662,6 +689,7 @@ $(document).ready(() => {
                                 lng: $globalMarkerArray[$hj+1][1]
                             }
 
+                            
                             let $routeData = await getRoute($origin, $destination);
 
                             addProgress(10);                                                            //addProgress(10)
@@ -799,9 +827,36 @@ $(document).ready(() => {
     
     /**---------------------------------------------------------------------API FUNCTIONS-------------------------------------------------------------------------- */
     
+    async function getHereToken() {
+        try {
+            let $result;
+            await $.ajax({
+                url: 'PHP/getHereToken.php',
+                type: 'POST',
+                success: function(res) {
+                    $result = res;
+                },
+                error: function(err) {
+                    console.log("getHereToken Error");
+                    console.dir(err);
+                }
+            });
+            //console.log("token: ");
+            //console.dir($result);
+            return $result;
+        }
+        catch(err) {
+            console.error(err);
+        }
+    }
 
     async function getRoute($origin, $destination) {
         try {
+
+            $access_token = await getHereToken();
+            if($access_token === null) {
+                return null;
+            }
             let $result;
             await $.ajax({
                 url: 'PHP/getRoute',
@@ -810,7 +865,8 @@ $(document).ready(() => {
                     originLat: $origin.lat,
                     originLng: $origin.lng,
                     destinationLat: $destination.lat,
-                    destinationLng: $destination.lng
+                    destinationLng: $destination.lng,
+                    access_token: $access_token
                 },
                 success: function (res) {
                     let $data = {
@@ -824,15 +880,6 @@ $(document).ready(() => {
                 }
             });
             return $result;
-            /*
-            if($result.status.name == 'ok') {
-                let $data = {
-                    polyline: $result['polyline'],
-                    data: $result['data']
-                };
-                return $data;
-            } 
-            */
         }
         catch(err) {
             console.error(err);
@@ -841,7 +888,7 @@ $(document).ready(() => {
 
     function createMarkers(e) {
         //console.log(e.latlng);
-        let popLocation = e.latlng;
+        //let popLocation = e.latlng;
         let marker = L.marker([e.latlng.lat, e.latlng.lng]).addTo($myGlobalPolylineLayer);//.addTo(myMarkersLayer);
         let coordinates = [marker.getLatLng().lat, marker.getLatLng().lng];
         $globalMarkerArray.push(coordinates);
@@ -933,12 +980,15 @@ $(document).ready(() => {
 
     async function getHereShapes($lat, $lng) {
         try {
-            $results = await $.ajax({
+            
+            let $access_token = await getHereToken();
+            let $results = await $.ajax({
                 url: 'PHP/getHere',
                 type: 'POST',
                 data: {
                     lat: $lat,
-                    lng: $lng
+                    lng: $lng,
+                    access_token: $access_token
                 }
             });
             if($results.status.name == 'ok') {
@@ -1050,6 +1100,177 @@ $(document).ready(() => {
         catch(err) {
             console.error(err);
         }
+    }
+
+    async function fetchCitiesAndTowns() {
+        let $cities = await getPlaces($globalCountryBounds);
+        let $counter = 0;
+
+        const myBlueIcon = new LeafIcon({iconUrl: 'Images/my_blue_svg_icon.svg'}), 
+        myBrownIcon = new LeafIcon({iconUrl: 'Images/my_brown_svg_icon.svg'}),
+        myRedIcon = new LeafIcon({iconUrl: 'Images/my_red_svg_icon.svg'}),
+        myOrangeIcon = new LeafIcon({iconUrl: 'Images/my_orange_svg_icon.svg'});
+
+        while($cities == null && $counter < 5) {
+            $counter++;
+            $cities = await getPlaces($globalCountryBounds);
+        }
+
+
+        /**-----------------------------------------------------MARKER PLACEMENTS------------------------------------------------------------------- */
+        $boundsArray = [];
+        $citiesArray = [];
+        $townsArray = [];
+
+
+        if($cities!=null) {
+            let popupContent; 
+            
+            for(let $i = 0; $i < $cities.length; $i++) {
+
+                
+                let $cityWeatherResponse = await getCityWeatherDetails($cities[$i]['lat'],$cities[$i]['lng']);
+                let $cityID = $cityWeatherResponse.list[0].id;
+
+                let $wik = decodeURI($cities[$i]['wikipedia']);
+                let $name = await getCountryName($cities[$i]['countrycode']);
+                popupContent = ("<table class='tablePopup'>"+
+                    "<tr><th>Name:</th><td>"+$cities[$i]['name']+"</td></tr>"+
+                    "<tr><th>Country:</th><td>"+$name+" ("+$cities[$i]['countrycode']+")</td></tr>"+
+                    "<tr><th>Entity:</th><td>"+$cities[$i]['fcodeName']+"</td></tr>"+
+                    "<tr><th>Population:</th><td>"+$cities[$i]['population']+"</td></tr>"+
+                    "<tr><th>Latitude:</th><td>"+$cities[$i]['lat']+"</td></tr>"+
+                    "<tr><th>Longitude:</th><td>"+$cities[$i]['lng']+"</td></tr>"+
+                    "<tr><th>Wikipedia:</th><td><a href='https://"+$wik+"' target='_blank'>View Info</a></td></tr>"+//"+$cities[$i]['wikipedia']+"
+                    "<tr><td colspan='2' class='btnTD'>"+
+                        "<div class='my_btn_element' id='we"+$cityID+"' ><i id='ie"+$cityID+"' class='fas fa-cloud-sun-rain fa-lg'></i>  Check Local Weather</div>"+
+                        "<div class='boundaryDiv noBoundary' id='ub"+$cities[$i]['lng']+"_"+$cities[$i]['lat']+"'> View Boundary</div>"+//<i class='fas fa-border-style fa-lg'></i>
+                    "</td></tr>"+
+                    "</table>"
+                );
+
+
+                /* ----------------vvvvvvvv------------------------TOWNS---------------vvvvvvvv--------------------- */
+                //keep
+                
+                let $towns = await getOpenWeatherMapCities($cities[$i]['lat'], $cities[$i]['lng']);
+                if($towns != null) {
+                    let townpopupContent; 
+                    for(let $i = 0; $i < $towns.length; $i++) {
+
+                        let $townWeatherResponse = await getCityWeatherDetails($towns[$i]['lat'],$towns[$i]['lon']);
+
+                        let $townID = $townWeatherResponse.list[0].id;
+
+
+                        let $n = $towns[$i]['name'];
+                        townpopupContent = ("<table class='tablePopup'>"+
+                            "<tr><th>Name:</th><td>"+$towns[$i]['name']+"</td></tr>"+
+                            "<tr><th>Latitude:</th><td>"+$towns[$i]['lat']+"</td></tr>"+
+                            "<tr><th>Longitude:</th><td>"+$towns[$i]['lon']+"</td></tr>"+
+                            "<tr><th>Country:</th><td>"+$towns[$i]['country']+"</td></tr>"+
+                            "<tr><td colspan='2' class='btnTD'>"+
+                                "<div class='my_btn_element' id='we"+$townID+"' ><i id='ie"+$townID+"' class='fas fa-cloud-sun-rain fa-lg'></i>  Check Local Weather</div>"+
+                                "<div class='boundaryDiv noBoundary' id='tb"+$towns[$i]['lon']+"_"+$towns[$i]['lat']+"' >View Boundary</div>"+
+                            "</td></tr>"+
+                            "</table>"
+                        );
+                        let $townMarker = L.marker([$towns[$i]['lat'], $towns[$i]['lon']], {
+                            title: $towns[$i]['name'],
+                            riseOnHover: true,
+                            icon: myOrangeIcon
+                        }).bindPopup(townpopupContent, {maxWidth: "auto"});
+                        $townsArray.push($townMarker);
+
+                    }
+                }
+                /* ----------------^^^^^^^^^^------------------------TOWNS---------------^^^^^^^^^^--------------------- */
+                
+                if($capital === $cities[$i]['name']) {
+                    let $marker = L.marker($cities[$i], {
+                        title: $cities[$i]['name'],
+                        riseOnHover: true,
+                        icon: myRedIcon
+                    }).bindPopup(popupContent, {maxWidth: 'auto'}).setZIndexOffset(100);//popupContent, {minWidth: 'auto'}
+                    $citiesArray.push($marker);
+                } else if($countryCode !== $cities[$i]['countrycode']) {
+                    let $marker = L.marker($cities[$i], {
+                        title: $cities[$i]['name'],
+                        riseOnHover: true,
+                        icon: myBrownIcon
+                    }).bindPopup(popupContent, {maxWidth: 'auto'}).setZIndexOffset(100);
+                    $citiesArray.push($marker);
+                } else {
+                    let $marker = L.marker($cities[$i], {
+                        title: $cities[$i]['name'],
+                        riseOnHover: true,
+                        icon: myBlueIcon
+                    }).bindPopup(popupContent, {maxWidth: 'auto'}).setZIndexOffset(100);
+                    $citiesArray.push($marker);
+                }
+                /* ----------------^^^^^^^^^^------------------------CITIES---------------^^^^^^^^^^--------------------- */
+
+                //let $boundingbox = await getBoundingBox($cities[$i]['lat'], $cities[$i]['lng']);
+                //let $bounds = [[$boundingbox['boundingbox'][0], $boundingbox['boundingbox'][2]], [$boundingbox['boundingbox'][1], $boundingbox['boundingbox'][3]]];
+                //let $rect = L.rectangle($bounds, {color: "deeppink", weight: 20});
+                //$boundsArray.push($rect);
+                let latlng = [$cities[$i]['lat'], $cities[$i]['lng']];
+                let $circle = L.circleMarker(latlng, {radius: 20, color: 'deeppink'})
+                $boundsArray.push($circle);
+
+            }
+       }
+       $globalCitiesLayer = new L.layerGroup($citiesArray);
+       $globalCitiesLayerGroup.addLayer($globalCitiesLayer);
+       
+       $globalTownsLayer = new L.layerGroup($townsArray);
+       $globalTownsLayerGroup.addLayer($globalTownsLayer);
+
+       $globalBoundsLayer = new L.layerGroup($boundsArray);
+       $globalBoundsLayerGroup.addLayer($globalBoundsLayer);
+       
+    }
+
+    async function fetchLocalTowns() {
+
+        let myOrangeIcon = new LeafIcon({iconUrl: 'Images/my_orange_svg_icon.svg'});
+        
+        let $myTowns = await getOpenWeatherMapCities($c.latitude, $c.longitude);
+        $townsArray = [];
+        if($myTowns != null) {
+            let citypopupContent; 
+            for(let $i = 0; $i < $myTowns.length; $i++) {
+
+                let $myTownWeatherResponse = await getCityWeatherDetails($myTowns[$i]['lat'],$myTowns[$i]['lon']);
+                let $myTownID = $myTownWeatherResponse.list[0].id;
+
+                let $n = $myTowns[$i]['name'];
+                citypopupContent = ("<table class='tablePopup'>"+
+                    "<tr><th>Name:</th><td>"+$myTowns[$i]['name']+"</td></tr>"+
+                    "<tr><th>Latitude:</th><td>"+$myTowns[$i]['lat']+"</td></tr>"+
+                    "<tr><th>Longitude:</th><td>"+$myTowns[$i]['lon']+"</td></tr>"+
+                    "<tr><th>Country:</th><td>"+$myTowns[$i]['country']+"</td></tr>"+
+                    "<tr><td colspan='2' class='btnTD'>"+
+                                "<div class='my_btn_element' id='we"+$myTownID+"' ><i id='ye"+$myTownID+"' class='fas fa-cloud-sun-rain fa-lg'></i>  Check Local Weather</div>"+
+                                "<div class='boundaryDiv noBoundary' id='tb"+$myTowns[$i]['lon']+"_"+$myTowns[$i]['lat']+"'>View Boundary</div>"+
+                            "</td></tr>"+
+                    "</table>"
+                );
+                //console.log($towns['data'][$i]['country']);
+
+                let $townMarker = L.marker([$myTowns[$i]['lat'], $myTowns[$i]['lon']], {
+                    title: $myTowns[$i]['name'],
+                    riseOnHover: true,
+                    icon: myOrangeIcon
+                }).bindPopup(citypopupContent, {maxWidth: "auto"});
+                $townsArray.push($townMarker);
+            }
+        }
+
+
+        $globalTownsLayer = new L.layerGroup($townsArray);
+        $globalTownsLayerGroup.addLayer($globalTownsLayer);
+        //$townsArray.addTo($globalTownsLayer);
     }
 
     async function getCityWeatherDetails($lat, $lng) {
@@ -1657,6 +1878,7 @@ $(document).ready(() => {
     //view place polygon
     $(document).on('click', '.boundaryDiv', async function(event) {
         let $id = event.target.id;
+        console.log("boundaryDiv id: "+$id);
         let $element = document.getElementById($id);
         
         let $str = $id.substring(2);

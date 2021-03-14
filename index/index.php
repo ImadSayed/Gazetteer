@@ -1,0 +1,1 @@
+<?php //header("Location: https://www.gazetteer.imadsayed.com/WorldMap/index.html"); ?>

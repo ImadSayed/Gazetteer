@@ -7,10 +7,19 @@
 
     $executionStartTime = microtime(true) / 1000;
 
+    
+    $header = array(
+        "Authorization: Bearer ".$_REQUEST['access_token'],
+        "Cache-Control: no-cache"
+    );
+
 	$ch = curl_init();
-	curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-	curl_setopt($ch, CURLOPT_URL,$url);
+    //curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_URL,$url);
+    curl_setopt($ch, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_1);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
 
 	$result=curl_exec($ch);
 	

@@ -1,12 +1,14 @@
 <?php
 
+namespace WorldMap\Traits;
+
 /**
  * Flexible Polyline Encoder
  *
  * @package FlexiblePolyline
  */
 
-namespace Heremaps\FlexiblePolyline\Traits;
+//namespace Heremaps\FlexiblePolyline\Traits;
 
 use Exception;
 

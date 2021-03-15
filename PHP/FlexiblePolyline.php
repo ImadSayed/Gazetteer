@@ -1,12 +1,13 @@
 <?php
 
-namespace Heremaps\FlexiblePolyline;
+namespace WorldMap;
+//namespace Heremaps\FlexiblePolyline;
 
-require 'Traits\DecodableTrait.php';
-require 'Traits\EncodableTrait.php';
+//require 'Traits\DecodableTrait.php';
+//require 'Traits\EncodableTrait.php';
 
-use Heremaps\FlexiblePolyline\Traits\DecodableTrait;
-use Heremaps\FlexiblePolyline\Traits\EncodableTrait;
+use WorldMap\Traits\DecodableTrait;
+use WorldMap\Traits\EncodableTrait;
 
 class FlexiblePolyline
 {

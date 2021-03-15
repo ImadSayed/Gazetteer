@@ -1,9 +1,11 @@
 <?php
 
+//namespace WorldMap;
 
+//use WorldMap\FlexiblePolyline;
 
 require 'myCredentials.php';
-require 'FlexiblePolyline.php';
+require 'XFlexiblePolylne.php';
 
 $APIKEY = $hereAPIKEY;
 
@@ -42,7 +44,7 @@ $decode = json_decode($result,true);
 
 $data = $decode["routes"][0]["sections"][0]["polyline"];
 
-$dataArray = FlexiblePolyline::decode($data);
+$dataArray = XFlexiblePolyline::decode($data);
 
 $output['status']['code'] = "200";
 $output['status']['name'] = "ok";

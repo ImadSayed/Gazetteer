@@ -6,7 +6,7 @@
  * @package FlexiblePolyline
  */
 
-namespace WorldMap\FlexiblePolyline\Traits;
+namespace Heremaps\FlexiblePolyline\Traits;
 
 use Exception;
 

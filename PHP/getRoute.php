@@ -1,7 +1,9 @@
 <?php
 
-require 'FlexiblePolyline.php';
+
+
 require 'myCredentials.php';
+require 'FlexiblePolyline.php';
 
 $APIKEY = $hereAPIKEY;
 
@@ -24,11 +26,12 @@ $header = array(
 );
 
 $ch = curl_init();
-//curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
 curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 curl_setopt($ch, CURLOPT_URL,$url);
 curl_setopt($ch, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_1);
+//curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'GET');
 curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
 
 $result=curl_exec($ch);
@@ -38,8 +41,6 @@ curl_close($ch);
 $decode = json_decode($result,true);
 
 $data = $decode["routes"][0]["sections"][0]["polyline"];
-
-
 
 $dataArray = FlexiblePolyline::decode($data);
 
@@ -53,3 +54,4 @@ $output['data'] = $decode;
 header('Content-Type: application/json; charset=UTF-8');
 
 echo json_encode($output);
+?>

@@ -3,7 +3,7 @@
 
     $APIKEY = $hereAPIKEY;
 
-    $url = 'https://reverse.geocoder.ls.hereapi.com/6.2/reversegeocode.json?prox='.$_REQUEST['lng'].','.$_REQUEST['lat'].'&mode=retrieveAddresses&maxresults=5&additionaldata=includeShapeLevel,postalCode&gen=9&apiKey='.$APIKEY;
+    $url = 'https://reverse.geocoder.ls.hereapi.com/6.2/reversegeocode.json?prox='.$_REQUEST['lng'].','.$_REQUEST['lat'].'&mode=retrieveAddresses&maxresults=5&additionaldata=includeShapeLevel,postalCode&gen=9';//&apiKey='.$APIKEY;
 
     $executionStartTime = microtime(true) / 1000;
 

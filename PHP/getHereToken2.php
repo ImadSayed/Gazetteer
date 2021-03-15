@@ -1,5 +1,5 @@
 <?php
-/*
+
 $needNewToken = true;
 //$domain = $_SERVER['HTTP_HOST'];
 //$mainDirectory = dirname(dirname($_SERVER['PHP_SELF']));
@@ -46,7 +46,7 @@ if ($typeLine != "") {
 }
 
 if($needNewToken) {
-*/
+
     require 'myCredentials.php';
                       
     $ACCESS_KEY_ID = $here_ACCESS_KEY_ID;
@@ -108,9 +108,6 @@ if($needNewToken) {
 
     $data = json_decode($response,true);
 
-    echo $data['access_token'];
-
-    /*
     $myfile = fopen($filePath, "w") or die("Unable to open file!");
     //die("Unable to open file!") returns false
 
@@ -139,6 +136,6 @@ if($needNewToken) {
     echo $accessToken;
 
 }
-*/
+
 
 ?>

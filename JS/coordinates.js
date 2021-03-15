@@ -215,7 +215,7 @@ $(document).ready(() => {
         addProgress(10);                                                                                     //addProgress(10);
         
         /**-----------------------------------------------------------UNIVERSAL STATES----------------------------------------------------------------- */
-        fetchUniversalStates();
+        //fetchUniversalStates();
         //fetchTestData();
 
         /**-----------------------------------------------------------adding MAP----------------------------------------------------------------- */
@@ -379,6 +379,8 @@ $(document).ready(() => {
                             }
 
                             
+                            addProgress(20);                                                            //addProgress(20)
+
                             let $routeData = await getRoute($origin, $destination);
 
                             addProgress(20);                                                            //addProgress(20)
@@ -532,12 +534,14 @@ $(document).ready(() => {
         try {
 
             $access_token = await getHereToken();
+            //console.log($access_token);
             if($access_token === null) {
+                console.log("access_token = null");
                 return null;
             }
             let $result;
             await $.ajax({
-                url: 'PHP/getRoute',
+                url: 'PHP/getRoute.php',
                 type: 'POST',
                 data: {
                     originLat: $origin.lat,
@@ -660,8 +664,9 @@ $(document).ready(() => {
         try {
             
             let $access_token = await getHereToken();
+            //console.log($access_token);
             let $results = await $.ajax({
-                url: 'PHP/getHere',
+                url: 'PHP/getHere.php',
                 type: 'POST',
                 data: {
                     lat: $lat,

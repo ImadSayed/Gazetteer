@@ -23,10 +23,12 @@
         <link rel="stylesheet" type="text/css" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
 
         <!-- Leaflet css -->
-
         <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
             integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
             crossorigin=""/>
+
+        <!-- Leaflet-extraMarkers -->
+        <link rel="stylesheet" href="CSS/leaflet.extra-markers.min.css">
 
         <!-- Leaflet js -->
         <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
@@ -50,8 +52,9 @@
         <div class="mainDiv fluid-container"><!-- -fluid -->
             <!--<div id="coordinatesDiv">xx</div>-->
             <!-- Navbar Component -->
+            <!--
             <nav class="navbar navbar-expand-md navbar-light bg-light col-sm-12 row-sm-2">
-                <!--  sticky-top -->
+                
                 <b class="navbar-brand appTitle" href="#">Gazetteer</b>
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
                 aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -76,7 +79,8 @@
                     </ul>
                 </div>
             </nav>
-            <!-- End of navbar -->
+            End of navbar 
+            -->
 
             <div class="mapDiv">
                 <div id="mapid" ></div>
@@ -87,6 +91,95 @@
                         <div id="myBar" class="progressBar" style="height:24px;width:0"></div>
                     </div>
                 </div>
+                <div class="CountriesDropDownListDiv">
+                    <select class="CountriesDropDownList" id="navDropDown" >
+                                
+                    </select>
+                </div>
+                <div id="countryData" class="modal" tabindex="-1">
+                    <div class="modal-dialog">
+                      <div class="modal-content">
+                        <div class="modal-header">
+                          <h5 id="countryName" class="modal-title"></h5>
+                          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                          </button>
+                        </div>
+                        <div class="modal-body">
+                            <table class="table table-striped">
+                                <tbody>
+                                    <tr><td>Population</td><td id="population"></td></tr>
+                                    <tr><td>Capital</td><td id="capital"></td></tr>
+                                    <tr><td>Currency</td><td id="currencies"></td></tr>
+                                    <tr><td>Exchange Rate</td><td id="exRate"></td></tr>
+                                    <tr><td>Borders</td><td><ul id="borders"></ul></td></tr>
+                                    <tr><td>Languages</td><td><ul id="languages"></ul></td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="modal-footer">
+                          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        </div>
+                      </div>
+                    </div>
+                </div>
+                <div id="covidCountryData" class="modal" tabindex="-1">
+                    <div class="modal-dialog">
+                      <div class="modal-content">
+                        <div class="modal-header">
+                          <h5 id="covidCountryName" class="modal-title"></h5>
+                          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                          </button>
+                        </div>
+                        <div class="modal-body">
+                            <table class="table table-striped">
+                                <tbody>
+                                    <tr><td>Date</td><td id="covidDate"></td></tr>
+                                    <tr><td>New Confirmed Cases</td><td id="covidNewCases"></td></tr>
+                                    <tr><td>New Deaths</td><td id="covidNewDeaths"></td></tr>
+                                    <tr><td>New Recovered</td><td id="covidNewRecovered"></td></tr>
+                                    <tr><td>Total Confirmed Cases</td><td><ul id="covidTotalCases"></ul></td></tr>
+                                    <tr><td>Total Deaths</td><td><ul id="covidTotalDeaths"></ul></td></tr>
+                                    <tr><td>Total Recovered</td><td><ul id="covidTotalRecovered"></ul></td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="modal-footer">
+                          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        </div>
+                      </div>
+                    </div>
+                </div>
+                <div id="newsData" class="modal" tabindex="-1">
+                    <div class="modal-dialog"><!-- .modal-dialog-scrollable-->
+                      <div class="modal-content">
+                        <div class="modal-header">
+                          <h5 id="newsCountryName" class="modal-title"></h5>
+                          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                          </button>
+                        </div>
+                        <div class="modal-body">
+                            <!--table class="table table-striped">
+                                <tbody id="newsBody">-->
+                                   <!-- <tr><td>Date</td><td id="newsDate"></td></tr> -->
+                                   <div class="accordion" id="newsBody">
+
+                                   </div>
+                                   
+                                    
+                                <!--</tbody>
+                            </table>-->
+                        </div>
+                        <div class="modal-footer">
+                          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        </div>
+                      </div>
+                    </div>
+                </div>
+
+
                 <div class="widgetDiv">
                     <div id="openweathermapwidget11" class="showDisplay">
                         <div id="closeIconDiv" class="closeIconDiv hideDisplay">
@@ -96,6 +189,7 @@
                         </div>
                     </div>
                 </div>
+
             </div>
         </div>
 
@@ -111,11 +205,13 @@
         <script type="application/javascript" src="JS/jquery-2.2.3.min.js"></script>
         <script type="application/javascript" src="Bootstrap/js/bootstrap.bundle.min.js"></script>
 
-
+        jquery-ui.min
+        <script type="text/javascript" src="JS/jquery-ui.min.js"></script>
         <script type="text/javascript" src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
         <script src='//openweathermap.org/themes/openweathermap/assets/vendor/owm/js/d3.min.js'></script>
         <script src="https://cdn.jsdelivr.net/npm/leaflet-easybutton@2/src/easy-button.js"></script>
         <script src="JS/routeInstructionsOverlay.js"></script>
+        <script src="JS/leaflet.extra-markers.min.js"></script>
         <script type="application/javascript" src="JS/coordinates.js"></script>
 
 

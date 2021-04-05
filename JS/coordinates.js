@@ -19,7 +19,14 @@ $(document).ready(() => {
     let $citiesArray = [];
     let $boundsArray = [];
     let $townsArray = [];
+
     let $capital;
+    let $population;
+    let $currency;
+    let $borders = [];
+    let $languages = [];
+    let $restCountryName;
+
     let $countryCode;//used
     let $countryName;//used
 
@@ -32,6 +39,7 @@ $(document).ready(() => {
     let $globalBoundsLayerGroup = L.layerGroup();
     let $globalClusterLayerGroup = L.layerGroup();
     let $globalUniversalLayerGroup = L.layerGroup();
+    let $globalBattutaLayerGroup = L.layerGroup();
 
     //leaflet icon
     const LeafIcon = L.Icon.extend({
@@ -91,16 +99,18 @@ $(document).ready(() => {
         $countryCode = await getCountryCode(c.latitude, c.longitude);
 
         //fill country info table
-        let $countryData;
+        //let $countryData;
         //let $continent, $population, $areaInSqKm, $languages;
+
+        /*
         let $list = await getCountryList();
         for(let $r = 0; $r < $list.length; $r++) {
-            if($countryCode === $list[$r]['countryCode']) {
+            if($countryCode === $list[$r]['code']) {
 
-                $('#currency').html($list[$r]['currencyCode']); //nav bar right - display currency code
+                $('#currency').html($list[$r]['code']); //nav bar right - display currency code
 
-                $currencyCode = $list[$r]['currencyCode'];  //used to fetch exchange rate
-                $capital = $list[$r]['capital'];            //used for capital marker icon
+                //$currencyCode = $list[$r]['currencyCode'];  //used to fetch exchange rate
+                //$capital = $list[$r]['capital'];            //used for capital marker icon
                 
                 //for EasyButton Popup
                 $countryData = (
@@ -116,10 +126,10 @@ $(document).ready(() => {
                 )
             }
         }
+        */
 
 
-
-
+        
         if(c.latitude === '27.09611' && c.longitude === '-13.41583') {
             $countryCode = 'EH';//W. Sahara
         } else if(c.countryName === 'Western Sahara') {
@@ -130,7 +140,7 @@ $(document).ready(() => {
         $countryName = await getCountryName($countryCode); //assigned to global variable
 
         //get current country bounds N,E,S,W
-        let $countryBounds = await getCountryBounds($countryCode);
+        let $countryBounds = await getCountryBounds($countryCode);              //do we need this still                     ?????????????
 
         $globalCountryBounds = $countryBounds;
 
@@ -180,6 +190,8 @@ $(document).ready(() => {
         const map10 = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
             attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
         });
+
+        
         /**----------------------------------------------------------------------------------------------------------------------------------------------------- */
 
         addProgress(10);                                                                                     //addProgress(10);
@@ -191,8 +203,8 @@ $(document).ready(() => {
 
         //allowance 1000 api requests per month (months starts 16th month)
 
-        let $continue = await getExchangeRates($currencyCode);  //get exchange rate data and store in global variable
-        displayConversionRate($currencyCode);   //display exchangeRate
+        //let $continue = await getExchangeRates($currencyCode);  //get exchange rate data and store in global variable
+        //displayConversionRate($currencyCode);   //display exchangeRate
 
         addProgress(10);                                                                                     //addProgress(10);
 
@@ -209,20 +221,36 @@ $(document).ready(() => {
 
        /**-----------------------------------------------------------------GET CITIES & TOWNS for current location----------------------------------------------------- */
         
-        fetchCitiesAndTowns();
-        fetchLocalTowns();
+        //fetchCitiesAndTowns();
+        //fetchLocalTowns();
+        
+        await getRestCountry($countryCode);//use await to allow $capital to be assigned before calling getBattutaData
+
+        //getBattutaData($countryCode);
+
+        
+        //let $battutaRegions = getBattuta($countryCode);
+        //console.log("battuta");
+        //console.dir($battutaRegions);
+
+        //getHereLandmark(-2.16667008, 53.41667175);
+
+        getCovidResults($countryCode);
+        getCovidData();
+        getWindyWebcams($countryCode);
+        getNews($countryCode);
 
         addProgress(10);                                                                                     //addProgress(10);
         
         /**-----------------------------------------------------------UNIVERSAL STATES----------------------------------------------------------------- */
-        fetchUniversalStates();
+        //fetchUniversalStates();
         //fetchTestData();
 
         /**-----------------------------------------------------------adding MAP----------------------------------------------------------------- */
         mymap = L.map('mapid', {
             center: [c.latitude, c.longitude],
             zoom: 2,
-            layers: [map1, $globalCitiesLayerGroup]
+            layers: [map1, $globalClusterLayerGroup]
         });
 
         $mapControl = mymap;
@@ -249,6 +277,7 @@ $(document).ready(() => {
 
         addProgress(10);                                                                                     //addProgress(10);
 
+        
        var baseMaps = {
             "<div class='roadMaps mapStyle'>Road Map</div>": map1,
             "<div class='named mapStyle'>Named Places</div>": map4,
@@ -259,13 +288,15 @@ $(document).ready(() => {
         };
         
         var overlayMaps = {
-            "<div class='citiesDiv mapStyle'>Cities</div><div id='cities_lds' class='lds display_lds'><div class='lds-spinner'><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div></div>": $globalCitiesLayerGroup,
-            "<div class='circleMarker mapStyle'>Circle Marker</div><div id='circle_lds' class='lds display_lds'><div class='lds-spinner'><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div></div>": $globalBoundsLayerGroup,
-            "<div class='owmLocations mapStyle'>OWM Locations</div><div id='owm_lds' class='lds display_lds'><div class='lds-spinner'><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div></div>": $globalTownsLayerGroup,
-            "<div class='countiesDiv mapStyle'>States</div><div id='counties_lds' class='lds display_lds'><div class='lds-spinner'><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div></div>": $globalUniversalLayerGroup,
-            "<div class='clusterMarkerDiv mapStyle'>Cluster Marker</div><div id='cluster_lds' class='lds display_lds'><div class='lds-spinner'><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div></div>": $globalClusterLayerGroup
+            //"<div class='citiesDiv mapStyle'>Cities</div><div id='cities_lds' class='lds display_lds'><div class='lds-spinner'><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div></div>": $globalCitiesLayerGroup,
+            //"<div class='circleMarker mapStyle'>Circle Marker</div><div id='circle_lds' class='lds display_lds'><div class='lds-spinner'><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div></div>": $globalBoundsLayerGroup,
+            //"<div class='owmLocations mapStyle'>OWM Locations</div><div id='owm_lds' class='lds display_lds'><div class='lds-spinner'><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div></div>": $globalTownsLayerGroup,
+            //"<div class='countiesDiv mapStyle'>States</div><div id='counties_lds' class='lds display_lds'><div class='lds-spinner'><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div></div>": $globalUniversalLayerGroup,
+            "<div class='Places mapStyle'>Default</div><div id='cluster_lds' class='lds display_lds'><div class='lds-spinner'><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div></div>": $globalClusterLayerGroup,
+            "<div class='clusterMarkerDiv mapStyle'>All Markers</div><div id='battuta_lds' class='lds display_lds'><div class='lds-spinner'><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div></div>": $globalBattutaLayerGroup,
         };
 
+        
         L.control.layers(baseMaps, overlayMaps).addTo(mymap);
 
 
@@ -274,26 +305,18 @@ $(document).ready(() => {
 
         /**--------------------------------------------------EASY BUTTON For Country Info----------------------------------------------------- */
 
-        const $countryDataPopup = L.popup().setContent($countryData);
+        //const $countryDataPopup = L.popup().setContent($countryData);
 
-        L.easyButton({
-            states: [{
-                stateName: 'Display_Country_Data',
-                icon: '<i class="far fa-clipboard fa-lg"></i>',
-                title: 'Display Country Data',
-                onClick: function(control) {
-                    $countryDataPopup.setLatLng(mymap.getCenter()).openOn(mymap);
-                    control.state('Hide_Country_Data');
-                }
-            }, {
-                stateName: 'Hide_Country_Data', 
-                icon: '<i class="fas fa-clipboard fa-lg"></i>',
-                title: 'Hide Country Data',
-                onClick: function(control) {
-                    $countryDataPopup.removeFrom(mymap);
-                    control.state('Display_Country_Data');
-                }
-            }]
+        L.easyButton( 'far fa-clipboard fa-lg', function() {
+            $('#countryData').modal('toggle');
+        }).addTo(mymap);
+
+        L.easyButton( 'far fa-clipboard fa-lg', function() {
+            $('#covidCountryData').modal('toggle');
+        }).addTo(mymap);
+
+        L.easyButton( 'far fa-clipboard fa-lg', function() {
+            $('#newsData').modal('toggle');
         }).addTo(mymap);
 
         addProgress(10);                                                                                     //addProgress(10);
@@ -497,7 +520,7 @@ $(document).ready(() => {
         }
         setTimeout(function() {
             $('.loaderDiv').css('display', 'none');
-        }, 1500);
+        }, 500);
         
         
     }
@@ -508,7 +531,468 @@ $(document).ready(() => {
 
     
     /**---------------------------------------------------------------------API FUNCTIONS-------------------------------------------------------------------------- */
+    async function getNews($countryCode) {
+        let $results = null;
+        await $.ajax({
+            url: 'PHP/getNews.php',
+            type: 'POST',
+            data: {
+                countryCode: $countryCode
+            },
+            success: function(res) {
+                if(res.status.name == 'ok') {
+                    $results = res['data'];
+                }
+            },
+            error(err) {
+                console.error(err);
+            }
+        });
+        console.log("News API");
+        console.dir($results);
+        presentNews($results['articles']);
+    }
+
+    async function presentNews($articles) {
+        //let $newsBody = $('#newsBody');
+        if($articles.length > 0) {
+            let l = 0;
+            for(let $mn=0; $mn < $articles.length; $mn++) {//
+
+                /*
+                let h3 = document.createElement('h3');
+                let title = document.createTextNode($articles[$mn]['title']);
+                h3.appendChild(title);
+                let div = document.createElement('div');
+                let p = document.createElement('p');
+                let text = document.createTextNode($articles[$mn]['description']);
+                p.appendChild(text);
+                div.appendChild(p);
+                $newsBody.append(h3);
+                $newsBody.append(div);
+                */
+                let card = document.createElement('div');
+                card.classList.add('card');
+                let cardHeader = document.createElement('div');
+                cardHeader.classList.add('card-header');
+                cardHeader.id = 'heading'+($mn+1);
+                let btn = document.createElement('div');
+                //btn.classList.add('btn');
+                //btn.classList.add('btn-link');
+                btn.classList.add('newsTitle');
+                btn.classList.add('btn-block');
+                btn.classList.add('text-left');
+                //btn.setAttribute('type', 'button');
+                btn.setAttribute('data-toggle', 'collapse');
+                btn.setAttribute('data-target', '#collapse'+($mn+1));
+                btn.setAttribute('aria-expanded', 'true');
+                btn.setAttribute('aria-controls', 'collapse'+($mn+1));
+                //let hyphen = $articles[$mn]['title'].indexOf('-');
+                let titleText = $articles[$mn]['title'];
+                
+                
+                let sourceName = $articles[$mn]['source']['name'];
+
+                let titleSection = document.createTextNode(titleText);
+                let sourceSection = document.createTextNode(sourceName+' - ');
+                let span = document.createElement('span');
+                span.classList.add('newsPaper');
+                span.appendChild(sourceSection);
+
+                btn.appendChild(span);
+                btn.appendChild(titleSection);
+                //btn.appendChild(span2);
+                cardHeader.appendChild(btn);
+                
+                let author = $articles[$mn]['author'];
+                let authorText = '  (author: '+$articles[$mn]['author']+')';
+                let authorSection = document.createTextNode(authorText);
+                let span2 = document.createElement('span');
+                span2.classList.add('author');
+                span2.appendChild(authorSection);
+
+                
+                let imgSrc = $articles[$mn]['urlToImage'];
+                
+                let imageObj = document.createElement('img');
+                imageObj.classList.add('newsImage');
+                imageObj.setAttribute('alt', 'News Article Image');
+                //image.setAttribute('src', imgSrc);
+                //let urlIndex = imgSrc.indexOf('?');
+                //imgSrc = imgSrc.substring(0,urlIndex);
+
+                console.log('imgSrc: '+imgSrc);
+                if(imgSrc) {
+                    imageObj.src = imgSrc;
+                }
+                
+                console.log('imgObj.src: '+imageObj.src);
+                
+                console.log(l);
+                l++;
+                /*
+                */
+
+                let link = $articles[$mn]['url'];
+                let linkText = '-> Click here to read more. <-'
+                let linkSection = document.createTextNode(linkText);
+                let span3 = document.createElement('span');
+                span3.classList.add('link');
+                span3.appendChild(linkSection);
+                let anchor = document.createElement('a');
+                anchor.appendChild(span3);
+                anchor.setAttribute('href',link);
+                anchor.setAttribute('target','_blank');
+
+                let content = $articles[$mn]['content'];
+                if(content) {
+                    let index = content.indexOf('chars]');
+                    if(index > 0) {
+                        let sub = content.substring(0, index);
+                        let index2 = content.lastIndexOf('[');
+                        content = content.substring(0, index2);
+                    }
+                } else {
+                    content = 'Content not found.';
+                }
+                
+                
+                
+
+
+                let collapse = document.createElement('div');
+                collapse.id = 'collapse'+($mn+1);
+                collapse.classList.add('collapse');
+                //collapse.classList.add('show');
+                collapse.setAttribute('aria-labelledby', 'heading'+($mn+1));
+                collapse.setAttribute('data-parent', '#newsBody');
+
+                let cardBody = document.createElement('div');
+                cardBody.classList.add('card-body');
+                cardBody.classList.add('newsDesc');
+                let bodyText = document.createTextNode(content);//$articles[$mn]['description']
+                if(imgSrc) {
+                    cardBody.append(imageObj);
+                }
+                cardBody.appendChild(bodyText);
+                cardBody.appendChild(anchor);
+                if(author) {
+                    cardBody.appendChild(span2);
+                }
+                collapse.appendChild(cardBody);
+
+                card.appendChild(cardHeader);
+                card.appendChild(collapse);
+
+                document.getElementById('newsBody').appendChild(card);
+
+                /*
+                 <div class="card">
+                    <div class="card-header" id="headingOne">
+                        <h2 class="mb-0">
+                            <button class="btn btn-link btn-block text-left" type="button" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                            Collapsible Group Item #1
+                            </button>
+                        </h2>
+                    </div>
+
+                    <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordionExample">
+                        <div class="card-body">
+                            Some placeholder content for the first accordion panel. This panel is shown by default, thanks to the <code>.show</code> class.
+                        </div>
+                    </div>
+                </div>
+                 */
+            }
+            //$( "#newsBody" ).accordion();//.collapse('toggle')
+            
+        }
+    }
     
+    async function getWindyWebcams($countryCode) {
+        let $results = null;
+        await $.ajax({
+            url: 'PHP/getWindyWebCams.php',
+            type: 'POST',
+            data: {
+                countryCode: $countryCode
+            },
+            success: function(res) {
+                if(res.status.name == 'ok') {
+                    $results = res['data'];
+                }
+            }
+        });
+        if($results) {
+            console.log("Windy Webcams");
+            console.dir($results);
+        }
+    }
+    
+    async function getCovidData() {
+        let $results = null;
+        await $.ajax({
+            url: 'PHP/getCovidData.php',
+            type: 'GET',
+            success: function(res) {
+                if(res.status.name == 'ok') {
+                    $results = res['data'];
+                }
+            }
+        });
+        if($results) {
+            console.log("Covid Data");
+            console.dir($results);
+        }
+    }
+
+    async function getCovidResults($countryCode) {
+        let $results = null;
+        await $.ajax({
+            url: 'PHP/getPostmanCovid.php',
+            type: 'POST',
+            data: {
+                countryCode: $countryCode
+            },
+            success: function(res) {
+                if(res.status.name == 'ok') {
+                    $results = res['data'];
+                }
+            }
+        });
+        console.log("COVID-19");
+        console.dir($results);
+        $('#covidCountryName').html('Coivd-19 Data for '+$results['Country']);
+        $('#covidDate').html($results['Date']);
+        $('#covidNewCases').html($results['NewConfirmed']);
+        $('#covidNewDeaths').html($results['NewDeaths']);
+        $('#covidNewRecovered').html($results['NewRecovered']);
+        $('#covidTotalCases').html($results['TotalConfirmed']);
+        $('#covidTotalDeaths').html($results['TotalDeaths']);
+        $('#covidTotalRecovered').html($results['TotalRecovered']);
+    }
+
+    async function getRestCountry($thisCountryCode) {
+        let $result = null;
+        await $.ajax({
+            url: 'PHP/getRestCountry.php',
+            type: 'POST',
+            data: {
+                countryCode: $thisCountryCode
+            },
+            success: function(res) {
+                if(res.status.name == 'ok') {
+                    $result = res['data'];
+                }
+            },
+            error: function(err) {
+                console.error(err);
+            }
+        });
+
+        console.log('rest details:');
+        console.dir($result);
+        if($result) {
+
+            let myNode = document.getElementById('languages');
+            while (myNode.firstChild) {
+                myNode.removeChild(myNode.lastChild);
+            }
+            myNode = document.getElementById('borders');
+            while (myNode.firstChild) {
+                myNode.removeChild(myNode.lastChild);
+            }
+
+            $capital = $result.capital; //used when fetching data to assign capital with different marker
+            $('#capital').html($result.capital);
+
+            //$population = $result.population;
+            let population = parseInt($result.population);//$result.population;// parseInt($result.population);
+            //let formatter = new Intl.NumberFormat('en-IN', { maximumSignificantDigits: 3 }).format(population);
+            $('#population').html(population.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","));
+            
+            //$currency = $result.currencies[0].name;
+            $('#currencies').html($result['currencies'][0].name);
+            $currencySymbol = $result['currencies'][0].symbol;
+            $('#exRate').html($result['currencies'][0]['symbol']);
+
+            let $iso_a3;
+            let $ctry;
+
+            for(let bn=0; bn < $result.borders.length; bn++) {
+                //$borders.push($result.borders[bn]);
+                let li = document.createElement('li');
+
+                $iso_a3 = $result.borders[bn];
+                $ctry = getCountryNameIso_a3($iso_a3);
+
+                let txtItem = document.createTextNode($ctry);
+                li.appendChild(txtItem);
+                document.getElementById('borders').appendChild(li);
+            }
+
+            for(let nm = 0; nm < $result.languages.length; nm++) {
+                //$languages.push($result.languages[nm].name);
+                let li = document.createElement('li');
+                let txtItem = document.createTextNode($result.languages[nm].name);
+                li.appendChild(txtItem);
+                document.getElementById('languages').appendChild(li);
+            }
+
+            //$restCountryName = $result.name;
+            $('#countryName').html($result.name);
+
+        }
+    }
+
+    async function getBattutaData($thisCountryCode) {
+        let $result = null;
+        await $.ajax({
+            url: 'PHP/getBattuta.php',
+            type: 'POST',
+            data: {
+                countryCode: $thisCountryCode
+            },
+            success: function(res) {
+                if(res.status.name == 'ok') {
+                    //console.log("Battuta");
+                    //console.dir(res['data']);
+                    $result = res['data'];
+                }
+            },
+            error: function(err) {
+                console.log(err);
+            }
+        });
+        if($result) {
+            //const myBlueIcon = new LeafIcon({iconUrl: 'Images/my_blue_svg_icon.svg'});
+            //const myPurpleIcon = new LeafIcon({iconUrl: 'Images/my_purple_svg_icon.svg'});
+            //const myRedIcon = new LeafIcon({iconUrl: 'Images/my_red_svg_icon.svg'});
+            let blueMarker = L.ExtraMarkers.icon({
+                icon: 'fa-circle',
+                markerColor: 'blue',
+                shape: 'circle',
+                prefix: 'far'
+            });
+            let capitalMarker = L.ExtraMarkers.icon({
+                icon: 'fa-star',
+                markerColor: 'red',
+                shape: 'circle',
+                prefix: 'far'
+            });
+
+            let $battutaArray = [];
+            let $latlng;
+            let $markerCluster = L.markerClusterGroup();
+            
+            for(let $zx = 0; $zx < $result.length; $zx++) {
+                popupContent = ("<table class='tablePopup'>"+
+                    "<tr><th>Name:</th><td>"+$result[$zx]['city']+"</td></tr>"+
+                    "<tr><th>Latitude:</th><td>"+$result[$zx]['latitude']+"</td></tr>"+
+                    "<tr><th>Longitude:</th><td>"+$result[$zx]['longitude']+"</td></tr>"+
+                    "<tr><td colspan='2' class='btnTD'>"+
+                        //"<div class='my_btn_element' id='we"+$cityID+"' ><i id='ie"+$cityID+"' class='fas fa-cloud-sun-rain fa-lg'></i>  Check Local Weather</div>"+
+                        "<div class='boundaryDiv noBoundary' id='ub"+$result[$zx]['longitude']+"_"+$result[$zx]['latitude']+"'> View Boundary</div>"+//<i class='fas fa-border-style fa-lg'></i>
+                    "</td></tr>"+
+                    "</table>"
+                );
+                $latlng = [$result[$zx]['latitude'], $result[$zx]['longitude']];
+                
+                //console.log("country: "+$result[$zx]['city']);
+                if($result[$zx]['city'].includes($capital)) {
+                    console.log($capital);
+                    let $easymarker = L.marker($latlng, {
+                        title: $result[$zx]['city'],
+                        riseOnHover: true,
+                        icon: capitalMarker
+                    }).bindPopup(popupContent, {maxWidth: 'auto'}).setZIndexOffset(100);
+                    $battutaArray.push($easymarker);
+                    $markerCluster.addLayer($easymarker);
+                } else {
+                    let $easyMarker = L.marker($latlng, {
+                        title: $result[$zx]['city'],
+                        riseOnHover: true,
+                        icon: blueMarker
+                    }).bindPopup(popupContent, {maxWidth: 'auto'}).setZIndexOffset(100);
+                    /*
+                    let $marker = L.marker($latlng, {
+                        title: $result[$zx]['city'],
+                        riseOnHover: true,
+                        icon: myPurpleIcon
+                    }).bindPopup(popupContent, {maxWidth: 'auto'}).setZIndexOffset(100);
+                    */
+                    $battutaArray.push($easyMarker);
+                    $markerCluster.addLayer($easyMarker);
+                }
+                
+                
+                //$markerCluster.addLayer($marker);
+                /*
+                function onEachFeature(feature, layer) {
+                    //if (feature.properties) {
+                        layer.bindPopup($popupContent, {maxWidth: "auto"});
+                    //}
+                }
+
+                $markerCluster.addLayer($latlng), {
+                    onEachFeature: onEachFeature,
+                    pointToLayer: function (geoJsonPoint, $latlng) {
+                        return L.marker($latlng, {icon: myPurpleIcon});
+                    }
+                });
+                
+                /*
+                function onEachFeature(feature, layer) {
+                    if (feature.properties) {
+                        layer.bindPopup($featurePopup, {maxWidth: "auto"});
+                    }
+                }
+
+                $markerCluster.addLayer(L.geoJSON($placeData.features[0], {
+                    onEachFeature: onEachFeature
+                }));
+                
+                let $markerGeoJSON = L.geoJSON($placeData.features[0], {
+                    onEachFeature: onEachFeature,
+                    pointToLayer: function (geoJsonPoint, latlng) {
+                        return L.marker(latlng, {icon: myPurpleIcon});
+                    }
+                });
+                */
+
+            }
+            
+            let $battutaLayer = L.layerGroup($battutaArray);
+            $globalBattutaLayerGroup.addLayer($battutaLayer);
+            document.getElementById('battuta_lds').classList.remove('display_lds');
+            document.getElementById('battuta_lds').classList.add('hide_lds');
+
+            $globalClusterLayerGroup.addLayer($markerCluster);
+            document.getElementById('cluster_lds').classList.remove('display_lds');
+            document.getElementById('cluster_lds').classList.add('hide_lds');
+        }
+        
+        //return $result;
+    }
+
+    function getIso_a3($iso_a2) {
+        //$globalCountryList
+        for(let q = 0; q < $globalCountryList.length; q++) {
+            if($iso_a2 == $globalCountryList[q]['code']) {
+                return $globalCountryList[q]['iso_a3'];
+            }
+        }
+    }
+
+    function getCountryNameIso_a3($iso_a3) {
+        for(let w = 0; w < $globalCountryList.length; w++) {
+            if($iso_a3 == $globalCountryList[w]['iso_a3']) {
+                return $globalCountryList[w]['name'];
+            }
+        }
+    }
+
+
     async function getHereToken() {
         try {
             let $result;
@@ -529,6 +1013,30 @@ $(document).ready(() => {
             console.error(err);
         }
     }
+
+    async function getHereLandmark($lat, $lng) {
+        let $result = null;
+
+        await $.ajax({
+            url: 'PHP/getHereLandmark.php',
+            type: 'POST',
+            data: {
+                lat: $lat,
+                lng: $lng
+            },
+            success: function(res) {
+                if(res.status.name == 'ok') {
+                    $result = res['data'];
+                }
+            },
+            error: function(err) {
+                console.error(err);
+            }
+        });
+        console.log("getHereLandmark");
+        console.dir($result);
+    }
+
 
     async function getRoute($origin, $destination) {
         try {
@@ -1179,7 +1687,8 @@ $(document).ready(() => {
         try{
             if($currencyInfo!==null) {
                 $displayRate = $currencyInfo['rates'][$currencyCode];
-                $('#exRate').html($displayRate);
+                $('#exRate').html($currencySymbol+ ' '+$displayRate);
+
             }
         }
         catch(err) {
@@ -1257,6 +1766,44 @@ $(document).ready(() => {
         return $geojson;
     }
     */
+
+    async function populateCountryList() {
+        let $result = null;
+        await $.ajax({
+            url: 'PHP/getGeojsonCountryList.php',
+            success: function(res) {
+                $result = res;
+            },
+            error(err) {
+                console.error(err);
+            }
+        });
+        if($result.status.name == 'ok') {
+            $globalCountryList = $result['data'];
+            
+            let currentLocation = await get();//get current geo location
+            let currentCountryCode = await getCountryCode(currentLocation.coords.latitude, currentLocation.coords.longitude);//get countrycode from geo location
+            
+            $globalCountryList.forEach(item => {
+                let $opt = document.createElement('option'); //create an option for the drop down list
+                $opt.value = item.code;
+                //let $p = document.createElement('p');
+                //$p.innerHTML = item.name;
+                let $text = document.createTextNode(item.name);
+                $opt.appendChild($text);
+                
+                //$opt.appendChild($p);
+                
+                $('#navDropDown').append($opt);
+            });
+
+            //$countryCode = currentCountryCode;
+            
+            //$('#navDropDown option[value='+currentCountryCode+']').attr('selected','selected');//set country as selected option on drop down list
+            $('#navDropDown option[value='+currentCountryCode+']').attr('selected','selected');
+            //select.options[select.selectedIndex].style.backgroundColor = 'red';
+        }
+    }
 
     async function getAllGeonameCountries() {
         try {
@@ -1465,23 +2012,28 @@ $(document).ready(() => {
 
 
 
-    async function setNewCountry($countryCode, $countryName) {
+    async function setNewCountry($thisCountryCode, $thisCountryName) {
+
+        console.log("setNewCountry: "+$thisCountryCode, $thisCountryName);
 
        try {
             $('.loaderDiv').css('display', 'flex');
             // 5 lines below set #currencyDropDown list value
+            /*
             let $c = 'United States';
             if($countryCode === 'US') {
                 $c = 'United Kingdom';
             } 
-            $("#CurrencyDropDown option:contains(" + $c +")").attr('selected','selected');
+            */
+
+            //$("#CurrencyDropDown option:contains(" + $c +")").attr('selected','selected');
             //below we set new country
             $result = await $.ajax({
                 url: "/WorldMap/PHP/getLatLong.php",
                 type: 'POST',
                 data: {
-                    country: "'"+$countryName+"'",
-                    countryCode: "'"+$countryCode+"'"
+                    //country: "'"+$countryName+"'",
+                    countryCode: "'"+$thisCountryCode+"'"
                 }
             });
             if($result.status.name == "ok") {
@@ -1492,7 +2044,7 @@ $(document).ready(() => {
                 $latlng = {
                     latitude: $lat,
                     longitude: $lng,
-                    countryName: $countryName
+                    countryName: $thisCountryName
                 }
                 main($latlng);
             }
@@ -1507,14 +2059,6 @@ $(document).ready(() => {
         let c = await get();//get current location
         main(c.coords);
     }
-    
-    //getAllCountries();
-    getAllGeonameCountries();
-    begin();
-
-
-
-
     
     $('#navDropDown').on("change", () => {
         $progress = 0;
@@ -1682,7 +2226,18 @@ $(document).ready(() => {
         document.getElementById('closeIconDiv').classList.add('hideDisplay');   //hide close icon
     }
 
+    
+    //starting point
+    //getAllGeonameCountries();
+    populateCountryList();
+    begin();
 
+    /*
+    var select = document.getElementById('navDropDown');
+    select.onchange = function() {
+        select.options[select.selectedIndex].style.backgroundColor = 'red';
+    }
+    */
     
 
 });

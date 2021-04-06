@@ -550,46 +550,43 @@ $(document).ready(() => {
         });
         console.log("News API");
         console.dir($results);
+        await emptyNews(); //removes DOM nodes from previous country news api
+
+        //if $results['articles'].length == 0 then add single div with notice of no news found
+
+
         presentNews($results['articles']);
     }
 
+    async function emptyNews() {
+        let $hjk = 0;
+        let newsBody = document.getElementById('newsBody');
+        while(newsBody.firstChild) {
+            //console.log($hjk);
+            newsBody.removeChild(newsBody.firstChild);
+            //$hjk++;
+        }
+    }
+
     async function presentNews($articles) {
-        //let $newsBody = $('#newsBody');
+        
         if($articles.length > 0) {
-            let l = 0;
             for(let $mn=0; $mn < $articles.length; $mn++) {//
 
-                /*
-                let h3 = document.createElement('h3');
-                let title = document.createTextNode($articles[$mn]['title']);
-                h3.appendChild(title);
-                let div = document.createElement('div');
-                let p = document.createElement('p');
-                let text = document.createTextNode($articles[$mn]['description']);
-                p.appendChild(text);
-                div.appendChild(p);
-                $newsBody.append(h3);
-                $newsBody.append(div);
-                */
                 let card = document.createElement('div');
                 card.classList.add('card');
                 let cardHeader = document.createElement('div');
                 cardHeader.classList.add('card-header');
                 cardHeader.id = 'heading'+($mn+1);
                 let btn = document.createElement('div');
-                //btn.classList.add('btn');
-                //btn.classList.add('btn-link');
                 btn.classList.add('newsTitle');
                 btn.classList.add('btn-block');
                 btn.classList.add('text-left');
-                //btn.setAttribute('type', 'button');
                 btn.setAttribute('data-toggle', 'collapse');
                 btn.setAttribute('data-target', '#collapse'+($mn+1));
                 btn.setAttribute('aria-expanded', 'true');
                 btn.setAttribute('aria-controls', 'collapse'+($mn+1));
-                //let hyphen = $articles[$mn]['title'].indexOf('-');
                 let titleText = $articles[$mn]['title'];
-                
                 
                 let sourceName = $articles[$mn]['source']['name'];
 
@@ -601,7 +598,6 @@ $(document).ready(() => {
 
                 btn.appendChild(span);
                 btn.appendChild(titleSection);
-                //btn.appendChild(span2);
                 cardHeader.appendChild(btn);
                 
                 let author = $articles[$mn]['author'];
@@ -611,27 +607,17 @@ $(document).ready(() => {
                 span2.classList.add('author');
                 span2.appendChild(authorSection);
 
-                
                 let imgSrc = $articles[$mn]['urlToImage'];
                 
                 let imageObj = document.createElement('img');
                 imageObj.classList.add('newsImage');
                 imageObj.setAttribute('alt', 'News Article Image');
-                //image.setAttribute('src', imgSrc);
-                //let urlIndex = imgSrc.indexOf('?');
-                //imgSrc = imgSrc.substring(0,urlIndex);
 
-                console.log('imgSrc: '+imgSrc);
                 if(imgSrc) {
+                    //let urlIndex = imgSrc.indexOf('?');
+                    //imgSrc = imgSrc.substring(0,urlIndex);
                     imageObj.src = imgSrc;
                 }
-                
-                console.log('imgObj.src: '+imageObj.src);
-                
-                console.log(l);
-                l++;
-                /*
-                */
 
                 let link = $articles[$mn]['url'];
                 let linkText = '-> Click here to read more. <-'
@@ -655,10 +641,6 @@ $(document).ready(() => {
                 } else {
                     content = 'Content not found.';
                 }
-                
-                
-                
-
 
                 let collapse = document.createElement('div');
                 collapse.id = 'collapse'+($mn+1);
@@ -686,25 +668,7 @@ $(document).ready(() => {
 
                 document.getElementById('newsBody').appendChild(card);
 
-                /*
-                 <div class="card">
-                    <div class="card-header" id="headingOne">
-                        <h2 class="mb-0">
-                            <button class="btn btn-link btn-block text-left" type="button" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-                            Collapsible Group Item #1
-                            </button>
-                        </h2>
-                    </div>
-
-                    <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordionExample">
-                        <div class="card-body">
-                            Some placeholder content for the first accordion panel. This panel is shown by default, thanks to the <code>.show</code> class.
-                        </div>
-                    </div>
-                </div>
-                 */
             }
-            //$( "#newsBody" ).accordion();//.collapse('toggle')
             
         }
     }

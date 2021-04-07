@@ -96,7 +96,7 @@
                                 <option class="option"></option>
                     </select>
                 </div>
-                <div id="countryData" class="modal" tabindex="-1">
+                <div id="countryData" class="modal myModal" tabindex="-1">
                     <div class="modal-dialog">
                       <div class="modal-content">
                         <div class="modal-header">
@@ -123,7 +123,7 @@
                       </div>
                     </div>
                 </div>
-                <div id="covidCountryData" class="modal" tabindex="-1">
+                <div id="covidCountryData" class="modal myModal" tabindex="-1">
                     <div class="modal-dialog">
                       <div class="modal-content">
                         <div class="modal-header">
@@ -151,11 +151,11 @@
                       </div>
                     </div>
                 </div>
-                <div id="newsData" class="modal" tabindex="-1">
+                <div id="newsData" class="modal myModal" tabindex="-1">
                     <div class="modal-dialog"><!-- .modal-dialog-scrollable-->
                       <div class="modal-content">
                         <div class="modal-header">
-                          <h5 id="newsCountryName" class="modal-title"></h5>
+                          <h5 id="newsCountryName" class="modal-title newsHeaderTitle"></h5>
                           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                           </button>
@@ -171,6 +171,29 @@
                                     
                                 <!--</tbody>
                             </table>-->
+                        </div>
+                        <div class="modal-footer">
+                          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        </div>
+                      </div>
+                    </div>
+                </div>
+
+                <div id="publicHolidayData" class="modal myModal" tabindex="-1">
+                    <div class="modal-dialog">
+                      <div class="modal-content">
+                        <div class="modal-header">
+                          <h5 id="publicHolidayCountryName" class="modal-title"></h5>
+                          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                          </button>
+                        </div>
+                        <div class="modal-body">
+                            <table class="table table-striped">
+                                <tbody id="publicHolidayTable">
+                                    
+                                </tbody>
+                            </table>
                         </div>
                         <div class="modal-footer">
                           <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>

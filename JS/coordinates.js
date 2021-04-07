@@ -233,12 +233,14 @@ $(document).ready(() => {
         //console.log("battuta");
         //console.dir($battutaRegions);
 
-        //getHereLandmark(-2.16667008, 53.41667175);
+        ///////*****----------------------------------------------------------------------------------//getHereLandmark(-2.16667008, 53.41667175);
 
-        getCovidResults($countryCode);
-        getCovidData();
-        getWindyWebcams($countryCode);
-        getNews($countryCode);
+        //getCovidResults($countryCode);// defo keep
+        //getCovidData();// defo keep
+        ///////*****----------------------------------------------------------------------------------//getWindyWebcams($countryCode);
+        //getNews($countryCode);// defo keep
+        /////*****----------------------------------------------------------------------------------//getOpenWeatherHistory($countryCode);
+        //getPublicHolidays($countryCode);// defo keep
 
         addProgress(10);                                                                                     //addProgress(10);
         
@@ -317,6 +319,10 @@ $(document).ready(() => {
 
         L.easyButton( 'far fa-clipboard fa-lg', function() {
             $('#newsData').modal('toggle');
+        }).addTo(mymap);
+
+        L.easyButton( 'far fa-clipboard fa-lg', function() {
+            $('#publicHolidayData').modal('toggle');
         }).addTo(mymap);
 
         addProgress(10);                                                                                     //addProgress(10);
@@ -531,6 +537,131 @@ $(document).ready(() => {
 
     
     /**---------------------------------------------------------------------API FUNCTIONS-------------------------------------------------------------------------- */
+
+    async function getPublicHolidays($countryCode) {
+        let $results = null;
+        await $.ajax({
+            url: 'PHP/getPublicHolidays.php',
+            type: 'POST',
+            data: {
+                countryCode: $countryCode
+            },
+            success: function(res) {
+                if(res.status.name == 'ok') {
+                    $results = res['data'];
+                }
+            },
+            error(err) {
+                console.error(err);
+            }
+        });
+        console.log("Public Holidays");
+        console.dir($results);
+        emptyHolidayTable();
+        presentPublicHolidays($results);
+    }
+
+    function presentPublicHolidays($list) {
+        if(Array.isArray($list)) {
+            if($list.length > 0) {
+                let $publicHolidayTable = document.getElementById('publicHolidayTable');
+                let $tr = document.createElement('tr');
+
+                let $dateTH = document.createElement('tH');
+                let $dateH = document.createTextNode('Date');
+                $dateTH.appendChild($dateH);
+
+                let $nameTH = document.createElement('tH');
+                let $nameH = document.createTextNode('Holiday Name');
+                $nameTH.appendChild($nameH);
+
+                let $localTH = document.createElement('tH');
+                let $localH = document.createTextNode('Known As');
+                $localTH.appendChild($localH);
+
+                $tr.appendChild($dateTH);
+                $tr.appendChild($nameTH);
+                $tr.appendChild($localTH);
+
+                $publicHolidayTable.appendChild($tr);
+
+                for(let $zxc = 0; $zxc < $list.length; $zxc++) {
+                    
+                    let $tr = document.createElement('tr');
+
+                    let $dateTD = document.createElement('td');
+                    let $dateText = document.createTextNode($list[$zxc].date);
+                    $dateTD.appendChild($dateText);
+
+                    let $nameTD = document.createElement('td');
+                    let $nameText = document.createTextNode($list[$zxc].name);
+                    $nameTD.appendChild($nameText);
+
+                    let $localTD = document.createElement('td');
+                    let $localText = document.createTextNode($list[$zxc].localName);
+                    $localTD.appendChild($localText);
+
+                    $tr.appendChild($dateTD);
+                    $tr.appendChild($nameTD);
+                    $tr.appendChild($localTD);
+
+                    $publicHolidayTable.appendChild($tr);
+
+                }
+            } else {
+                let noResultDiv = document.createElement('div');
+                let noResultP = document.createElement('p');
+                noResultP.classList.add('noResultParagraph');
+                let noResultText = document.createTextNode('No Public Holidays Found.');
+                noResultP.appendChild(noResultText);
+                noResultDiv.appendChild(noResultP);
+                document.getElementById('publicHolidayTable').appendChild(noResultDiv);
+            }
+        } else {
+            let noResultDiv = document.createElement('div');
+            let noResultP = document.createElement('p');
+            noResultP.classList.add('noResultParagraph');
+            let noResultText = document.createTextNode('No Public Holidays Found.');
+            noResultP.appendChild(noResultText);
+            noResultDiv.appendChild(noResultP);
+            document.getElementById('publicHolidayTable').appendChild(noResultDiv);
+
+        }
+    }
+
+    function emptyHolidayTable() {
+        let $publicHolidayTable = document.getElementById('publicHolidayTable');
+        let $hjk = 0;
+        while($publicHolidayTable.firstChild) {
+            //console.log($hjk);
+            $publicHolidayTable.removeChild($publicHolidayTable.firstChild);
+            //$hjk++;
+        }
+    }
+
+    /*
+    async function getOpenWeatherHistory($countryCode) {
+        let $results = null;
+        await $.ajax({
+            url: 'PHP/getOpenWeatherHistory.php',
+            type: 'POST',
+            data: {
+                countryCode: $countryCode
+            },
+            success: function(res) {
+                if(res.status.name == 'ok') {
+                    $results = res['data'];
+                }
+            },
+            error(err) {
+                console.error(err);
+            }
+        });
+        console.log("Open Weather History");
+        console.dir($results);
+    }
+    */
+
     async function getNews($countryCode) {
         let $results = null;
         await $.ajax({
@@ -569,107 +700,121 @@ $(document).ready(() => {
     }
 
     async function presentNews($articles) {
-        
-        if($articles.length > 0) {
-            for(let $mn=0; $mn < $articles.length; $mn++) {//
 
-                let card = document.createElement('div');
-                card.classList.add('card');
-                let cardHeader = document.createElement('div');
-                cardHeader.classList.add('card-header');
-                cardHeader.id = 'heading'+($mn+1);
-                let btn = document.createElement('div');
-                btn.classList.add('newsTitle');
-                btn.classList.add('btn-block');
-                btn.classList.add('text-left');
-                btn.setAttribute('data-toggle', 'collapse');
-                btn.setAttribute('data-target', '#collapse'+($mn+1));
-                btn.setAttribute('aria-expanded', 'true');
-                btn.setAttribute('aria-controls', 'collapse'+($mn+1));
-                let titleText = $articles[$mn]['title'];
-                
-                let sourceName = $articles[$mn]['source']['name'];
+        try {
+            $('#newsCountryName').html('News Articles for '+$countryName);
+            if($articles.length > 0) {
+                for(let $mn=0; $mn < $articles.length; $mn++) {//
 
-                let titleSection = document.createTextNode(titleText);
-                let sourceSection = document.createTextNode(sourceName+' - ');
-                let span = document.createElement('span');
-                span.classList.add('newsPaper');
-                span.appendChild(sourceSection);
+                    let card = document.createElement('div');
+                    card.classList.add('card');
+                    let cardHeader = document.createElement('div');
+                    cardHeader.classList.add('card-header');
+                    cardHeader.id = 'heading'+($mn+1);
+                    let btn = document.createElement('div');
+                    btn.classList.add('newsTitle');
+                    btn.classList.add('btn-block');
+                    btn.classList.add('text-left');
+                    btn.setAttribute('data-toggle', 'collapse');
+                    btn.setAttribute('data-target', '#collapse'+($mn+1));
+                    btn.setAttribute('aria-expanded', 'true');
+                    btn.setAttribute('aria-controls', 'collapse'+($mn+1));
+                    let titleText = $articles[$mn]['title'];
+                    
+                    let sourceName = $articles[$mn]['source']['name'];
 
-                btn.appendChild(span);
-                btn.appendChild(titleSection);
-                cardHeader.appendChild(btn);
-                
-                let author = $articles[$mn]['author'];
-                let authorText = '  (author: '+$articles[$mn]['author']+')';
-                let authorSection = document.createTextNode(authorText);
-                let span2 = document.createElement('span');
-                span2.classList.add('author');
-                span2.appendChild(authorSection);
+                    let titleSection = document.createTextNode(titleText);
+                    let sourceSection = document.createTextNode(sourceName+' - ');
+                    let span = document.createElement('span');
+                    span.classList.add('newsPaper');
+                    span.appendChild(sourceSection);
 
-                let imgSrc = $articles[$mn]['urlToImage'];
-                
-                let imageObj = document.createElement('img');
-                imageObj.classList.add('newsImage');
-                imageObj.setAttribute('alt', 'News Article Image');
+                    btn.appendChild(span);
+                    btn.appendChild(titleSection);
+                    cardHeader.appendChild(btn);
+                    
+                    let author = $articles[$mn]['author'];
+                    let authorText = '  (author: '+$articles[$mn]['author']+')';
+                    let authorSection = document.createTextNode(authorText);
+                    let span2 = document.createElement('span');
+                    span2.classList.add('author');
+                    span2.appendChild(authorSection);
 
-                if(imgSrc) {
-                    //let urlIndex = imgSrc.indexOf('?');
-                    //imgSrc = imgSrc.substring(0,urlIndex);
-                    imageObj.src = imgSrc;
-                }
+                    let imgSrc = $articles[$mn]['urlToImage'];
+                    
+                    let imageObj = document.createElement('img');
+                    imageObj.classList.add('newsImage');
+                    imageObj.setAttribute('alt', 'News Article Image');
 
-                let link = $articles[$mn]['url'];
-                let linkText = '-> Click here to read more. <-'
-                let linkSection = document.createTextNode(linkText);
-                let span3 = document.createElement('span');
-                span3.classList.add('link');
-                span3.appendChild(linkSection);
-                let anchor = document.createElement('a');
-                anchor.appendChild(span3);
-                anchor.setAttribute('href',link);
-                anchor.setAttribute('target','_blank');
-
-                let content = $articles[$mn]['content'];
-                if(content) {
-                    let index = content.indexOf('chars]');
-                    if(index > 0) {
-                        let sub = content.substring(0, index);
-                        let index2 = content.lastIndexOf('[');
-                        content = content.substring(0, index2);
+                    if(imgSrc) {
+                        //let urlIndex = imgSrc.indexOf('?');
+                        //imgSrc = imgSrc.substring(0,urlIndex);
+                        imageObj.src = imgSrc;
                     }
-                } else {
-                    content = 'Content not found.';
+
+                    let link = $articles[$mn]['url'];
+                    let linkText = '-> Click here to read more. <-'
+                    let linkSection = document.createTextNode(linkText);
+                    let span3 = document.createElement('span');
+                    span3.classList.add('link');
+                    span3.appendChild(linkSection);
+                    let anchor = document.createElement('a');
+                    anchor.appendChild(span3);
+                    anchor.setAttribute('href',link);
+                    anchor.setAttribute('target','_blank');
+
+                    let content = $articles[$mn]['content'];
+                    if(content) {
+                        let index = content.indexOf('chars]');
+                        if(index > 0) {
+                            let sub = content.substring(0, index);
+                            let index2 = content.lastIndexOf('[');
+                            content = content.substring(0, index2);
+                        }
+                    } else {
+                        content = 'Content not found.';
+                    }
+
+                    let collapse = document.createElement('div');
+                    collapse.id = 'collapse'+($mn+1);
+                    collapse.classList.add('collapse');
+                    //collapse.classList.add('show');
+                    collapse.setAttribute('aria-labelledby', 'heading'+($mn+1));
+                    collapse.setAttribute('data-parent', '#newsBody');
+
+                    let cardBody = document.createElement('div');
+                    cardBody.classList.add('card-body');
+                    cardBody.classList.add('newsDesc');
+                    let bodyText = document.createTextNode(content);//$articles[$mn]['description']
+                    if(imgSrc) {
+                        cardBody.append(imageObj);
+                    }
+                    cardBody.appendChild(bodyText);
+                    cardBody.appendChild(anchor);
+                    if(author) {
+                        cardBody.appendChild(span2);
+                    }
+                    collapse.appendChild(cardBody);
+
+                    card.appendChild(cardHeader);
+                    card.appendChild(collapse);
+
+                    document.getElementById('newsBody').appendChild(card);
+
                 }
-
-                let collapse = document.createElement('div');
-                collapse.id = 'collapse'+($mn+1);
-                collapse.classList.add('collapse');
-                //collapse.classList.add('show');
-                collapse.setAttribute('aria-labelledby', 'heading'+($mn+1));
-                collapse.setAttribute('data-parent', '#newsBody');
-
-                let cardBody = document.createElement('div');
-                cardBody.classList.add('card-body');
-                cardBody.classList.add('newsDesc');
-                let bodyText = document.createTextNode(content);//$articles[$mn]['description']
-                if(imgSrc) {
-                    cardBody.append(imageObj);
-                }
-                cardBody.appendChild(bodyText);
-                cardBody.appendChild(anchor);
-                if(author) {
-                    cardBody.appendChild(span2);
-                }
-                collapse.appendChild(cardBody);
-
-                card.appendChild(cardHeader);
-                card.appendChild(collapse);
-
-                document.getElementById('newsBody').appendChild(card);
-
+                
+            } else {
+                let noResultDiv = document.createElement('div');
+                let noResultP = document.createElement('p');
+                noResultP.classList.add('noResultParagraph');
+                let noResultText = document.createTextNode('No News Articles Found.');
+                noResultP.appendChild(noResultText);
+                noResultDiv.appendChild(noResultP);
+                document.getElementById('newsBody').appendChild(noResultDiv);
             }
-            
+        }
+        catch(err) {
+            //do nothing as error will be image src not found
         }
     }
     
@@ -1717,8 +1862,8 @@ $(document).ready(() => {
     function getCountryName($countryCode) {
         let $name = "country name not found";
         for(let k = 0; k < $globalCountryList.length; k++) {
-            if($countryCode === $globalCountryList[k]['countryCode']) {
-                $name = $globalCountryList[k]['countryName'];
+            if($countryCode === $globalCountryList[k]['code']) {
+                $name = $globalCountryList[k]['name'];
             }
         }
         return $name;

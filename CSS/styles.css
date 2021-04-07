@@ -21,7 +21,7 @@ nav div ul li p {
 
 .CountriesDropDownListDiv {
     position: absolute;
-    top: 20px;
+    top: 25px;
     left: 50%;
     transform: translate(-50%, -50%);
     z-index: 999999;
@@ -31,7 +31,6 @@ nav div ul li p {
 .CountriesDropDownList {
     background-color: black;
     color: white;
-
     display: block;
 	font-size: 16px;
 	font-family: sans-serif;
@@ -244,6 +243,11 @@ select {
 #languages {
     list-style: none;
     padding: 0px;
+}
+
+/*My Modal*/
+.myModal {
+    margin-top: 20px;
 }
 
 
@@ -461,6 +465,13 @@ select {
 
 
 /* -------------------------------------------NEWS------------------------------------------ */
+.newsHeaderTitle {
+    width: 100%;
+    text-align: center;
+    font-family: 'Roboto', sans-serif;
+    font-weight: 600;
+    font-size: x-large;
+}
 .newsTitle {
     font-size: large;
     font-family: 'Roboto', sans-serif;
@@ -494,6 +505,13 @@ select {
     width: 100%;
     padding-right: 10px;
     margin-bottom: 10px;
+}
+.noResultParagraph {
+    width: 100%;
+    text-align: center;
+    font-family: 'Roboto', sans-serif;
+    font-size: large;
+    font-weight: 600;
 }
 
 /*----------------------------------------------------Preloader------------------------------------------------------*/

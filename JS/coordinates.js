@@ -7,6 +7,7 @@ $(document).ready(() => {
     //let $countryListInfo;//getCountryList return
     let $currencyInfo;
     let $currencyCode;
+    let $currencySymbol;
     let $c;
     let $mapControl = null;
     let $globalFeatureGroup;
@@ -32,6 +33,8 @@ $(document).ready(() => {
 
     //country list
     let $globalCountryList = [];//getCountryList return, assigned in getAllGeonameCountries
+    let $globalCitiesList = [];
+
 
     //global layers
     let $globalTownsLayerGroup = L.layerGroup();
@@ -40,6 +43,7 @@ $(document).ready(() => {
     let $globalClusterLayerGroup = L.layerGroup();
     let $globalUniversalLayerGroup = L.layerGroup();
     let $globalBattutaLayerGroup = L.layerGroup();
+    let $globalOpenTripLayerGroup = L.layerGroup();
 
     //leaflet icon
     const LeafIcon = L.Icon.extend({
@@ -90,6 +94,7 @@ $(document).ready(() => {
         $globalBoundsLayerGroup.clearLayers();
         $globalClusterLayerGroup.clearLayers();
         $globalUniversalLayerGroup.clearLayers();
+        $globalOpenTripLayerGroup.clearLayers();
 
         $c = c; //assign to global variable
 
@@ -97,6 +102,8 @@ $(document).ready(() => {
         
 
         $countryCode = await getCountryCode(c.latitude, c.longitude);
+
+        //console.log("lat: "+c.latitude+", lon:"+c.longitude);
 
         //fill country info table
         //let $countryData;
@@ -196,6 +203,10 @@ $(document).ready(() => {
 
         addProgress(10);                                                                                     //addProgress(10);
 
+        let $continue1 =await getRestCountry($countryCode);//use await to allow $capital to be assigned before calling getBattutaData
+
+        //currencySymbol stored in global variable invoked by getRestCountry above
+
         /**-----------------------------------------------EXCHANGE RATES------------------------------------------------------------------- */
 
         //Open Exchange Rates free account only supplies conversion rates against the US dollar. Whilst we created the means to show a dropdown list of all countries
@@ -203,8 +214,8 @@ $(document).ready(() => {
 
         //allowance 1000 api requests per month (months starts 16th month)
 
-        //let $continue = await getExchangeRates($currencyCode);  //get exchange rate data and store in global variable
-        //displayConversionRate($currencyCode);   //display exchangeRate
+        let $continue2 = await getExchangeRates($currencyCode);  //get exchange rate data and store in global variable called currencyInfo
+        displayConversionRate($currencyCode);   //display exchangeRate
 
         addProgress(10);                                                                                     //addProgress(10);
 
@@ -224,9 +235,9 @@ $(document).ready(() => {
         //fetchCitiesAndTowns();
         //fetchLocalTowns();
         
-        await getRestCountry($countryCode);//use await to allow $capital to be assigned before calling getBattutaData
+        
 
-        //getBattutaData($countryCode);
+        getBattutaData($countryCode); // defo keep
 
         
         //let $battutaRegions = getBattuta($countryCode);
@@ -235,12 +246,19 @@ $(document).ready(() => {
 
         ///////*****----------------------------------------------------------------------------------//getHereLandmark(-2.16667008, 53.41667175);
 
-        //getCovidResults($countryCode);// defo keep
-        //getCovidData();// defo keep
+        getCovidResults($countryCode);// defo keep
+        //getCovidData();// not used
         ///////*****----------------------------------------------------------------------------------//getWindyWebcams($countryCode);
-        //getNews($countryCode);// defo keep
+        getNews($countryCode);// defo keep
         /////*****----------------------------------------------------------------------------------//getOpenWeatherHistory($countryCode);
-        //getPublicHolidays($countryCode);// defo keep
+        getPublicHolidays($countryCode);// defo keep
+
+        getLandmarks($countryCode); // defo keep
+
+        //getClimateData($countryCode); not using
+
+
+
 
         addProgress(10);                                                                                     //addProgress(10);
         
@@ -309,21 +327,60 @@ $(document).ready(() => {
 
         //const $countryDataPopup = L.popup().setContent($countryData);
 
-        L.easyButton( 'far fa-clipboard fa-lg', function() {
+        let countryBtn = L.easyButton( 'fas fa-info fa-2x', function() {
+            //id: 'toggle-check-and-x',
             $('#countryData').modal('toggle');
-        }).addTo(mymap);
+        });
+        
+        countryBtn.button.style.width = '50px';
+        countryBtn.button.style.height = '50px';
+        countryBtn.button.style.border.width = '0px';
+        countryBtn.button.style.borderRadius = '25px';
+        countryBtn.button.style.backgroundColor = 'blue'; // repeated line (note below)
+        countryBtn.button.style.color = 'white';
+        countryBtn.button.style.paddingTop = '10px';
+        countryBtn.button.style.border = '3px solid midnightblue';
+        countryBtn.addTo(mymap);
 
-        L.easyButton( 'far fa-clipboard fa-lg', function() {
+        let covidBtn = L.easyButton( 'fas fa-virus fa-2x', function() {
             $('#covidCountryData').modal('toggle');
-        }).addTo(mymap);
+        });
+        covidBtn.button.style.width = '50px';
+        covidBtn.button.style.height = '50px';
+        covidBtn.button.style.border.width = '0px';
+        covidBtn.button.style.borderRadius = '25px';
+        covidBtn.button.style.backgroundColor = 'yellow'; // repeated line (note below)
+        covidBtn.button.style.color = 'red';
+        covidBtn.button.style.paddingTop = '10px';
+        covidBtn.button.style.border = '3px solid red';
+        covidBtn.addTo(mymap);
 
-        L.easyButton( 'far fa-clipboard fa-lg', function() {
+        let newsBtn = L.easyButton( 'far fa-newspaper fa-2x', function() {
             $('#newsData').modal('toggle');
-        }).addTo(mymap);
+        });
+        newsBtn.button.style.width = '50px';
+        newsBtn.button.style.height = '50px';
+        newsBtn.button.style.border.width = '0px';
+        newsBtn.button.style.borderRadius = '25px';
+        newsBtn.button.style.backgroundColor = 'green'; // repeated line (note below)
+        newsBtn.button.style.color = 'white';
+        newsBtn.button.style.paddingTop = '10px';
+        newsBtn.button.style.border = '3px solid darkgreen';
+        newsBtn.addTo(mymap);
 
-        L.easyButton( 'far fa-clipboard fa-lg', function() {
+        let holidayBtn = L.easyButton( 'far fa-calendar-times fa-2x', function() {
             $('#publicHolidayData').modal('toggle');
-        }).addTo(mymap);
+        });
+        holidayBtn.button.style.width = '50px';
+        holidayBtn.button.style.height = '50px';
+        holidayBtn.button.style.borderRadius = '25px';
+        holidayBtn.button.style.backgroundColor = 'white'; // repeated line (note below)
+        holidayBtn.button.style.color = 'purple';
+        //holidayBtn.button.style.paddingTop = '10px';
+        holidayBtn.button.style.padding = '10px 0';
+        holidayBtn.button.style.border = '3px solid purple';
+        holidayBtn.addTo(mymap);
+
 
         addProgress(10);                                                                                     //addProgress(10);
 
@@ -337,6 +394,7 @@ $(document).ready(() => {
         const $viewRouteData = ("<div class='easyPopup'>Select arrival markers <br>(green icons) <br>to view route directions</div>");
         const $viewRoutePopup = L.popup().setContent($viewRouteData);
 
+        /*//Easy Button for finding Route
         L.easyButton({
             states: [{
                 stateName: 'Draw',
@@ -512,6 +570,7 @@ $(document).ready(() => {
                 }
             }]
         }).addTo(mymap);
+        */
 
         addProgress(10);                                                                                     //addProgress(10);
 
@@ -537,6 +596,654 @@ $(document).ready(() => {
 
     
     /**---------------------------------------------------------------------API FUNCTIONS-------------------------------------------------------------------------- */
+    async function getStormGlassData($lat, $lng) {
+        let results = null;
+        await $.ajax({
+            url: 'PHP/getStormGlassData.php',
+            type: 'POST',
+            data: {
+                lat: $lat,
+                lng: $lng
+            },
+            success: function(res) {
+                if(res.status.name=='ok') {
+                    results = res['data'];
+                }
+            },
+            error: function(err) {
+                console.error(err);
+            }
+        });
+        if(results) {
+            //console.log("Storm Glass Data");
+            //console.dir(results);
+
+            let total = 0;
+            let count = 0;
+            let avg = 0;
+            if(results.hours) {
+                if(results.hours[0].precipitation.sg) {
+                    for(let i=0; i<results.hours.length; i++) {
+                        total += results.hours[i].precipitation.sg;
+                        count++;
+                    }
+                    avg = total / count;
+                }
+                avg = avg*1000;//convert from kg to grams
+                let rounded = Math.round((avg + Number.EPSILON) * 100) / 100
+                $('#weatherDataRain').html(rounded+" grams/m²");
+            }
+            
+        }
+        
+    }
+
+    async function getClimateData($countryCode) {
+        let iso3 = getIso_a3($countryCode);
+        let $results = null;
+        await $.ajax({
+            url: 'PHP/getClimateData.php',
+            type: 'POST',
+            data: {
+                ISO3: iso3
+            },
+            success: function(res) {
+                if(res.status.name == 'ok') {
+                    $results = res['data'];
+                }
+            },
+            error(err) {
+                console.error(err);
+            }
+        });
+        if($results) {
+            console.log("Climate Data:");
+            console.dir($results);
+        }
+    }
+
+    async function getOpenTripData($xid) {
+        let $results = null;
+        await $.ajax({
+            url: 'PHP/getOpenTripData.php',
+            type: 'POST',
+            data: {
+                xid: $xid
+            },
+            success: function(res) {
+                if(res.status.name == 'ok') {
+                    $results = res['data'];
+                }
+            },
+            error(err) {
+                console.error(err);
+            }
+        });
+        if($results) {
+            //console.log("Open Trip Data");
+            //console.dir($results);
+
+            //create Image
+            if($results['preview']) {
+                if($results['preview']['source']) {
+                    let image = document.createElement('img');
+                    image.classList.add('openTripDataImage');
+                    image.src = $results['preview']['source'];
+                    image.alt = 'Image of landmark'
+                    let div = document.getElementById('openTripDataImageDiv');
+                    if(div.firstChild) {
+                        div.removeChild(div.firstChild);
+                    }
+                    div.appendChild(image);
+                }
+            } else {
+                let div = document.getElementById('openTripDataImageDiv');
+                if(div.firstChild) {
+                    div.removeChild(div.firstChild);
+                }
+            }  
+            //create Title
+            if($results['name']) {
+                document.getElementById('openTripLandmarkName').innerHTML = $results['name'];
+            }
+            //create address table data
+            if($results['address']) {
+                let r = ''
+
+                let address = document.getElementById('openTripDataAddress');
+
+                if($results['address']['locality']) {
+                    r += $results['address']['locality']+', ';
+                }
+                if($results['address']['city_district']) {
+                    r += $results['address']['city_district']+', ';
+                }
+                if($results['address']['county']) {
+                    r += $results['address']['county']+', ';
+                }
+                if($results['address']['region']) {
+                    r += $results['address']['region']+', ';
+                }
+                if($results['address']['state_district']) {
+                    r += $results['address']['state_district']+', ';
+                }
+                if($results['address']['country']) {
+                    r += $results['address']['country']+'. ';
+                }
+                address.innerHTML = r;
+            }
+            //create Wiki table data
+            if($results['wikipedia']) {
+                document.getElementById('openTripDataWiki').removeChild(document.getElementById('openTripDataWiki').firstChild);
+                document.getElementById('openTripDataWikiEx').innerHTML = $results['wikipedia_extracts']['html'];
+                //document.getElementById('openTripDataWiki').innerHTML =  $results['wikipedia'];
+                
+                document.getElementById('openTripDataWiki').appendChild(document.createTextNode('  Read More...'));
+                document.getElementById('openTripDataWiki').setAttribute('href', $results['wikipedia']);
+                document.getElementById('openTripDataWiki').setAttribute('alt', 'Image of Landmark');
+            } else if($results['wikidata']){
+                if(document.getElementById('openTripDataWiki').firstChild) {
+                    document.getElementById('openTripDataWiki').removeChild(document.getElementById('openTripDataWiki').firstChild);
+                }
+                document.getElementById('openTripDataWiki').appendChild(document.createTextNode('Wikidata: '+$results['wikidata']));
+            } else {
+                if(document.getElementById('openTripDataWiki').firstChild) {
+                    document.getElementById('openTripDataWiki').removeChild(document.getElementById('openTripDataWiki').firstChild);
+                }
+                document.getElementById('openTripDataWiki').appendChild(document.createTextNode(''));
+            }
+            
+            //create lat / long table data
+            if($results['point']) {
+                document.getElementById('openTripDataLatitude').innerHTML = $results['point']['lat'];
+                document.getElementById('openTripDataLongitude').innerHTML = $results['point']['lon'];
+            }
+            //create openTripDataAnchor
+            if($results['otm']) {
+                document.getElementById('openTripDataAnchor').innerHTML = $results['otm'];
+                document.getElementById('openTripDataAnchor').setAttribute('href', $results['otm']);
+                document.getElementById('openTripDataAnchor').setAttribute('target', '_blank');
+
+            }
+
+
+
+
+
+        }
+    }
+    
+   $(document).on('click', '.openTripDataBtn', async function(event) {
+        //alert(event.target.id);
+        $id = event.target.id;
+        $xid = $id.substring(2);
+        //let $tripData =
+        await getOpenTripData($xid);
+
+        $('#openTripData').modal('toggle');
+        
+    });
+
+    async function getOpenWeatherData($lat, $lng, $name) {
+        let $results = null;
+        await $.ajax({
+            url: 'PHP/getOpenWeatherData.php',
+            type: 'POST',
+            data: {
+                lat: $lat,
+                lng: $lng
+            },
+            success: function(res) {
+                if(res.status.name == 'ok') {
+                    $results = res['data'];
+                }
+            },
+            error(err) {
+                console.error(err);
+            }
+        });
+        if($results) {
+            //console.log("Open Weather Data");
+            //console.dir($results);
+
+            if($name) {
+                $('#weatherDataName').html($name+" Weather Forecast");
+            }
+            if($results.current.dt) {
+                let miliseconds = $results.current.dt * 1000;
+                let newDate = new Date(miliseconds);
+                let humanDateFormat = newDate.toLocaleString();
+                let day = newDate.getDay();
+                let date = newDate.getDate();
+                let month = newDate.getMonth();
+                let yr = newDate.getFullYear();
+                let weekday = null;
+                switch(day) {
+                    case 0: weekday = 'Sunday';
+                    break;
+                    case 1: weekday = 'Monday';
+                    break;
+                    case 2: weekday = 'Tuesday';
+                    break;
+                    case 3: weekday = 'Wednesday';
+                    break;
+                    case 4: weekday = 'Thursday';
+                    break;
+                    case 5: weekday = 'Friday';
+                    break;
+                    case 6: weekday = 'Saturday';
+                    break;
+                }
+
+                $('#weatherDataCurrent').html(weekday+", "+date+" / "+month+" / "+yr);
+            }
+            if($results.current.weather[0].description) {
+                let str = '';
+                let word = null;
+                let arr = $results.current.weather[0].description.split(' ');
+                for(let i=0; i<arr.length; i++) {
+                    
+                    word = arr[i];
+                    word = word.toLowerCase();
+                    letter = word[0];
+                    letter = letter.toUpperCase();
+                    str += letter+word.slice(1)+' '
+                }
+                $('#weatherDataDescription').html(str);
+            }
+            if($results.current.clouds) {
+                $('#weatherDataCloudCoverage').html($results.current.clouds+'%');
+            }
+            if($results.current.temp) {
+                let tf = $results.current.temp;
+                //let tc = (tf - 32) * 5/9;
+                //$('#weatherDataTemp').html(tf+'&deg; F / '+tc+'&deg; C');
+                $('#weatherDataTemp').html(tf+' &deg;C');
+            }
+            if($results.current.feels_like) {
+                let ff = $results.current.feels_like;
+                //let fc = (ff - 32) * 5/9;
+                //$('#weatherDataFeelsLike').html(ff+'&deg; F / '+fc+'&deg; C');
+                $('#weatherDataFeelsLike').html(ff+' &deg;C');
+            }
+            if($results.current.pressure) {
+                $('#weatherDataPressure').html($results.current.pressure+" hPa");
+            }
+            if($results.current.humidity) {
+                $('#weatherDataHumidity').html($results.current.humidity+" %");
+            }
+            if($results.current.wind_speed) {
+                $('#weatherDataWindSpeed').html($results.current.wind_speed+" metre/sec");
+            }
+            if($results.current.wind_deg) {
+                let num = $results.current.wind_deg;
+                let direction = null;
+                
+                if(67 > num && num >= 23){ 
+                    direction = 'North East';
+                }else if(113 > num && num >= 67) {
+                    direction = 'East';
+                }else if(158 > num && num >= 113) {
+                    direction = 'South East';
+                }else if(203 > num && num >= 158) {
+                    direction = 'South';
+                }else if(248 > num && num >= 203) {
+                    direction = 'South West';
+                }else if(293 > num && num >= 248) {
+                    direction = 'West';
+                }else if(338 > num && num >= 293) {
+                    direction = 'North West';
+                }else {
+                    direction = 'North';
+                }
+                $('#weatherDataWindDirection').html(direction);
+            }
+            if($results.current.uvi || $results.current.uvi == 0) {
+                $('#weatherDataUVI').html($results.current.uvi);
+            }
+            if($results.current.visibility) {
+                $('#weatherDataVisibility').html($results.current.visibility + ' metres');
+            }
+            if($results.current.sunrise) {
+                let mili = $results.current.sunrise * 1000;
+                let date = new Date(mili);
+                let hours = date.getHours();
+                let minutes = date.getMinutes();
+                let str = ' AM';
+                if(hours > 12) {
+                    hours = hours - 12 ;
+                    str = ' PM';
+                }
+                if(minutes < 10) {
+                    minutes = '0'+minutes;
+                }
+
+                $('#weatherDataSunrise').html(hours+':'+minutes+str);
+            }
+            if($results.current.sunset) {
+                let mil = $results.current.sunset * 1000;
+                let dat = new Date(mil);
+                let hrs = dat.getHours();
+                let mins = dat.getMinutes();
+                let st = ' AM';
+                if(hrs > 12) {
+                    hrs = hrs - 12 ;
+                    st = ' PM';
+                }
+                if(mins < 10) {
+                    mins = '0'+mins;
+                }
+
+                $('#weatherDataSunset').html(hrs+':'+mins+st);
+            }
+
+            let hourlyDiv = document.getElementById('weatherDataHourlyDiv');
+            let DailyDiv = document.getElementById('weatherDataDailyDiv');
+
+            if($results['hourly'].length > 0) {
+                //for(let i=0; i<$results['hourly'].length; i++) {
+
+                //}
+                $results['hourly'].forEach(data => {
+                    //let dt = data.dt;
+                    let miliseconds = data.dt * 1000;
+                    let new_date = new Date(miliseconds);
+                    let humanDateFormat = new_date.toLocaleString();
+                    
+                    let hrs = new_date.getHours();
+                    let ampm;
+                    if(hrs <= 12) {
+                        ampm = ' AM';
+                    } else {
+                        hrs = hrs - 12;
+                        ampm = ' PM';
+                    }
+
+                    let temp = data.temp;
+                    let div = document.createElement('div');
+                    div.classList.add('flex_col');
+                    div.classList.add('hourlyDiv');
+                    let pdate = document.createElement('p');
+                    let ptemp = document.createElement('p');
+                    pdate.appendChild(document.createTextNode(hrs+ampm));
+                    ptemp.appendChild(document.createTextNode(temp+' \u2103'));
+                    div.appendChild(ptemp);
+                    div.appendChild(pdate);
+                    hourlyDiv.appendChild(div);
+                });
+            }
+            if($results['daily'].length > 0) {
+                $results['daily'].forEach(data => {
+                    //let date = data.dt;
+                    let miliseconds = data.dt * 1000;
+                    let new_date = new Date(miliseconds);
+                    let humanDateFormat = new_date.toLocaleString();
+                    let day = new_date.getDay();
+                    switch(day) {
+                        case 0: day = 'Sunday';
+                        break;
+                        case 1: day = 'Monday';
+                        break;
+                        case 2: day = 'Tuesday';
+                        break;
+                        case 3: day = 'Wednesday';
+                        break;
+                        case 4: day = 'Thursday';
+                        break;
+                        case 5: day = 'Friday';
+                        break;
+                        case 6: day = 'Saturday';
+                        break;
+
+                    }
+                    //let month = new_date.getMonth();
+                    //let year = new_date.getFullYear();
+
+                    let temp2 = data.temp.max;
+                    let div2 = document.createElement('div');
+                    div2.classList.add('flex_col');
+                    div2.classList.add('dailyDiv');
+                    let pdate2 = document.createElement('p');
+                    pdate2.classList.add('tac');
+                    let ptemp2 = document.createElement('p');
+                    ptemp2.classList.add('tac');
+                    pdate2.appendChild(document.createTextNode(day));
+                    ptemp2.appendChild(document.createTextNode(temp2+' \u2103'));
+                    div2.appendChild(ptemp2);
+                    div2.appendChild(pdate2);
+                    DailyDiv.appendChild(div2);
+                });
+            }
+
+            $('#weatherData').modal('toggle');
+        }
+    }
+
+    $(document).on('click', '.weatherDataBtn', async function(event) {
+        //alert(event.target.id);
+        $id = event.target.id;
+        $latlng = $id.substring(2);
+
+        $hyphen = $latlng.indexOf('-');
+        $_cityNameIndex = $latlng.indexOf('_cityName:');
+
+        $lat = $latlng.substring(0, $hyphen);
+        $lng = $latlng.substring($hyphen+1, $_cityNameIndex);
+        $_cityNameIndex = $_cityNameIndex + 10;
+        $_cityName = $latlng.substring($_cityNameIndex);
+
+        //let $weatherData = await 
+        getOpenWeatherData($lat, $lng, $_cityName);
+        getStormGlassData($lat, $lng);
+        
+   });
+
+
+    async function getLandmarks($countryCode) {
+        let $results = null;
+        await $.ajax({
+            url: 'PHP/getLandmarks.php',
+            type: 'POST',
+            data: {
+                countryCode: $countryCode
+            },
+            success: function(res) {
+                if(res.status.name == 'ok') {
+                    $results = res['data'];
+                }
+            },
+            error(err) {
+                console.error(err);
+            }
+        });
+        /*
+        if($results) {
+            let xArray = [];
+            for(let i=0; i<$results.features.length; i++) {
+                //xArray.push($results.features[i]['properties']['xid']);
+                $results.features[i]['properties']['newID'] = i;
+                let $xid = $results.features[i]['properties']['xid'];
+                await $.ajax({
+                    url: 'PHP/getLandmarkImages.php',
+                    type: 'POST',
+                    data: {
+                        xid: $xid
+                    },
+                    success: function(res) {
+                        if(res.status.name == 'ok') {
+                            $results.features[i]['xidResults'] = res;
+                        }
+                    },
+                    error(err) {
+                        console.error(err);
+                    }
+                });
+            }
+
+        }
+        */
+
+        //console.log("Landmarks");
+        //console.dir($results);
+        populateWithLandmarks($results.features);
+    }
+
+    async function populateWithLandmarks($arr) {
+        //$globalClusterLayerGroup
+        //$globalBattutaLayerGroup
+
+        let orangeMarker = L.ExtraMarkers.icon({
+            icon: 'fa-circle',
+            markerColor: 'orange',
+            shape: 'circle',
+            prefix: 'far'
+        });
+        let violetMarker = L.ExtraMarkers.icon({
+            icon: 'fa-cross',
+            markerColor: 'violet',
+            shape: 'star',
+            prefix: 'fas'
+        });
+        let yellowMarker = L.ExtraMarkers.icon({
+            icon: 'fa-chess-rook',
+            markerColor: 'yellow',
+            shape: 'penta',
+            prefix: 'fas'
+        });
+        let darkOrangeMarker = L.ExtraMarkers.icon({
+            icon: 'fa-landmark',
+            markerColor: 'orange-dark',
+            shape: 'square',
+            prefix: 'fas'
+        });
+        let greenMarker = L.ExtraMarkers.icon({
+            icon: 'fa-industry',
+            markerColor: 'green',
+            shape: 'square',
+            prefix: 'fas'
+        });
+        let cyanMarker = L.ExtraMarkers.icon({
+            icon: 'fa-broadcast-tower',
+            markerColor: 'cyan',
+            shape: 'square',
+            prefix: 'fas'
+        });
+        let whiteMarker = L.ExtraMarkers.icon({
+            icon: 'fa-bed',
+            markerColor: 'white',
+            shape: 'square',
+            prefix: 'fas'
+        });
+        let lightGreenMarker = L.ExtraMarkers.icon({
+            icon: 'fa-street-view',
+            markerColor: 'green-light',
+            shape: 'circle',
+            prefix: 'fas'
+        });
+        let popupContent = null;
+        let $markerCluster = L.markerClusterGroup();
+        let $latlng;
+        let $landmarkArray = [];
+
+        if($arr.length > 0) {
+            
+            for(let vbn = 0; vbn < $arr.length; vbn++) {
+                
+                let $easyMarker;
+                
+                popupContent = ("<table class='tablePopup landmarkPopup'>"+
+                    "<tr><td><p class='landmarkName'>"+$arr[vbn]['properties']['name']+"</p></td></tr>"+//<th>Name:</th>
+                    //"<tr><th>ID:</th><td>"+$arr[vbn]['id']+"</td></tr>"+
+                    //"<tr><th>Latitude:</th><td>"+$arr[vbn]['geometry']['coordinates'][0]+"</td></tr>"+
+                    //"<tr><th>Longitude:</th><td>"+$arr[vbn]['geometry']['coordinates'][1]+"</td></tr>"+
+                    "<tr><td class='openTripDataTD'><div class='openTripDataBtn btn btn-primary' id='tr"+$arr[vbn]['properties']['xid']+"' >Details</div></td></tr>"+
+                    //<i id='ie"+$cityID+"' class='fas fa-cloud-sun-rain fa-lg'></i>  
+                        //"<tr><td colspan='2' class='btnTD'>"+
+                        //"<div class='my_btn_element' id='we"+$cityID+"' ><i id='ie"+$cityID+"' class='fas fa-cloud-sun-rain fa-lg'></i>  Check Local Weather</div>"+
+                        //"<div class='boundaryDiv noBoundary' id='ub"+$result[$zx]['longitude']+"_"+$result[$zx]['latitude']+"'> View Boundary</div>"+//<i class='fas fa-border-style fa-lg'></i>
+                    //"</td></tr>"+
+                    "</table>"
+                );
+
+                //possible image at https://opentripmap.com/en/card/W360503687 N26755092
+                //https://commons.wikimedia.org/wiki/File:Dumfries.jpg
+
+                //pubs,foods,  
+                //industrial_facilities,railway_stations,
+
+                $latlng = [$arr[vbn]['geometry']['coordinates'][1], $arr[vbn]['geometry']['coordinates'][0]];
+
+                if($arr[vbn]['properties']['kinds'].includes('churches') || $arr[vbn]['properties']['kinds'].includes('religion')) {
+                    $easyMarker = L.marker($latlng, {
+                        title: $arr[vbn]['properties']['name'],
+                        riseOnHover: true,
+                        icon: violetMarker
+                    }).bindPopup(popupContent, {maxWidth: 'auto'}).setZIndexOffset(100);
+                } else if($arr[vbn]['properties']['kinds'].includes('fortifications')) {
+                    $easyMarker = L.marker($latlng, {
+                        title: $arr[vbn]['properties']['name'],
+                        riseOnHover: true,
+                        icon: yellowMarker
+                    }).bindPopup(popupContent, {maxWidth: 'auto'}).setZIndexOffset(100);
+                } else if($arr[vbn]['properties']['kinds'].includes('guest_house')) {
+                    $easyMarker = L.marker($latlng, {
+                        title: $arr[vbn]['properties']['name'],
+                        riseOnHover: true,
+                        icon: whiteMarker
+                    }).bindPopup(popupContent, {maxWidth: 'auto'}).setZIndexOffset(100);
+                } else if($arr[vbn]['properties']['kinds'].includes('view_points')) {
+                    $easyMarker = L.marker($latlng, {
+                        title: $arr[vbn]['properties']['name'],
+                        riseOnHover: true,
+                        icon: lightGreenMarker
+                    }).bindPopup(popupContent, {maxWidth: 'auto'}).setZIndexOffset(100);
+                } else if($arr[vbn]['properties']['kinds'].includes('lighthouse') || $arr[vbn]['properties']['kinds'].includes('towers')) {
+                    $easyMarker = L.marker($latlng, {
+                        title: $arr[vbn]['properties']['name'],
+                        riseOnHover: true,
+                        icon: cyanMarker
+                    }).bindPopup(popupContent, {maxWidth: 'auto'}).setZIndexOffset(100);
+                } else if($arr[vbn]['properties']['kinds'].includes('historic') || $arr[vbn]['properties']['kinds'].includes('monuments')) {
+                    $easyMarker = L.marker($latlng, {
+                        title: $arr[vbn]['properties']['name'],
+                        riseOnHover: true,
+                        icon: darkOrangeMarker
+                    }).bindPopup(popupContent, {maxWidth: 'auto'}).setZIndexOffset(100);
+                } else if($arr[vbn]['properties']['kinds'].includes('industry') || $arr[vbn]['properties']['kinds'].includes('industrial')) {
+                    $easyMarker = L.marker($latlng, {
+                        title: $arr[vbn]['properties']['name'],
+                        riseOnHover: true,
+                        icon: greenMarker
+                    }).bindPopup(popupContent, {maxWidth: 'auto'}).setZIndexOffset(100);
+                } else {
+                    $easyMarker = L.marker($latlng, {
+                        title: $arr[vbn]['properties']['name'],
+                        riseOnHover: true,
+                        icon: orangeMarker
+                    }).bindPopup(popupContent, {maxWidth: 'auto'}).setZIndexOffset(100);
+                }
+
+
+                $markerCluster.addLayer($easyMarker);
+                $landmarkArray.push($easyMarker);
+
+            }
+            let $landmarkLayer = L.layerGroup($landmarkArray);
+            $globalBattutaLayerGroup.addLayer($landmarkLayer);
+            document.getElementById('battuta_lds').classList.remove('display_lds');
+            document.getElementById('battuta_lds').classList.add('hide_lds');
+
+            $globalClusterLayerGroup.addLayer($markerCluster);
+            document.getElementById('cluster_lds').classList.remove('display_lds');
+            document.getElementById('cluster_lds').classList.add('hide_lds');
+        }
+    }
+
+   
+
+
+
+
 
     async function getPublicHolidays($countryCode) {
         let $results = null;
@@ -555,8 +1262,8 @@ $(document).ready(() => {
                 console.error(err);
             }
         });
-        console.log("Public Holidays");
-        console.dir($results);
+        //console.log("Public Holidays");
+        //console.dir($results);
         emptyHolidayTable();
         presentPublicHolidays($results);
     }
@@ -590,6 +1297,7 @@ $(document).ready(() => {
                     let $tr = document.createElement('tr');
 
                     let $dateTD = document.createElement('td');
+                    $dateTD.classList.add('mlpx');
                     let $dateText = document.createTextNode($list[$zxc].date);
                     $dateTD.appendChild($dateText);
 
@@ -679,8 +1387,8 @@ $(document).ready(() => {
                 console.error(err);
             }
         });
-        console.log("News API");
-        console.dir($results);
+        //console.log("News API");
+        //console.dir($results);
         await emptyNews(); //removes DOM nodes from previous country news api
 
         //if $results['articles'].length == 0 then add single div with notice of no news found
@@ -708,6 +1416,7 @@ $(document).ready(() => {
 
                     let card = document.createElement('div');
                     card.classList.add('card');
+                    card.classList.add('newsCard');
                     let cardHeader = document.createElement('div');
                     cardHeader.classList.add('card-header');
                     cardHeader.id = 'heading'+($mn+1);
@@ -815,6 +1524,7 @@ $(document).ready(() => {
         }
         catch(err) {
             //do nothing as error will be image src not found
+            console.log("Image could not be loaded: "+err);
         }
     }
     
@@ -869,10 +1579,15 @@ $(document).ready(() => {
                 }
             }
         });
-        console.log("COVID-19");
-        console.dir($results);
-        $('#covidCountryName').html('Coivd-19 Data for '+$results['Country']);
-        $('#covidDate').html($results['Date']);
+        //console.log("COVID-19");
+        //console.dir($results);
+        $('#covidCountryName').html('COVID-19 Statistics For '+$results['Country']);
+
+        let date = $results['Date'].substring(0,10);
+        dateArr = date.split('-');
+        let newDate = dateArr[2]+' / '+dateArr[1]+' / '+dateArr[0];
+
+        $('#covidDate').html(newDate);
         $('#covidNewCases').html($results['NewConfirmed']);
         $('#covidNewDeaths').html($results['NewDeaths']);
         $('#covidNewRecovered').html($results['NewRecovered']);
@@ -899,8 +1614,9 @@ $(document).ready(() => {
             }
         });
 
-        console.log('rest details:');
-        console.dir($result);
+        //console.log('rest details:');
+        //console.dir($result);
+        
         if($result) {
 
             let myNode = document.getElementById('languages');
@@ -908,6 +1624,10 @@ $(document).ready(() => {
                 myNode.removeChild(myNode.lastChild);
             }
             myNode = document.getElementById('borders');
+            while (myNode.firstChild) {
+                myNode.removeChild(myNode.lastChild);
+            }
+            myNode = document.getElementById('modalImageDiv');
             while (myNode.firstChild) {
                 myNode.removeChild(myNode.lastChild);
             }
@@ -922,6 +1642,7 @@ $(document).ready(() => {
             
             //$currency = $result.currencies[0].name;
             $('#currencies').html($result['currencies'][0].name);
+            $currencyCode = $result['currencies'][0].code;
             $currencySymbol = $result['currencies'][0].symbol;
             $('#exRate').html($result['currencies'][0]['symbol']);
 
@@ -951,6 +1672,19 @@ $(document).ready(() => {
             //$restCountryName = $result.name;
             $('#countryName').html($result.name);
 
+            let div = document.getElementById('modalImageDiv');
+            let image = document.createElement('img');
+            image.src = $result['flag'];
+            image.setAttribute('alt', 'Country Flag');
+            image.classList.add('countryFlagImage');
+
+            let title = document.createTextNode($result.demonym+' Flag');
+            let h = document.createElement('p');
+            h.classList.add('countryNameFlagTitle');
+            h.appendChild(title);
+
+            div.appendChild(image);
+            div.appendChild(h);
         }
     }
 
@@ -974,6 +1708,8 @@ $(document).ready(() => {
             }
         });
         if($result) {
+            //console.log("battuta: ");
+            //console.dir($result);
             //const myBlueIcon = new LeafIcon({iconUrl: 'Images/my_blue_svg_icon.svg'});
             //const myPurpleIcon = new LeafIcon({iconUrl: 'Images/my_purple_svg_icon.svg'});
             //const myRedIcon = new LeafIcon({iconUrl: 'Images/my_red_svg_icon.svg'});
@@ -995,13 +1731,15 @@ $(document).ready(() => {
             let $markerCluster = L.markerClusterGroup();
             
             for(let $zx = 0; $zx < $result.length; $zx++) {
-                popupContent = ("<table class='tablePopup'>"+
-                    "<tr><th>Name:</th><td>"+$result[$zx]['city']+"</td></tr>"+
-                    "<tr><th>Latitude:</th><td>"+$result[$zx]['latitude']+"</td></tr>"+
-                    "<tr><th>Longitude:</th><td>"+$result[$zx]['longitude']+"</td></tr>"+
+                popupContent = ("<table class='tablePopup weatherPopup'>"+
+                    "<tr><td><p class='battutaName'>"+$result[$zx]['city']+"<p></td></tr>"+
+                    //"<tr><th>Latitude:</th><td>"+$result[$zx]['latitude']+"</td></tr>"+
+                    //"<tr><th>Longitude:</th><td>"+$result[$zx]['longitude']+"</td></tr>"+
                     "<tr><td colspan='2' class='btnTD'>"+
-                        //"<div class='my_btn_element' id='we"+$cityID+"' ><i id='ie"+$cityID+"' class='fas fa-cloud-sun-rain fa-lg'></i>  Check Local Weather</div>"+
-                        "<div class='boundaryDiv noBoundary' id='ub"+$result[$zx]['longitude']+"_"+$result[$zx]['latitude']+"'> View Boundary</div>"+//<i class='fas fa-border-style fa-lg'></i>
+                        "<div class='weatherDataBtn btn btn-success' id='wd"+$result[$zx]['latitude']+"-"+$result[$zx]['longitude']+"_cityName:"+$result[$zx]['city']+"' >Weather</div>"+//<i id='ie"+$cityID+"' class='fas fa-cloud-sun-rain fa-lg'></i>  
+                    "</td></tr>"+
+                    "<tr><td colspan='2' class='btnTD'>"+
+                        "<div class='boundaryDiv noBoundary btn btn-primary' id='ub"+$result[$zx]['longitude']+"_"+$result[$zx]['latitude']+"'>Zoom In</div>"+//<i class='fas fa-border-style fa-lg'></i>
                     "</td></tr>"+
                     "</table>"
                 );
@@ -1009,7 +1747,7 @@ $(document).ready(() => {
                 
                 //console.log("country: "+$result[$zx]['city']);
                 if($result[$zx]['city'].includes($capital)) {
-                    console.log($capital);
+                    //console.log($capital);
                     let $easymarker = L.marker($latlng, {
                         title: $result[$zx]['city'],
                         riseOnHover: true,
@@ -1511,7 +2249,7 @@ $(document).ready(() => {
                 /* ----------------^^^^^^^^^^------------------------CITIES---------------^^^^^^^^^^--------------------- */
 
                 let latlng = [$cities[$i]['lat'], $cities[$i]['lng']];
-                let $circle = L.circleMarker(latlng, {radius: 20, color: 'deeppink'})
+                let $circle = L.circleMarker(latlng, {radius: 20, color: 'deeppink'});
                 $boundsArray.push($circle);
 
             }
@@ -1795,8 +2533,11 @@ $(document).ready(() => {
     async function displayConversionRate($currencyCode) {
         try{
             if($currencyInfo!==null) {
+                //console.log("currency");
+                //console.dir($currencyInfo['rates'][$currencyCode]);
+
                 $displayRate = $currencyInfo['rates'][$currencyCode];
-                $('#exRate').html($currencySymbol+ ' '+$displayRate);
+                $('#exRate').html($currencySymbol+ ' '+$displayRate + " = $1 (USD)");
 
             }
         }
@@ -1828,6 +2569,8 @@ $(document).ready(() => {
                 }
             });
             if($rates.status.name=='ok') {
+                //console.log("currency");
+                //console.dir($rates['data']);
                 $currencyInfo = $rates['data'];
                 return true;
             }
@@ -2123,7 +2866,7 @@ $(document).ready(() => {
 
     async function setNewCountry($thisCountryCode, $thisCountryName) {
 
-        console.log("setNewCountry: "+$thisCountryCode, $thisCountryName);
+        //console.log("setNewCountry: "+$thisCountryCode, $thisCountryName);
 
        try {
             $('.loaderDiv').css('display', 'flex');
@@ -2185,6 +2928,34 @@ $(document).ready(() => {
         hideWidgets();
     });
 
+    async function getOpenTripPlaces($lat, $lng) {
+        //console.log("here");
+        //console.log($lat,$lng);
+        let $results = null;
+        await $.ajax({
+            url: 'PHP/getOpenTripPlaces.php',
+            type: 'POST',
+            data: {
+                radius: 1,
+                lat: $lat,
+                lon: $lng
+            },
+            success: function(res) {
+                if(res.status.name == 'ok') {
+                    $results = res.data;
+                }
+            },
+            error: function(err) {
+                console.error(err);
+            }
+            
+        });
+        if($results) {
+            //console.log("Open Trip Places");
+            //console.dir($results);
+        }
+    }
+
     //view place polygon
     $(document).on('click', '.boundaryDiv', async function(event) {
         let $id = event.target.id;
@@ -2196,12 +2967,42 @@ $(document).ready(() => {
         let $lat = $arr[0];
         let $lng = $arr[1];
 
+        //get local objects
+
+
         let $shapeData = await getHereShapes($lat, $lng);
+
+        //console.log("shape data");
+        //console.dir($shapeData);
 
         if($shapeData.result === 'noShape') {
             if($element.classList.contains('noBoundary')) {
+                
+                let $bounds = [ [$shapeData.bounds.BottomRight.Latitude,$shapeData.bounds.BottomRight.Longitude], [$shapeData.bounds.TopLeft.Latitude,$shapeData.bounds.TopLeft.Longitude] ];
 
-                let $bounds = [[$shapeData.bounds.BottomRight.Latitude,$shapeData.bounds.BottomRight.Longitude],[$shapeData.bounds.TopLeft.Latitude,$shapeData.bounds.TopLeft.Longitude]]
+                let lat_max = $shapeData.bounds.BottomRight.Latitude;
+                let lat_min = $shapeData.bounds.TopLeft.Latitude;
+                let lon_max = $shapeData.bounds.TopLeft.Longitude;
+                let lon_min = $shapeData.bounds.BottomRight.Longitude;
+
+                //getOpenTripPlaces($lat, $lng);
+                //let lon_min = $shapeData.bounds.BottomRight.Longitude;
+                //let lat_min = $shapeData.bounds.BottomRight.Latitude;
+                //let lon_max = $shapeData.bounds.TopLeft.Longitude;
+                //let lat_max = $shapeData.bounds.TopLeft.latitude;
+                //getOpenTripBbox($bounds[1][0],$bounds[1][1],$bounds[0][1],$bounds[0,0]);
+                // getOpenTripBbox(lon_min,lon_max,lat_min,lat_max)
+
+                
+                //getOpenTripBbox($bounds[1][1], $bounds[1][0],$bounds[1][1],$bounds[0][1]);
+                let objects = getOpenTripBbox(lon_max,lon_min,lat_max,lat_min);
+                if(objects.features) {
+                    populateOpenTripObjects(objects.features);
+                }
+
+                //console.dir('xxxx: '+$bounds[1][0]+', '+$bounds[0][0]+', '+$bounds[0][1]+', '+$bounds[1][1]);
+                //console.log("shape Data");
+                //console.dir($shapeData);
 
                 $mapControl.flyToBounds($bounds);
                 $element.classList.remove('noBoundary');
@@ -2209,7 +3010,7 @@ $(document).ready(() => {
             } else {
                 $mapControl.flyToBounds($globalFeatureGroup.getBounds());
                 $element.classList.add('noBoundary');
-                $element.innerHTML = 'View Boundary';
+                $element.innerHTML = 'Zoom In';
             }
 
         } else {
@@ -2218,6 +3019,9 @@ $(document).ready(() => {
                 if($polygonLayer) {
                     $mapControl.removeLayer($polygonLayer);
                 }
+
+                await getOpenTripPlaces($lat, $lng);
+                
                 let $newLayer = L.layerGroup();
                 let $pga = getPolygonArray($shapeData.finalArray);
 
@@ -2234,27 +3038,167 @@ $(document).ready(() => {
                     $pga[$as].addTo($newLayer);
                 }
 
-                $polygonLayer = $newLayer;
-                $mapControl.flyToBounds($pga[$index].getBounds());
+                $bounds = $pga[$index].getBounds();
                 
-                setTimeout(() => {
-                    $polygonLayer.addTo($mapControl);
-                }, 2000);
+                let lat_min = $bounds._southWest.lat;
+                let lat_max = $bounds._northEast.lat;
+                let lon_min = $bounds._southWest.lng;
+                let lon_max = $bounds._northEast.lng;
+                let openTripResponse = await getOpenTripBbox(lon_min,lon_max,lat_min,lat_max);
+
+                if(openTripResponse['features']) {
+                    populateOpenTripObjects(openTripResponse['features']);
+                }
+                
+
+                $polygonLayer = $newLayer;
+                $mapControl.fitBounds($pga[$index].getBounds());
+                //$mapControl.flyToBounds($pga[$index].getBounds());
+
+                
+                //setTimeout(() => {
+                //    $polygonLayer.addTo($mapControl);
+                //}, 2000);
                 
                 $element.classList.remove('noBoundary');
-                $element.innerHTML = 'Hide Boundary';
+                $element.innerHTML = 'Zoom Out';
                 
             } else {
                 $mapControl.removeLayer($polygonLayer);
                 $mapControl.flyToBounds($globalFeatureGroup.getBounds());
                 //$mapControl.fitBounds($globalFeatureGroup.getBounds());
+                $globalOpenTripLayerGroup.clearLayers();
                 $element.classList.add('noBoundary');
-                $element.innerHTML = 'View Boundary';
+                $element.innerHTML = 'Zoom In';
             }
         
         }
 
     });
+
+    
+
+    async function getOpenTripBbox(lon_min,$lon_max,lat_min,$lat_max) {
+        //console.log('lon_min: '+lon_min);
+        //console.log('lon_max: '+$lon_max);
+        //console.log('lat_min: '+lat_min);
+        //console.log('lat_max: '+$lat_max);
+        //console.log(':)');
+        let $results = null;
+        await $.ajax({
+            url: 'PHP/getOpenTripBbox.php',
+            type: 'POST',
+            data: {
+                lon_min: lon_min,
+                lon_max: $lon_max,
+                lat_min: lat_min,
+                lat_max: $lat_max
+            },
+            success: function(res) {
+                if(res['status']['name'] == 'ok') {
+                    $results = res.data;
+                }
+            },
+            error: function(err) {
+                console.error(err);
+            }
+        });
+        if($results) {
+            //console.log("get Open Trip Bbox");
+            //console.dir($results);
+            return $results;
+        }
+    }
+
+     
+    function populateOpenTripObjects(arr) {
+        $globalOpenTripLayerGroup.clearLayers();
+        let otObjects = [];
+        let latlng;
+
+        if(arr.length > 0) {
+            for(let ing=0; ing < arr.length; ing++) {
+
+                let $marker;
+                
+                popupContent = ("<table class='tablePopup OTObjectsPopup'>"+
+                    "<tr><td><p class='OPObjectsName'>"+arr[ing]['properties']['name']+"</p></td></tr>"+//<th>Name:</th>
+                    "<tr><td class='openTripDataTD'><div class='openTripDataBtn btn btn-primary' id='tr"+arr[ing]['properties']['xid']+"' >Details</div></td></tr>"+
+                    "</table>"
+                );
+
+                latlng = [arr[ing]['geometry']['coordinates'][1], arr[ing]['geometry']['coordinates'][0]];
+
+                if(arr[ing]['properties']['kinds'].includes('churches') || arr[ing]['properties']['kinds'].includes('religion')) {
+                    $marker = L.circleMarker(latlng, {
+                        radius: 5,
+                        color: 'deeppink'
+                    }).bindPopup(popupContent, {minWidth: 'auto'});//.setZIndexOffset(100);
+                } else if(arr[ing]['properties']['kinds'].includes('cemeteries') || arr[ing]['properties']['kinds'].includes('burial_places')) {
+                    $marker = L.circleMarker(latlng, {
+                        radius: 5,
+                        color: 'purple'
+                    }).bindPopup(popupContent, {maxWidth: 'auto'});//.setZIndexOffset(100);
+                } else if(arr[ing]['properties']['kinds'].includes('guest_house') || arr[ing]['properties']['kinds'].includes('accomodations')) {
+                    $marker = L.circleMarker(latlng, {
+                        radius: 5,
+                        color: 'yellow'
+                    }).bindPopup(popupContent, {maxWidth: 'auto'});//.setZIndexOffset(100);
+                } else if(arr[ing]['properties']['kinds'].includes('mountain_peaks') || arr[ing]['properties']['kinds'].includes('natural') || arr[ing]['properties']['kinds'].includes('geological_formations')) {
+                    $marker = L.circleMarker(latlng, {
+                        radius: 5,
+                        color: 'darkgreen'
+                    }).bindPopup(popupContent, {maxWidth: 'auto'});//.setZIndexOffset(100);
+                } else if(arr[ing]['properties']['kinds'].includes('architecture') || arr[ing]['properties']['kinds'].includes('towers') || arr[ing]['properties']['kinds'].includes('other_towers')) {
+                    $marker = L.circleMarker(latlng, {
+                        radius: 5,
+                        color: 'red'
+                    }).bindPopup(popupContent, {maxWidth: 'auto'});//.setZIndexOffset(100);
+                } else if(arr[ing]['properties']['kinds'].includes('tumuluses') || arr[ing]['properties']['kinds'].includes('burial_places') || arr[ing]['properties']['kinds'].includes('archaeology')) {
+                    $marker = L.circleMarker(latlng, {
+                        radius: 5,
+                        color: 'brown'
+                    }).bindPopup(popupContent, {maxWidth: 'auto'});//.setZIndexOffset(100);
+                } else if(arr[ing]['properties']['kinds'].includes('other') || arr[ing]['properties']['kinds'].includes('unclassified') || arr[ing]['properties']['kinds'].includes('tourist')) {
+                    $marker = L.circleMarker(latlng, {
+                        radius: 5,
+                        color: 'grey'
+                    }).bindPopup(popupContent, {maxWidth: 'auto'});//.setZIndexOffset(100);
+                } else if(arr[ing]['properties']['kinds'].includes('defensive') || arr[ing]['properties']['kinds'].includes('fortifications')) {
+                    $marker = L.circleMarker(latlng, {
+                        radius: 5,
+                        color: 'orange'
+                    }).bindPopup(popupContent, {maxWidth: 'auto'});//.setZIndexOffset(100);
+                } else if(arr[ing]['properties']['kinds'].includes('historic') || arr[ing]['properties']['kinds'].includes('other_building')) {
+                    $marker = L.circleMarker(latlng, {
+                        radius: 5,
+                        color: 'orange'
+                    }).bindPopup(popupContent, {maxWidth: 'auto'});//.setZIndexOffset(100);
+                } else {
+                    $marker = L.circleMarker(latlng, {
+                        radius: 5,
+                        color: 'blue'
+                    }).bindPopup(popupContent, {maxWidth: 'auto'});//.setZIndexOffset(100);
+                }
+                otObjects.push($marker);
+
+            }
+        }
+
+        
+                //cemeteries,historic,burial_places
+                //mountain_peaks,interesting_places,natural,geological_formations, nature_reserves
+                //view_points,other
+                //architecture,towers,interesting_places,other_towers
+                //tumuluses,historic,burial_places,archaeology
+                //other,unclassified_objects,interesting_places,tourist_object
+                //defensive_walls,historic,fortifications
+
+        let openTripGroup = L.layerGroup(otObjects);
+        $globalOpenTripLayerGroup.addLayer(openTripGroup);
+        $globalOpenTripLayerGroup.addTo($mapControl);
+
+    }
 
     //view weather widget
    $(document).on('click', '.my_btn_element', async function(event) {

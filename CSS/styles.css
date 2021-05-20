@@ -399,6 +399,12 @@ select {
     text-align: center;
     padding-top: 15px;
     cursor: pointer;
+    align-self: center;
+    /*
+    position: relative;
+    */
+    display: flex;
+    justify-content: center;
 }
 .owmWidget {
     position: relative;
@@ -439,6 +445,7 @@ select {
 
 /*Polygon*/
 .boundaryDiv {
+    /*
     height: 50px;
     border: 1px solid #000;
     text-align: center;
@@ -452,7 +459,27 @@ select {
     font-size: small;
     font-weight: 400;
     border-radius: 20px;
-    padding-top: 10px;
+    padding-top: 10px;*/
+    width: 100%;
+    height: 40px;
+    border-radius: 0px;
+    border: 0.5px solid #000;
+    /*background-color: rgb(5, 163, 202);*/
+    font-size: large;
+    text-align: center;
+    font-weight: 600;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding-top: 25px;
+    padding-bottom: 25px;
+    padding-left: 15px;
+    padding-right: 15px;
+    /*
+    position: absolute;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    */
 }
 
 /*Exchange Rate*/
@@ -462,7 +489,35 @@ select {
 #exRate {
     padding-right: 10px;
 }
-
+/*-------------------------------------COUNTRY DATA------------------------------------*/
+.modalImageDiv {
+    max-height: 400px;
+    width: 50%;
+}
+.countryFlagImage {
+    width: 100%;
+}
+.countryNameFlagTitle {
+    text-align: right;
+    padding-right: 10px;
+    padding-top: 5px;
+    font-weight: 400;
+    font-family: 'Lemonada', cursive;
+    color: #fff;
+}
+.countryDataDiv {
+    background-color: #222;
+    opacity: .8;
+}
+.countryDataDiv2 {
+    background-color: midnightblue;
+    border: 5px solid blue;
+    margin: 0px 10px;
+    margin-top: 10px;
+}
+.countryDatawhite {
+    color: #fff;
+}
 
 /* -------------------------------------------NEWS------------------------------------------ */
 .newsHeaderTitle {
@@ -471,6 +526,7 @@ select {
     font-family: 'Roboto', sans-serif;
     font-weight: 600;
     font-size: x-large;
+    color: #fff;
 }
 .newsTitle {
     font-size: large;
@@ -487,7 +543,7 @@ select {
     -webkit-text-stroke-color: black;
     */
     background-color: white;
-    border: 0.5px solid black;
+    /*border: 0.5px solid black;*/
 }
 .author {
     width: 100%;
@@ -512,6 +568,197 @@ select {
     font-family: 'Roboto', sans-serif;
     font-size: large;
     font-weight: 600;
+}
+.newsCard {
+    border: 10px solid #888;
+}
+.newsDataDiv2 {
+    background-color: darkgreen;
+    border: 5px solid green;
+    margin: 0px 10px;
+    margin-top: 10px;
+}
+/*-----------------------------------------------------------------Landmarks----------------------------------------------------------------------*/
+.openTripDataImageDiv {
+    width: 50%;
+}
+.openTripDataImage {
+    width: 100%;
+    max-height: 400px;
+}
+#openTripDataWikiEx {
+    display: inline;
+}
+#openTripDataWiki {
+    display: inline;
+}
+.openTripDataBtn {
+    width: 80%;
+    height: 40px;
+    border-radius: 5px;
+    border: 0.5px solid #000;
+    /*background-color: rgb(5, 163, 202);*/
+    font-size: large;
+    text-align: center;
+    font-weight: 600;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: absolute;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    margin-top: 10%;
+}
+.landmarkPopup {
+    min-height: 100px;
+    text-align: center;
+    margin-bottom: 25px;
+}
+.landmarkName {
+    font-size: large;
+    font-weight: 400;
+    font-family: 'lemonada', cursive;
+    margin-bottom: 20px;
+}
+.openTripDataTD {
+    height: 40px;
+}
+.OTObjectsPopup {
+    min-width: 100px;
+}
+.OPObjectsName {
+    font-size: large;
+    font-weight: 400;
+    font-family: 'lemonada', cursive;
+    margin-bottom: 20px;
+    text-align: center;
+}
+/*----------------------Battuta---------------------------------------*/
+.battutaName {
+    font-size: large;
+    font-weight: 400;
+    font-family: 'lemonada', cursive;
+}
+
+/*------------------------------------------------------------------------PUBLIC HOLIDAYS-------------------------------------------------*/
+.noResultParagraph {
+    color: #fff;
+}
+.publicHolidayDataDiv2 {
+    background-color: purple;
+    border: 5px solid white;
+    margin: 0px 10px;
+    margin-top: 10px;
+}
+/*---------------------------------------------------------------------COVID-----------------------*/
+.covidDataDiv2 {
+    background-color: red;
+    border: 5px solid yellow;
+    margin: 0px 10px;
+    margin-top: 10px;
+}
+
+/*---------------------------------------------------------------------------Weather----------------------------------------------------------------*/
+.weatherDataBtn {
+    width: 100%;
+    height: 40px;
+    border-radius: 5px;
+    border: 0.5px solid #000;
+    /*background-color: rgb(5, 163, 202);*/
+    font-size: large;
+    text-align: center;
+    font-weight: 600;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-self: center;
+    /*
+    position: absolute;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    */
+}
+.weatherDataTable {
+    overflow-x: hidden;
+    max-width: 400px;
+}
+.weatherPopup {
+    min-height: 100px;
+    text-align: center;
+    margin-bottom: 25px;
+}
+.weatherName {
+    font-size: large;
+    font-weight: 400;
+    font-family: 'lemonada', cursive;
+}
+
+#weatherDataName {
+    color: #fff;
+}
+
+#weatherDataHourlyDiv {
+    display: flex;
+    flex-direction: row;
+    min-width: 100px;
+    max-width: 400px;
+    overflow-x: scroll;
+}
+
+#weatherDataDailyDiv {
+    display: flex;
+    flex-direction: row;
+    min-width: 100px;
+    max-width: 400px;
+    overflow-x: scroll;
+}
+.weatherDataTD {
+    overflow-x: hidden;
+}
+.hourlyDiv {
+    border: 1px solid #fff;
+    margin: 5px 10px;
+    padding-left: 10px;
+    padding-right: 10px;
+    flex-basis: 1;
+    min-width: 100px;
+    align-self: center;
+    text-align: center;
+}
+.dailyDiv {
+    border: 1px solid #fff;
+    margin: 5px 10px;
+    padding-left: 10px;
+    padding-right: 10px;
+    flex-basis: 1;
+    min-width: 100px;
+    align-self: center;
+    text-align: center;
+}
+#weatherDataDescription {
+    font-size: large;
+}
+.weatherDataRainP {
+    font-size: medium;
+    font-weight: 400;
+    width: 60%;
+    text-align: center;
+    border: 0.25px solid #fff;
+    margin-top: 10px;
+}
+
+/*------------------------------------------------------EASY BUTTONS---------------------------------------------------------*/
+#easyBtn1 {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+    width: 50px;
+    height: 50px;
+    border: 0.5px solid #fff;
+    border-radius: 25px;
+    background-color: green;
+    color: white;
 }
 
 /*----------------------------------------------------Preloader------------------------------------------------------*/
@@ -688,4 +935,60 @@ select {
       opacity: 0;
     }
   }
+
+tbody.faImg > tr:first-child {
+    width: 100px;
+}
+.popIcon {
+    color: white;
+    border-radius: 10px;
+    text-align: center;
+}
+.popIconTD {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+.capIcon {
+
+}
+.curIcon {
+
+}
+.exIcon {
+
+}
+.bordIcon {
+
+}
+.langIcon {
+
+}
   
+
+.white {
+    color: #fff;
+}
+.dark_grey {
+    background-color: #212529;
+}
+.phcnCenter {
+    text-align: center;
+    width: 100%;
+}
+.mlpx {
+    min-width: 125px;
+}
+.flex_col {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+.fcjc {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+.tac {
+    text-align: center;
+}

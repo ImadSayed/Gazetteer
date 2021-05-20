@@ -26,7 +26,6 @@ $arr = [];
 for($i = 0; $i < sizeof($decode); $i++) {
     $url = 'http://battuta.medunes.net/api/city/'.$_REQUEST['countryCode'].'/search/?region='.urlencode($decode[$i]['region']).'&key='.$APIKEY;
 
-    $executionStartTime = microtime(true) / 1000;
 
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);

@@ -1,5 +1,9 @@
 <?php
 
+require 'myCredentials.php';
+
+$XAccessToken = $postmanAccessToken;
+
 $executionStartTime = microtime(true) / 1000;
 
 //$url = 'https://api.covid19api.com/live/country/'.$_REQUEST['countryCode'].'/status/confirmed';
@@ -7,10 +11,8 @@ $executionStartTime = microtime(true) / 1000;
 $url = 'https://api.covid19api.com/summary';
 
 //X-Access-Token 5cf9dfd5-3449-485e-b5ae-70a60e997864
-
-$header = [ 
-    "X-Access-Token: 5cf9dfd5-3449-485e-b5ae-70a60e997864"
-];
+$header      = ["X-Access-Token: ".$XAccessToken];
+//$header = ["X-Access-Token: ".$XAccessToken];
 
 
 

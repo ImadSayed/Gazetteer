@@ -98,24 +98,26 @@
                 </div>
                 <div id="countryData" class="modal myModal" tabindex="-1">
                     <div class="modal-dialog">
-                      <div class="modal-content">
-                        <div class="modal-header">
-                          <h5 id="countryName" class="modal-title"></h5>
+                      <div class="modal-content countryDataDiv">
+                        <div class="modal-header countryDataDiv2">
+                          <h5 id="countryName" class="modal-title countryDatawhite"></h5>
                           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
+                            <span aria-hidden="true" class="white">&times;</span>
                           </button>
                         </div>
                         <div class="modal-body">
-                            <table class="table table-striped">
-                                <tbody>
-                                    <tr><td>Population</td><td id="population"></td></tr>
-                                    <tr><td>Capital</td><td id="capital"></td></tr>
-                                    <tr><td>Currency</td><td id="currencies"></td></tr>
-                                    <tr><td>Exchange Rate</td><td id="exRate"></td></tr>
-                                    <tr><td>Borders</td><td><ul id="borders"></ul></td></tr>
-                                    <tr><td>Languages</td><td><ul id="languages"></ul></td></tr>
+                            <table class="table table-striped table-dark">
+                                <tbody class="faImg">
+                                    <tr><td class="popIconTD"><i class="fas fa-user-friends fa-2x popIcon"></i></td><td>Population</td><td id="population"></td></tr>
+                                    <tr><td class="popIconTD"><i class="far fa-flag fa-2x popIcon"></i></td><td>Capital</td><td id="capital"></td></tr>
+                                    <tr><td class="popIconTD"><i class="fas fa-money-bill-wave fa-2x popIcon"></i></td><td>Currency</td><td id="currencies"></td></tr>
+                                    <tr><td class="popIconTD"><i class="fas fa-dollar-sign fa-2x popIcon"></i></td><td>Exchange Rate</td><td id="exRate"></td></tr>
+                                    <tr><td class="popIconTD"><i class="fas fa-border-style fa-2x popIcon"></i></td><td>Borders</td><td><ul id="borders"></ul></td></tr>
+                                    <tr><td class="popIconTD"><i class="fas fa-language fa-2x popIcon"></i></td><td>Languages</td><td><ul id="languages"></ul></td></tr>
+                                    
                                 </tbody>
                             </table>
+                            <div id='modalImageDiv'></div>
                         </div>
                         <div class="modal-footer">
                           <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -125,23 +127,23 @@
                 </div>
                 <div id="covidCountryData" class="modal myModal" tabindex="-1">
                     <div class="modal-dialog">
-                      <div class="modal-content">
-                        <div class="modal-header">
-                          <h5 id="covidCountryName" class="modal-title"></h5>
+                      <div class="modal-content countryDataDiv">
+                        <div class="modal-header covidDataDiv2">
+                          <h5 id="covidCountryName" class="modal-title white">COVID-19 Statistics</h5>
                           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
+                            <span aria-hidden="true" class="white">&times;</span>
                           </button>
                         </div>
                         <div class="modal-body">
                             <table class="table table-striped">
-                                <tbody>
+                                <tbody class="white faImg">
                                     <tr><td>Date</td><td id="covidDate"></td></tr>
                                     <tr><td>New Confirmed Cases</td><td id="covidNewCases"></td></tr>
                                     <tr><td>New Deaths</td><td id="covidNewDeaths"></td></tr>
                                     <tr><td>New Recovered</td><td id="covidNewRecovered"></td></tr>
-                                    <tr><td>Total Confirmed Cases</td><td><ul id="covidTotalCases"></ul></td></tr>
-                                    <tr><td>Total Deaths</td><td><ul id="covidTotalDeaths"></ul></td></tr>
-                                    <tr><td>Total Recovered</td><td><ul id="covidTotalRecovered"></ul></td></tr>
+                                    <tr><td>Total Confirmed Cases</td><td id="covidTotalCases"></td></tr>
+                                    <tr><td>Total Deaths</td><td id="covidTotalDeaths"></td></tr>
+                                    <tr><td>Total Recovered</td><td id="covidTotalRecovered"></td></tr>
                                 </tbody>
                             </table>
                         </div>
@@ -153,11 +155,11 @@
                 </div>
                 <div id="newsData" class="modal myModal" tabindex="-1">
                     <div class="modal-dialog"><!-- .modal-dialog-scrollable-->
-                      <div class="modal-content">
-                        <div class="modal-header">
-                          <h5 id="newsCountryName" class="modal-title newsHeaderTitle"></h5>
+                      <div class="modal-content countryDataDiv">
+                        <div class="modal-header newsDataDiv2">
+                          <h5 id="newsCountryName" class="modal-title newsHeaderTitle">News Articles</h5>
                           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
+                            <span aria-hidden="true" class="white">&times;</span>
                           </button>
                         </div>
                         <div class="modal-body">
@@ -181,15 +183,15 @@
 
                 <div id="publicHolidayData" class="modal myModal" tabindex="-1">
                     <div class="modal-dialog">
-                      <div class="modal-content">
-                        <div class="modal-header">
-                          <h5 id="publicHolidayCountryName" class="modal-title"></h5>
+                      <div class="modal-content countryDataDiv">
+                        <div class="modal-header publicHolidayDataDiv2">
+                          <h5 id="publicHolidayCountryName" class="modal-title white phcnCenter">Public Holidays</h5>
                           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
+                            <span aria-hidden="true" class="white">&times;</span>
                           </button>
                         </div>
                         <div class="modal-body">
-                            <table class="table table-striped">
+                            <table class="table table-striped table-dark">
                                 <tbody id="publicHolidayTable">
                                     
                                 </tbody>
@@ -201,6 +203,148 @@
                       </div>
                     </div>
                 </div>
+
+                <div id="openTripData" class="modal myModal" tabindex="-1">
+                  <div class="modal-dialog">
+                    <div class="modal-content countryDataDiv">
+                      <div class="modal-header">
+                        <h5 id="openTripLandmarkName" class="modal-title"></h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                          <span aria-hidden="true">&times;</span>
+                        </button>
+                      </div>
+                      <div class="modal-body">
+                          <div id='openTripDataImageDiv'></div>
+                          <table class="table table-striped table-dark">
+                              <tbody id="openTripDataTable">
+                                <tr>
+                                  <th>Address</th>
+                                  <td><p id=openTripDataAddress></p></td>
+                                </tr>
+                                  <tr>
+                                    <th>Wiki</th>
+                                    <td>
+                                      <p id='openTripDataWikiEx'></p>
+                                      <a id='openTripDataWiki' target="_blank">   Read More...</a></td>
+                                  </tr>
+                                  <tr>
+                                    <th>Latitude</th>
+                                    <td id='openTripDataLatitude'></td>
+                                  </tr>
+                                  <tr>
+                                    <th>Longitude</th>
+                                    <td id='openTripDataLongitude'></td>
+                                  </tr>
+                                  <tr>
+                                    <th>Open Trip Map</th>
+                                    <td><a id="openTripDataAnchor"></a></td>
+                                  </tr>
+                              </tbody>
+                          </table>
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div id="weatherData" class="modal myModal" tabindex="-1">
+                  <div class="modal-dialog">
+                    <div class="modal-content countryDataDiv">
+                      <div class="modal-header">
+                        <h5 id="weatherDataName" class="modal-title tac"></h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                          <span aria-hidden="true">&times;</span>
+                        </button>
+                      </div>
+                      <div class="modal-body fcjc">
+                          <!--<div id='weatherDataImageDiv'></div>-->
+                          <table class="table table-striped table-dark weatherDataTable ">
+                              <tbody id="weatherDataTable">
+
+                                <tr>
+                                  <th>Date</th>
+                                  <td id='weatherDataCurrent'></td>
+                                </tr>
+                                <!--
+                                <tr>
+                                  <td id="weatherDataIcon" colspan="2"></td>
+                                </tr>
+                                -->
+                                <tr>
+                                  <td id="weatherDataDescription" class='tac' colspan="2"></td>
+                                </tr>
+                                <tr>
+                                  <th>Cloud Coverage: </th>
+                                  <td id="weatherDataCloudCoverage"></td>
+                                </tr>
+                                <tr>
+                                  <th>Temperature: </th>
+                                  <td id="weatherDataTemp"></td>
+                                </tr>
+                                <tr>
+                                  <th>Feels Like: </th>
+                                  <td id="weatherDataFeelsLike"></td>
+                                </tr>
+                                <tr>
+                                  <th>Precipitation:<p class='weatherDataRainP'>Avg over prev ten days</p></th>
+                                  <td id="weatherDataRain"></td>
+                                </tr>
+                                <tr>
+                                  <th>Pressure</th>
+                                  <td id="weatherDataPressure"></td>
+                                </tr>
+                                <tr>
+                                  <th>Humidity</th>
+                                  <td id="weatherDataHumidity"></td>
+                                </tr>
+                                <tr>
+                                  <th>Wind Speed</th>
+                                  <td id="weatherDataWindSpeed"></td>
+                                </tr>
+                                <tr>
+                                  <th>Wind Direction</th>
+                                  <td id="weatherDataWindDirection"></td>
+                                </tr>
+                                <tr>
+                                  <th>UV Index: </th>
+                                  <td id="weatherDataUVI"></td>
+                                </tr>
+                                <tr>
+                                  <th>Visibility</th>
+                                  <td id="weatherDataVisibility"></td>
+                                </tr>
+                                <tr>
+                                  <th>Sunrise</th>
+                                  <td id="weatherDataSunrise"></td>
+                                </tr>
+                                <tr>
+                                  <th>Sunset</th>
+                                  <td id="weatherDataSunset"></td>
+                                </tr>
+                                <tr>
+                                  <td colspan="2" class="weatherDataTD">
+                                    <div id="weatherDataHourlyDiv"></div>
+                                  </td>
+                                </tr>
+                                <tr>
+                                  <td colspan="2" class="weatherDataTD">
+                                    <div id="weatherDataDailyDiv"></div>
+                                  </td>
+                                </tr>
+
+
+                              </tbody>
+                          </table>
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                      </div>
+                    </div>
+                  </div>
+              </div>
+
 
 
                 <div class="widgetDiv">

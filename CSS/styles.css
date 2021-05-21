@@ -571,6 +571,7 @@ select {
 }
 .newsCard {
     border: 10px solid #888;
+    cursor: pointer;
 }
 .newsDataDiv2 {
     background-color: darkgreen;
@@ -580,7 +581,7 @@ select {
 }
 /*-----------------------------------------------------------------Landmarks----------------------------------------------------------------------*/
 .openTripDataImageDiv {
-    width: 50%;
+    width: 100%;
 }
 .openTripDataImage {
     width: 100%;
@@ -679,8 +680,9 @@ select {
     */
 }
 .weatherDataTable {
-    overflow-x: hidden;
-    max-width: 400px;
+    display: block !important;
+    overflow-x: scroll !important;
+    width: 100% !important;
 }
 .weatherPopup {
     min-height: 100px;
@@ -745,6 +747,30 @@ select {
     text-align: center;
     border: 0.25px solid #fff;
     margin-top: 10px;
+}
+
+/*--------------------------------------------------------OPEN TRIP DATA------------------------------------------*/
+
+.myTable {/*table*/
+    display: block !important;
+    overflow-x: scroll !important;
+    width: 100% !important;
+}
+#openTripDataTable {/*tbody*/
+    /*max-width: 90%;*/
+}
+
+.openTripDataScrollX {/*tr*/
+    /*overflow-x: scroll;*/
+}
+.yb {
+    border: 1px dashed yellow;
+}
+.rb {
+    border: 1px dashed red;
+}
+.bb {
+    border: 1px dotted blue;
 }
 
 /*------------------------------------------------------EASY BUTTONS---------------------------------------------------------*/

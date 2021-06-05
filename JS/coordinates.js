@@ -1,5 +1,49 @@
 $(document).ready(() => {
 
+    /**--------------------------------------------------------------------------------OSM TILES PROVIDERS------------------------------------------------------------ */
+    //OpenStreetMap_Mapnik
+    const map1 = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    });
+
+    //Stadia_AlidadeSmoothDark
+    const map4 = L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png', {
+        maxZoom: 20,
+        attribution: '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors'
+    });
+    
+    //NASAGIBS_ViirsEarthAtNight2012
+    const map5 = L.tileLayer('https://map1.vis.earthdata.nasa.gov/wmts-webmerc/VIIRS_CityLights_2012/default/{time}/{tilematrixset}{maxZoom}/{z}/{y}/{x}.{format}', {
+        attribution: 'Imagery provided by services from the Global Imagery Browse Services (GIBS), operated by the NASA/GSFC/Earth Science Data and Information System (<a href="https://earthdata.nasa.gov">ESDIS</a>) with funding provided by NASA/HQ.',
+        bounds: [[-85.0511287776, -179.999999975], [85.0511287776, 179.999999975]],
+        minZoom: 1,
+        maxZoom: 8,
+        format: 'jpg',
+        time: '',
+        tilematrixset: 'GoogleMapsCompatible_Level'
+    });
+
+    //OpenRailwayMap
+    const map6 = L.tileLayer('https://{s}.tiles.openrailwaymap.org/standard/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: 'Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors | Map style: &copy; <a href="https://www.OpenRailwayMap.org">OpenRailwayMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)'
+    });
+
+    //Stamen_Terrain
+    const map9 = L.tileLayer('https://stamen-tiles-{s}.a.ssl.fastly.net/terrain/{z}/{x}/{y}{r}.{ext}', {
+        attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+        subdomains: 'abcd',
+        minZoom: 0,
+        maxZoom: 18,
+        ext: 'png'
+    });
+
+    //Esri_WorldImagery
+    const map10 = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+        attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+    });
+
+
     //global variables
     let $progress = 0;
     let p;
@@ -44,6 +88,14 @@ $(document).ready(() => {
     let $globalUniversalLayerGroup = L.layerGroup();
     let $globalBattutaLayerGroup = L.layerGroup();
     let $globalOpenTripLayerGroup = L.layerGroup();
+    //feature marker clusters
+    let $regionsClusterLayerGroup = L.markerClusterGroup();
+    let $worshipClusterLayerGroup = L.markerClusterGroup();
+    let $historicalClusterLayerGroup = L.markerClusterGroup();
+    let $tourismClusterLayerGroup = L.markerClusterGroup();
+    let $industrialClusterLayerGroup = L.markerClusterGroup();
+    let $fortClusterLayerGroup = L.markerClusterGroup();
+    let $extraClusterLayerGroup = L.markerClusterGroup();
 
     //leaflet icon
     const LeafIcon = L.Icon.extend({
@@ -80,12 +132,99 @@ $(document).ready(() => {
             //x.innerHTML = "Geolocation is not supported by this browser.";
         }
     }
-    
+
     async function get() {
         p = await getCurrentLocation();//get current location
         return p;
     }
 
+    async function loadMap(coords) {
+        mymap = L.map('mapid', {
+            center: [coords.latitude, coords.longitude],
+            zoom: 2,
+            layers: [map1, $globalClusterLayerGroup]
+        });
+
+        $mapControl = mymap;
+
+        var baseMaps = {
+            "<div class='control featureGroups mapStyle'>Road Map</div>": map1,
+            "<div class='featureGroups mapStyle'>Named Places</div>": map4,
+            "<div class='featureGroups mapStyle'>Night Time</div>": map5,
+            "<div class='featureGroups mapStyle'>Railway Network</div>": map6,
+            "<div class='featureGroups mapStyle'>Drawn Borders</div>": map9,
+            "<div class='featureGroups mapStyle'>Satellite Image</div>": map10
+        };
+        
+        var overlayMaps = {
+            "<div class='featureGroups mapStyle'>All Features (Default)</div>": $globalClusterLayerGroup,
+             "<div class='featureGroups mapStyle'>Country Regions</div>": $regionsClusterLayerGroup,
+            "<div class='featureGroups mapStyle'>Places of Worship</div>": $worshipClusterLayerGroup,//religious, churches
+            "<div class='featureGroups mapStyle'>Historical Places</div>": $historicalClusterLayerGroup,//fortifications  historic
+            "<div class='featureGroups mapStyle'>Tourist Attraction</div>": $tourismClusterLayerGroup, //guest_house view_points towers monuments
+            "<div class='featureGroups mapStyle'>Industrial Places</div>": $industrialClusterLayerGroup, // industry industrial
+            "<div class='featureGroups mapStyle'>fortifications Places</div>": $fortClusterLayerGroup, // fortifications lighthouse
+            
+            
+        };
+        
+        L.control.layers(baseMaps, overlayMaps).addTo($mapControl);
+
+        /**--------------------------------------------------EASY BUTTON For Country Info----------------------------------------------------- */
+
+        //const $countryDataPopup = L.popup().setContent($countryData);
+
+        let countryBtn = L.easyButton( 'fas fa-info fa-2x', function() {
+            //id: 'toggle-check-and-x',
+            $('#countryData').modal('toggle');
+        });
+        
+        countryBtn.button.style.width = '50px';
+        countryBtn.button.style.height = '50px';
+        countryBtn.button.style.backgroundColor = 'blue'; // repeated line (note below)
+        countryBtn.button.style.color = 'white';
+        countryBtn.button.style.paddingTop = '10px';
+        countryBtn.button.style.border = '3px solid midnightblue';
+        countryBtn.button.style.boxShadow = '5px -3px 5px 1px #666';
+        countryBtn.addTo($mapControl);
+
+        let covidBtn = L.easyButton( 'fas fa-virus fa-2x', function() {
+            $('#covidCountryData').modal('toggle');
+        });
+        covidBtn.button.style.width = '50px';
+        covidBtn.button.style.height = '50px';
+        covidBtn.button.style.backgroundColor = 'yellow'; // repeated line (note below)
+        covidBtn.button.style.color = 'red';
+        covidBtn.button.style.paddingTop = '10px';
+        covidBtn.button.style.border = '3px solid red';
+        covidBtn.button.style.boxShadow = '5px -3px 5px 1px #666';
+        covidBtn.addTo($mapControl);
+
+        let newsBtn = L.easyButton( 'far fa-newspaper fa-2x', function() {
+            $('#newsData').modal('toggle');
+        });
+        newsBtn.button.style.width = '50px';
+        newsBtn.button.style.height = '50px';
+        newsBtn.button.style.backgroundColor = 'darkgreen'; // repeated line (note below)
+        newsBtn.button.style.color = 'white';
+        newsBtn.button.style.paddingTop = '10px';
+        newsBtn.button.style.border = '3px solid green';
+        newsBtn.button.style.boxShadow = '5px -3px 5px 1px #666';
+        newsBtn.addTo($mapControl);
+
+        let holidayBtn = L.easyButton( 'far fa-calendar-times fa-2x', function() {
+            $('#publicHolidayData').modal('toggle');
+        });
+        holidayBtn.button.style.width = '50px';
+        holidayBtn.button.style.height = '50px';
+        holidayBtn.button.style.backgroundColor = 'white'; // repeated line (note below)
+        holidayBtn.button.style.color = 'purple';
+        //holidayBtn.button.style.paddingTop = '10px';
+        holidayBtn.button.style.padding = '10px 0';
+        holidayBtn.button.style.border = '3px solid purple';
+        holidayBtn.button.style.boxShadow = '5px -3px 5px 1px #666';
+        holidayBtn.addTo($mapControl);
+    }
 
     async function main(c) {
 
@@ -95,6 +234,8 @@ $(document).ready(() => {
         $globalClusterLayerGroup.clearLayers();
         $globalUniversalLayerGroup.clearLayers();
         $globalOpenTripLayerGroup.clearLayers();
+
+
 
         $c = c; //assign to global variable
 
@@ -151,53 +292,12 @@ $(document).ready(() => {
 
         $globalCountryBounds = $countryBounds;
 
+        /*
         if(mymap) {
             mymap.remove();
         }
 
-        /**--------------------------------------------------------------------------------OSM TILES PROVIDERS------------------------------------------------------------ */
-        //OpenStreetMap_Mapnik
-        const map1 = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        });
-
-        //Stadia_AlidadeSmoothDark
-        const map4 = L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png', {
-            maxZoom: 20,
-            attribution: '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors'
-        });
         
-        //NASAGIBS_ViirsEarthAtNight2012
-        const map5 = L.tileLayer('https://map1.vis.earthdata.nasa.gov/wmts-webmerc/VIIRS_CityLights_2012/default/{time}/{tilematrixset}{maxZoom}/{z}/{y}/{x}.{format}', {
-            attribution: 'Imagery provided by services from the Global Imagery Browse Services (GIBS), operated by the NASA/GSFC/Earth Science Data and Information System (<a href="https://earthdata.nasa.gov">ESDIS</a>) with funding provided by NASA/HQ.',
-            bounds: [[-85.0511287776, -179.999999975], [85.0511287776, 179.999999975]],
-            minZoom: 1,
-            maxZoom: 8,
-            format: 'jpg',
-            time: '',
-            tilematrixset: 'GoogleMapsCompatible_Level'
-        });
-
-        //OpenRailwayMap
-        const map6 = L.tileLayer('https://{s}.tiles.openrailwaymap.org/standard/{z}/{x}/{y}.png', {
-            maxZoom: 19,
-            attribution: 'Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors | Map style: &copy; <a href="https://www.OpenRailwayMap.org">OpenRailwayMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)'
-        });
-
-        //Stamen_Terrain
-        const map9 = L.tileLayer('https://stamen-tiles-{s}.a.ssl.fastly.net/terrain/{z}/{x}/{y}{r}.{ext}', {
-            attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-            subdomains: 'abcd',
-            minZoom: 0,
-            maxZoom: 18,
-            ext: 'png'
-        });
-
-        //Esri_WorldImagery
-        const map10 = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-            attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
-        });
-
         
         /**----------------------------------------------------------------------------------------------------------------------------------------------------- */
 
@@ -266,14 +366,8 @@ $(document).ready(() => {
         //fetchUniversalStates();
         //fetchTestData();
 
-        /**-----------------------------------------------------------adding MAP----------------------------------------------------------------- */
-        mymap = L.map('mapid', {
-            center: [c.latitude, c.longitude],
-            zoom: 2,
-            layers: [map1, $globalClusterLayerGroup]
-        });
-
-        $mapControl = mymap;
+        /**-----------------------------------------------------------moving to country location n map----------------------------------------------------------------- */
+        
 
         let $geojson = await getGeoJSON($countryCode);
 
@@ -289,104 +383,27 @@ $(document).ready(() => {
         });
 
 
-        let featureGroup = L.featureGroup([addedGeoJSON]).addTo(mymap);
+        let featureGroup = L.featureGroup([addedGeoJSON]).addTo($mapControl);
         
         $globalFeatureGroup = featureGroup;
 
-        mymap.fitBounds(featureGroup.getBounds());
+        $mapControl.fitBounds(featureGroup.getBounds());
 
         addProgress(10);                                                                                     //addProgress(10);
 
-        
-       var baseMaps = {
-            "<div class='roadMaps mapStyle'>Road Map</div>": map1,
-            "<div class='named mapStyle'>Named Places</div>": map4,
-            "<div class='nightTime mapStyle'>Night Time</div>": map5,
-            "<div class='railWay mapStyle'>Railway Network</div>": map6,
-            "<div class='drawnBorders mapStyle'>Drawn Borders</div>": map9,
-            "<div class='satellite mapStyle'>Satellite Image</div>": map10
-        };
-        
-        var overlayMaps = {
-            //"<div class='citiesDiv mapStyle'>Cities</div><div id='cities_lds' class='lds display_lds'><div class='lds-spinner'><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div></div>": $globalCitiesLayerGroup,
-            //"<div class='circleMarker mapStyle'>Circle Marker</div><div id='circle_lds' class='lds display_lds'><div class='lds-spinner'><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div></div>": $globalBoundsLayerGroup,
-            //"<div class='owmLocations mapStyle'>OWM Locations</div><div id='owm_lds' class='lds display_lds'><div class='lds-spinner'><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div></div>": $globalTownsLayerGroup,
-            //"<div class='countiesDiv mapStyle'>States</div><div id='counties_lds' class='lds display_lds'><div class='lds-spinner'><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div></div>": $globalUniversalLayerGroup,
-            "<div class='Places mapStyle'>Default</div><div id='cluster_lds' class='lds display_lds'><div class='lds-spinner'><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div></div>": $globalClusterLayerGroup,
-            "<div class='clusterMarkerDiv mapStyle'>All Markers</div><div id='battuta_lds' class='lds display_lds'><div class='lds-spinner'><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div></div>": $globalBattutaLayerGroup,
-        };
-
-        
-        L.control.layers(baseMaps, overlayMaps).addTo(mymap);
 
 
         addProgress(10);                                                                                     //addProgress(10);
 
 
-        /**--------------------------------------------------EASY BUTTON For Country Info----------------------------------------------------- */
-
-        //const $countryDataPopup = L.popup().setContent($countryData);
-
-        let countryBtn = L.easyButton( 'fas fa-info fa-2x', function() {
-            //id: 'toggle-check-and-x',
-            $('#countryData').modal('toggle');
-        });
         
-        countryBtn.button.style.width = '50px';
-        countryBtn.button.style.height = '50px';
-        countryBtn.button.style.border.width = '0px';
-        countryBtn.button.style.borderRadius = '25px';
-        countryBtn.button.style.backgroundColor = 'blue'; // repeated line (note below)
-        countryBtn.button.style.color = 'white';
-        countryBtn.button.style.paddingTop = '10px';
-        countryBtn.button.style.border = '3px solid midnightblue';
-        countryBtn.addTo(mymap);
-
-        let covidBtn = L.easyButton( 'fas fa-virus fa-2x', function() {
-            $('#covidCountryData').modal('toggle');
-        });
-        covidBtn.button.style.width = '50px';
-        covidBtn.button.style.height = '50px';
-        covidBtn.button.style.border.width = '0px';
-        covidBtn.button.style.borderRadius = '25px';
-        covidBtn.button.style.backgroundColor = 'yellow'; // repeated line (note below)
-        covidBtn.button.style.color = 'red';
-        covidBtn.button.style.paddingTop = '10px';
-        covidBtn.button.style.border = '3px solid red';
-        covidBtn.addTo(mymap);
-
-        let newsBtn = L.easyButton( 'far fa-newspaper fa-2x', function() {
-            $('#newsData').modal('toggle');
-        });
-        newsBtn.button.style.width = '50px';
-        newsBtn.button.style.height = '50px';
-        newsBtn.button.style.border.width = '0px';
-        newsBtn.button.style.borderRadius = '25px';
-        newsBtn.button.style.backgroundColor = 'green'; // repeated line (note below)
-        newsBtn.button.style.color = 'white';
-        newsBtn.button.style.paddingTop = '10px';
-        newsBtn.button.style.border = '3px solid darkgreen';
-        newsBtn.addTo(mymap);
-
-        let holidayBtn = L.easyButton( 'far fa-calendar-times fa-2x', function() {
-            $('#publicHolidayData').modal('toggle');
-        });
-        holidayBtn.button.style.width = '50px';
-        holidayBtn.button.style.height = '50px';
-        holidayBtn.button.style.borderRadius = '25px';
-        holidayBtn.button.style.backgroundColor = 'white'; // repeated line (note below)
-        holidayBtn.button.style.color = 'purple';
-        //holidayBtn.button.style.paddingTop = '10px';
-        holidayBtn.button.style.padding = '10px 0';
-        holidayBtn.button.style.border = '3px solid purple';
-        holidayBtn.addTo(mymap);
 
 
         addProgress(10);                                                                                     //addProgress(10);
 
         /**-------------------------------------------------EASY BUTTON For Creating Own Markers------------------------------------------------------------------------------- */
-
-        $myGlobalPolylineLayer = L.layerGroup().addTo(mymap);
+        /*
+        $myGlobalPolylineLayer = L.layerGroup().addTo($mapControl);
 
         const $instructData = ("<div class='easyPopup'>Click on the map to set <br>departure and arrival.<br>Then re-click the same button <br>to draw the route.</div>");
         const $instructPopup = L.popup().setContent($instructData);
@@ -394,7 +411,7 @@ $(document).ready(() => {
         const $viewRouteData = ("<div class='easyPopup'>Select arrival markers <br>(green icons) <br>to view route directions</div>");
         const $viewRoutePopup = L.popup().setContent($viewRouteData);
 
-        /*//Easy Button for finding Route
+        /* //Easy Button for finding Route
         L.easyButton({
             states: [{
                 stateName: 'Draw',
@@ -583,17 +600,19 @@ $(document).ready(() => {
             $progress = 99;
             addProgress(1);                                                                                     //addProgress(1);
         }
-        setTimeout(function() {
-            $('.loaderDiv').css('display', 'none');
-        }, 500);
+        $('.loaderDiv').css('display', 'none');
         
         
     }
 
     /**------------------------------------------------END MAIN FUNC --------------------------------------------------------------------------------------------------- */
 
-
-
+    async function begin() {
+        $('.loaderDiv').css('display', 'flex');
+        let c = await get();//get current location
+        loadMap(c.coords);
+        main(c.coords);
+    }
     
     /**---------------------------------------------------------------------API FUNCTIONS-------------------------------------------------------------------------- */
     async function getStormGlassData($lat, $lng) {
@@ -1056,47 +1075,21 @@ $(document).ready(() => {
                 console.error(err);
             }
         });
-        /*
         if($results) {
-            let xArray = [];
-            for(let i=0; i<$results.features.length; i++) {
-                //xArray.push($results.features[i]['properties']['xid']);
-                $results.features[i]['properties']['newID'] = i;
-                let $xid = $results.features[i]['properties']['xid'];
-                await $.ajax({
-                    url: 'PHP/getLandmarkImages.php',
-                    type: 'POST',
-                    data: {
-                        xid: $xid
-                    },
-                    success: function(res) {
-                        if(res.status.name == 'ok') {
-                            $results.features[i]['xidResults'] = res;
-                        }
-                    },
-                    error(err) {
-                        console.error(err);
-                    }
-                });
-            }
-
+            //console.log("Landmarks");
+            //console.dir($results);
+            populateWithLandmarks($results.features);
         }
-        */
 
-        //console.log("Landmarks");
-        //console.dir($results);
-        populateWithLandmarks($results.features);
     }
 
     async function populateWithLandmarks($arr) {
-        //$globalClusterLayerGroup
-        //$globalBattutaLayerGroup
 
         let orangeMarker = L.ExtraMarkers.icon({
-            icon: 'fa-circle',
+            icon: 'fa-expand',
             markerColor: 'orange',
             shape: 'circle',
-            prefix: 'far'
+            prefix: 'fas'
         });
         let violetMarker = L.ExtraMarkers.icon({
             icon: 'fa-cross',
@@ -1130,7 +1123,7 @@ $(document).ready(() => {
         });
         let whiteMarker = L.ExtraMarkers.icon({
             icon: 'fa-bed',
-            markerColor: 'white',
+            markerColor: 'grey',
             shape: 'square',
             prefix: 'fas'
         });
@@ -1144,98 +1137,126 @@ $(document).ready(() => {
         let $markerCluster = L.markerClusterGroup();
         let $latlng;
         let $landmarkArray = [];
+        let lat, lng;
+        let $currentCCode;
 
         if($arr.length > 0) {
             
             for(let vbn = 0; vbn < $arr.length; vbn++) {
-                
-                let $easyMarker;
-                
-                popupContent = ("<table class='tablePopup landmarkPopup'>"+
-                    "<tr><td><p class='landmarkName'>"+$arr[vbn]['properties']['name']+"</p></td></tr>"+//<th>Name:</th>
-                    //"<tr><th>ID:</th><td>"+$arr[vbn]['id']+"</td></tr>"+
-                    //"<tr><th>Latitude:</th><td>"+$arr[vbn]['geometry']['coordinates'][0]+"</td></tr>"+
-                    //"<tr><th>Longitude:</th><td>"+$arr[vbn]['geometry']['coordinates'][1]+"</td></tr>"+
-                    "<tr><td class='openTripDataTD'><div class='openTripDataBtn btn btn-primary' id='tr"+$arr[vbn]['properties']['xid']+"' >Details</div></td></tr>"+
-                    //<i id='ie"+$cityID+"' class='fas fa-cloud-sun-rain fa-lg'></i>  
-                        //"<tr><td colspan='2' class='btnTD'>"+
-                        //"<div class='my_btn_element' id='we"+$cityID+"' ><i id='ie"+$cityID+"' class='fas fa-cloud-sun-rain fa-lg'></i>  Check Local Weather</div>"+
-                        //"<div class='boundaryDiv noBoundary' id='ub"+$result[$zx]['longitude']+"_"+$result[$zx]['latitude']+"'> View Boundary</div>"+//<i class='fas fa-border-style fa-lg'></i>
-                    //"</td></tr>"+
-                    "</table>"
-                );
 
-                //possible image at https://opentripmap.com/en/card/W360503687 N26755092
-                //https://commons.wikimedia.org/wiki/File:Dumfries.jpg
-
-                //pubs,foods,  
-                //industrial_facilities,railway_stations,
-
-                $latlng = [$arr[vbn]['geometry']['coordinates'][1], $arr[vbn]['geometry']['coordinates'][0]];
-
-                if($arr[vbn]['properties']['kinds'].includes('churches') || $arr[vbn]['properties']['kinds'].includes('religion')) {
-                    $easyMarker = L.marker($latlng, {
-                        title: $arr[vbn]['properties']['name'],
-                        riseOnHover: true,
-                        icon: violetMarker
-                    }).bindPopup(popupContent, {maxWidth: 'auto'}).setZIndexOffset(100);
-                } else if($arr[vbn]['properties']['kinds'].includes('fortifications')) {
-                    $easyMarker = L.marker($latlng, {
-                        title: $arr[vbn]['properties']['name'],
-                        riseOnHover: true,
-                        icon: yellowMarker
-                    }).bindPopup(popupContent, {maxWidth: 'auto'}).setZIndexOffset(100);
-                } else if($arr[vbn]['properties']['kinds'].includes('guest_house')) {
-                    $easyMarker = L.marker($latlng, {
-                        title: $arr[vbn]['properties']['name'],
-                        riseOnHover: true,
-                        icon: whiteMarker
-                    }).bindPopup(popupContent, {maxWidth: 'auto'}).setZIndexOffset(100);
-                } else if($arr[vbn]['properties']['kinds'].includes('view_points')) {
-                    $easyMarker = L.marker($latlng, {
-                        title: $arr[vbn]['properties']['name'],
-                        riseOnHover: true,
-                        icon: lightGreenMarker
-                    }).bindPopup(popupContent, {maxWidth: 'auto'}).setZIndexOffset(100);
-                } else if($arr[vbn]['properties']['kinds'].includes('lighthouse') || $arr[vbn]['properties']['kinds'].includes('towers')) {
-                    $easyMarker = L.marker($latlng, {
-                        title: $arr[vbn]['properties']['name'],
-                        riseOnHover: true,
-                        icon: cyanMarker
-                    }).bindPopup(popupContent, {maxWidth: 'auto'}).setZIndexOffset(100);
-                } else if($arr[vbn]['properties']['kinds'].includes('historic') || $arr[vbn]['properties']['kinds'].includes('monuments')) {
-                    $easyMarker = L.marker($latlng, {
-                        title: $arr[vbn]['properties']['name'],
-                        riseOnHover: true,
-                        icon: darkOrangeMarker
-                    }).bindPopup(popupContent, {maxWidth: 'auto'}).setZIndexOffset(100);
-                } else if($arr[vbn]['properties']['kinds'].includes('industry') || $arr[vbn]['properties']['kinds'].includes('industrial')) {
-                    $easyMarker = L.marker($latlng, {
-                        title: $arr[vbn]['properties']['name'],
-                        riseOnHover: true,
-                        icon: greenMarker
-                    }).bindPopup(popupContent, {maxWidth: 'auto'}).setZIndexOffset(100);
+                /*
+                lat = $arr[vbn]['geometry']['coordinates'][0];
+                lng = $arr[vbn]['geometry']['coordinates'][1];
+                $currentCCode = await getCountryCode(lng, lat);
+                if($countryCode !== $currentCCode) {
+                    console.log("ccode: "+$currentCCode);
                 } else {
-                    $easyMarker = L.marker($latlng, {
-                        title: $arr[vbn]['properties']['name'],
-                        riseOnHover: true,
-                        icon: orangeMarker
-                    }).bindPopup(popupContent, {maxWidth: 'auto'}).setZIndexOffset(100);
-                }
+                */
+
+                    let $easyMarker;
+                    
+                    popupContent = ("<table class='tablePopup landmarkPopup'>"+
+                        "<tr><td><p class='landmarkName'>"+$arr[vbn]['properties']['name']+"</p></td></tr>"+
+                        //"<tr><th>Latitude:</th><td>"+$arr[vbn]['geometry']['coordinates'][0]+"</td></tr>"+
+                        //"<tr><th>Longitude:</th><td>"+$arr[vbn]['geometry']['coordinates'][1]+"</td></tr>"+
+                        "<tr><td class='openTripDataTD'><div class='openTripDataBtn btn btn-primary' id='tr"+$arr[vbn]['properties']['xid']+"' >Details</div></td></tr>"+
+                        "</table>"
+                    );
+
+                    //possible image at https://opentripmap.com/en/card/W360503687 N26755092
+                    //https://commons.wikimedia.org/wiki/File:Dumfries.jpg
 
 
-                $markerCluster.addLayer($easyMarker);
-                $landmarkArray.push($easyMarker);
+                    $latlng = [$arr[vbn]['geometry']['coordinates'][1], $arr[vbn]['geometry']['coordinates'][0]];
+
+                    if($arr[vbn]['properties']['kinds'].includes('churches') || $arr[vbn]['properties']['kinds'].includes('religion')) {
+
+                        $easyMarker = L.marker($latlng, {
+                            title: $arr[vbn]['properties']['name'],
+                            riseOnHover: true,
+                            icon: violetMarker
+                        }).bindPopup(popupContent, {maxWidth: 'auto'}).setZIndexOffset(100);
+                        $worshipClusterLayerGroup.addLayer($easyMarker);
+
+                    } else if($arr[vbn]['properties']['kinds'].includes('fortifications')) {
+
+                        $easyMarker = L.marker($latlng, {
+                            title: $arr[vbn]['properties']['name'],
+                            riseOnHover: true,
+                            icon: yellowMarker
+                        }).bindPopup(popupContent, {maxWidth: 'auto'}).setZIndexOffset(100);
+                        $fortClusterLayerGroup.addLayer($easyMarker);
+
+                    } else if($arr[vbn]['properties']['kinds'].includes('view_points')) {
+
+                        $easyMarker = L.marker($latlng, {
+                            title: $arr[vbn]['properties']['name'],
+                            riseOnHover: true,
+                            icon: lightGreenMarker
+                        }).bindPopup(popupContent, {maxWidth: 'auto'}).setZIndexOffset(100);
+                        $tourismClusterLayerGroup.addLayer($easyMarker);
+
+                    } else if($arr[vbn]['properties']['kinds'].includes('lighthouse')) {
+
+                        $easyMarker = L.marker($latlng, {
+                            title: $arr[vbn]['properties']['name'],
+                            riseOnHover: true,
+                            icon: cyanMarker
+                        }).bindPopup(popupContent, {maxWidth: 'auto'}).setZIndexOffset(100);
+                        $fortClusterLayerGroup.addLayer($easyMarker);
+
+                    } else if($arr[vbn]['properties']['kinds'].includes('guest_house') || $arr[vbn]['properties']['kinds'].includes('towers')) {
+                        
+                        $easyMarker = L.marker($latlng, {
+                            title: $arr[vbn]['properties']['name'],
+                            riseOnHover: true,
+                            icon: whiteMarker
+                        }).bindPopup(popupContent, {maxWidth: 'auto'}).setZIndexOffset(100);
+                        $tourismClusterLayerGroup.addLayer($easyMarker);
+
+                    } else if($arr[vbn]['properties']['kinds'].includes('historic') || $arr[vbn]['properties']['kinds'].includes('monuments')) {
+
+                        $easyMarker = L.marker($latlng, {
+                            title: $arr[vbn]['properties']['name'],
+                            riseOnHover: true,
+                            icon: darkOrangeMarker
+                        }).bindPopup(popupContent, {maxWidth: 'auto'}).setZIndexOffset(100);
+                        $historicalClusterLayerGroup.addLayer($easyMarker);
+
+
+                    } else if($arr[vbn]['properties']['kinds'].includes('industry') || $arr[vbn]['properties']['kinds'].includes('industrial')) {
+
+                        $easyMarker = L.marker($latlng, {
+                            title: $arr[vbn]['properties']['name'],
+                            riseOnHover: true,
+                            icon: greenMarker
+                        }).bindPopup(popupContent, {maxWidth: 'auto'}).setZIndexOffset(100);
+                        $industrialClusterLayerGroup.addLayer($easyMarker);
+
+                    } else {
+
+                        $easyMarker = L.marker($latlng, {
+                            title: $arr[vbn]['properties']['name'],
+                            riseOnHover: true,
+                            icon: orangeMarker
+                        }).bindPopup(popupContent, {maxWidth: 'auto'}).setZIndexOffset(100);
+                        $tourismClusterLayerGroup.addLayer($easyMarker);
+                        //$extraClusterLayerGroup.addLayer($easyMarker);
+
+                    }
+
+
+                    //$landmarkArray.push($easyMarker);
+                    $markerCluster.addLayer($easyMarker);
+                //}
 
             }
-            let $landmarkLayer = L.layerGroup($landmarkArray);
-            $globalBattutaLayerGroup.addLayer($landmarkLayer);
-            document.getElementById('battuta_lds').classList.remove('display_lds');
-            document.getElementById('battuta_lds').classList.add('hide_lds');
+            //let $landmarkLayer = L.layerGroup($landmarkArray);
+            //$globalBattutaLayerGroup.addLayer($landmarkLayer);
+            //document.getElementById('battuta_lds').classList.remove('display_lds');
+            //document.getElementById('battuta_lds').classList.add('hide_lds');
 
             $globalClusterLayerGroup.addLayer($markerCluster);
-            document.getElementById('cluster_lds').classList.remove('display_lds');
-            document.getElementById('cluster_lds').classList.add('hide_lds');
         }
     }
 
@@ -1274,40 +1295,127 @@ $(document).ready(() => {
                 let $publicHolidayTable = document.getElementById('publicHolidayTable');
                 let $tr = document.createElement('tr');
 
-                let $dateTH = document.createElement('tH');
+                let $dateTH = document.createElement('th');
                 let $dateH = document.createTextNode('Date');
                 $dateTH.appendChild($dateH);
 
-                let $nameTH = document.createElement('tH');
+                let $nameTH = document.createElement('th');
                 let $nameH = document.createTextNode('Holiday Name');
                 $nameTH.appendChild($nameH);
+                $nameTH.classList.add('tac');
 
-                let $localTH = document.createElement('tH');
+                let $localTH = document.createElement('th');
                 let $localH = document.createTextNode('Known As');
                 $localTH.appendChild($localH);
+                $localTH.classList.add('tar');
 
                 $tr.appendChild($dateTH);
                 $tr.appendChild($nameTH);
                 $tr.appendChild($localTH);
 
                 $publicHolidayTable.appendChild($tr);
+                let yr = new Date($list[0].date).getFullYear();
+
+                document.getElementById('publicHolidayYear').innerHTML = 'Public Holidays ( '+yr+' )';
+
+                let nameArr = [];
+                let duplicate = false;
 
                 for(let $zxc = 0; $zxc < $list.length; $zxc++) {
+
+                    let n = $list[$zxc].name;
+                    duplicate = false;
+
+                    for(let i=0; i<nameArr.length; i++) {
+                        if(nameArr[i] === n) {
+                            duplicate = true;
+                        }
+                    }
+                    if(duplicate) {
+                        continue;
+                    }
+
+                    
+
+                    nameArr.push(n);
+                    
+                    let date = new Date($list[$zxc].date);
+
+                    let dayNum = date.getDay();
+                    let day = '';
+                    switch(dayNum) {
+                        case 0: day = 'Sunday';
+                        break;
+                        case 1: day = 'Monday';
+                        break;
+                        case 2: day = 'Tuesday';
+                        break;
+                        case 3: day = 'Wednesday';
+                        break;
+                        case 4: day = 'Thursday';
+                        break;
+                        case 5: day = 'Friday';
+                        break;
+                        case 6: day = 'Saturday';
+                        break;
+                    }
+
+                    let d = 'th';
+                    if(date.getDate() % 10 === 1) {
+                        d = 'st';
+                    } else if(date.getDate() % 10 === 2) {
+                        d = 'nd';
+                    } else if(date.getDate() % 10 === 3) {
+                        d = 'rd';
+                    }
+
+                    let monthNum = date.getMonth();
+                    let month = '';
+                    switch(monthNum) {
+                        case 0: month = 'January';
+                        break;
+                        case 1: month = 'February';
+                        break;
+                        case 2: month = 'March';
+                        break;
+                        case 3: month = 'April';
+                        break;
+                        case 4: month = 'May';
+                        break;
+                        case 5: month = 'June';
+                        break;
+                        case 6: month = 'July';
+                        break;
+                        case 7: month = 'August';
+                        break;
+                        case 8: month = 'September';
+                        break;
+                        case 9: month = 'October';
+                        break;
+                        case 10: month = 'November';
+                        break;
+                        case 11: month = 'December';
+                        break;
+                    }
+
                     
                     let $tr = document.createElement('tr');
 
                     let $dateTD = document.createElement('td');
                     $dateTD.classList.add('mlpx');
-                    let $dateText = document.createTextNode($list[$zxc].date);
+
+                    let $dateText = document.createTextNode(day+" "+date.getDate()+d+" "+month);
                     $dateTD.appendChild($dateText);
 
                     let $nameTD = document.createElement('td');
                     let $nameText = document.createTextNode($list[$zxc].name);
                     $nameTD.appendChild($nameText);
+                    $nameTD.classList.add('tac');
 
                     let $localTD = document.createElement('td');
                     let $localText = document.createTextNode($list[$zxc].localName);
                     $localTD.appendChild($localText);
+                    $localTD.classList.add('tar');
 
                     $tr.appendChild($dateTD);
                     $tr.appendChild($nameTD);
@@ -1416,7 +1524,7 @@ $(document).ready(() => {
 
                     let card = document.createElement('div');
                     card.classList.add('card');
-                    card.classList.add('newsCard');
+                    card.classList.add('newsBody');
                     let cardHeader = document.createElement('div');
                     cardHeader.classList.add('card-header');
                     cardHeader.id = 'heading'+($mn+1);
@@ -1462,15 +1570,21 @@ $(document).ready(() => {
                     }
 
                     let link = $articles[$mn]['url'];
-                    let linkText = '-> Click here to read more. <-'
+                    let linkText = ' Click here to read more...'
                     let linkSection = document.createTextNode(linkText);
                     let span3 = document.createElement('span');
                     span3.classList.add('link');
                     span3.appendChild(linkSection);
+                    span3.classList.add('tar');
                     let anchor = document.createElement('a');
                     anchor.appendChild(span3);
                     anchor.setAttribute('href',link);
                     anchor.setAttribute('target','_blank');
+
+                    let p = document.createElement('p');
+                    p.appendChild(anchor);
+                    p.classList.add('tar');
+                    p.classList.add('dinline');
 
                     let content = $articles[$mn]['content'];
                     if(content) {
@@ -1499,7 +1613,7 @@ $(document).ready(() => {
                         cardBody.append(imageObj);
                     }
                     cardBody.appendChild(bodyText);
-                    cardBody.appendChild(anchor);
+                    cardBody.appendChild(p);
                     if(author) {
                         cardBody.appendChild(span2);
                     }
@@ -1583,17 +1697,54 @@ $(document).ready(() => {
         //console.dir($results);
         $('#covidCountryName').html('COVID-19 Statistics For '+$results['Country']);
 
-        let date = $results['Date'].substring(0,10);
-        dateArr = date.split('-');
-        let newDate = dateArr[2]+' / '+dateArr[1]+' / '+dateArr[0];
 
-        $('#covidDate').html(newDate);
-        $('#covidNewCases').html($results['NewConfirmed']);
-        $('#covidNewDeaths').html($results['NewDeaths']);
-        $('#covidNewRecovered').html($results['NewRecovered']);
-        $('#covidTotalCases').html($results['TotalConfirmed']);
-        $('#covidTotalDeaths').html($results['TotalDeaths']);
-        $('#covidTotalRecovered').html($results['TotalRecovered']);
+        let date = new Date();
+        let d = 'th';
+
+        if(date.getDate() % 10 === 1) {
+            d = 'st';
+        } else if(date.getDate() % 10 === 2) {
+            d = 'nd';
+        } else if(date.getDate() % 10 === 3) {
+            d = 'rd';
+        }
+
+        let monthNum = date.getMonth();
+        let month = '';
+        switch(monthNum) {
+            case 0: month = 'January';
+            break;
+            case 1: month = 'February';
+            break;
+            case 2: month = 'March';
+            break;
+            case 3: month = 'April';
+            break;
+            case 4: month = 'May';
+            break;
+            case 5: month = 'June';
+            break;
+            case 6: month = 'July';
+            break;
+            case 7: month = 'August';
+            break;
+            case 8: month = 'September';
+            break;
+            case 9: month = 'October';
+            break;
+            case 10: month = 'November';
+            break;
+            case 11: month = 'December';
+            break;
+        }
+
+        $('#covidDate').html(date.getDay()+d+" "+month+" "+date.getFullYear());
+        $('#covidNewCases').html($results['NewConfirmed'].toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","));
+        $('#covidNewDeaths').html($results['NewDeaths'].toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","));
+        $('#covidNewRecovered').html($results['NewRecovered'].toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","));
+        $('#covidTotalCases').html($results['TotalConfirmed'].toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","));
+        $('#covidTotalDeaths').html($results['TotalDeaths'].toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","));
+        $('#covidTotalRecovered').html($results['TotalRecovered'].toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","));
     }
 
     async function getRestCountry($thisCountryCode) {
@@ -1714,10 +1865,10 @@ $(document).ready(() => {
             //const myPurpleIcon = new LeafIcon({iconUrl: 'Images/my_purple_svg_icon.svg'});
             //const myRedIcon = new LeafIcon({iconUrl: 'Images/my_red_svg_icon.svg'});
             let blueMarker = L.ExtraMarkers.icon({
-                icon: 'fa-circle',
+                icon: 'fa-microblog',
                 markerColor: 'blue',
                 shape: 'circle',
-                prefix: 'far'
+                prefix: 'fab'
             });
             let capitalMarker = L.ExtraMarkers.icon({
                 icon: 'fa-star',
@@ -1808,15 +1959,21 @@ $(document).ready(() => {
                 */
 
             }
+
+            $regionsClusterLayerGroup.addLayer($markerCluster);
             
+            /*
             let $battutaLayer = L.layerGroup($battutaArray);
             $globalBattutaLayerGroup.addLayer($battutaLayer);
             document.getElementById('battuta_lds').classList.remove('display_lds');
             document.getElementById('battuta_lds').classList.add('hide_lds');
+            */
 
             $globalClusterLayerGroup.addLayer($markerCluster);
+            /*
             document.getElementById('cluster_lds').classList.remove('display_lds');
             document.getElementById('cluster_lds').classList.add('hide_lds');
+            */
         }
         
         //return $result;
@@ -2584,7 +2741,7 @@ $(document).ready(() => {
     async function getBoundingBox($lat, $lng) {
         try {
             let $boundingBox = await $.ajax({
-                url: "/WorldMap/PHP/getBoundingBox.php",
+                url: "PHP/getBoundingBox.php",
                 type: 'POST',
                 data: {
                     la: $lat,
@@ -2661,7 +2818,7 @@ $(document).ready(() => {
         try {
             $result = await $.ajax({
                 url: "PHP/getCountryList.php"
-                //"/WorldMap/PHP/getCountryList.php"
+                //"/PHP/getCountryList.php"
             });
             if($result.status.name == "ok") {
 
@@ -2881,7 +3038,7 @@ $(document).ready(() => {
             //$("#CurrencyDropDown option:contains(" + $c +")").attr('selected','selected');
             //below we set new country
             $result = await $.ajax({
-                url: "/WorldMap/PHP/getLatLong.php",
+                url: "PHP/getLatLong.php",
                 type: 'POST',
                 data: {
                     //country: "'"+$countryName+"'",
@@ -2906,11 +3063,6 @@ $(document).ready(() => {
         }
     }
 
-    async function begin() {
-        $('.loaderDiv').css('display', 'flex');
-        let c = await get();//get current location
-        main(c.coords);
-    }
     
     $('#navDropDown').on("change", () => {
         $progress = 0;
@@ -3284,6 +3436,8 @@ $(document).ready(() => {
     //getAllGeonameCountries();
     populateCountryList();
     begin();
+
+    
 
     /*
     var select = document.getElementById('navDropDown');

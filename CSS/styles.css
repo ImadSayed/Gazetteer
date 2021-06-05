@@ -294,11 +294,8 @@ select {
 }
 
 /*Maps control*/
-.mapStyle {
-    font-size: large;
-    font-weight: 600;
-    display: inline;
-}
+
+
 .roadMaps {
     color: rgb(219, 3, 3);
 }
@@ -488,6 +485,16 @@ select {
 }
 #exRate {
     padding-right: 10px;
+}
+
+/*---------------------------------------------------------------------------GENERAL -----------------------------------------------------------*/
+.modal-body-scroll {
+    max-height: 70vh;
+    overflow-y: scroll;
+}
+
+.featureGroups {
+    display: inline-block;
 }
 /*-------------------------------------COUNTRY DATA------------------------------------*/
 .modalImageDiv {
@@ -1017,4 +1024,25 @@ tbody.faImg > tr:first-child {
 }
 .tac {
     text-align: center;
+}
+.tar {
+    text-align: right;
+}
+.dinline {
+    display: inline-block;
+}
+
+/*--------------------------------------------------------------------------(min-width: 1000px)-------------------------------------------------------*/
+@media only screen and (min-width: 1000px) {
+    .mapStyle {
+        font-size: large;
+        font-weight: 600;
+        display: inline;
+    } 
+}
+
+@media only screen and (max-width: 518px) {
+    .control {
+        margin-top: 45px;
+    }
 }

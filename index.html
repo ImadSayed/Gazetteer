@@ -108,12 +108,12 @@
                         <div class="modal-body">
                             <table class="table table-striped table-dark">
                                 <tbody class="faImg">
-                                    <tr><td class="popIconTD"><i class="fas fa-user-friends fa-2x popIcon"></i></td><td>Population</td><td id="population"></td></tr>
-                                    <tr><td class="popIconTD"><i class="far fa-flag fa-2x popIcon"></i></td><td>Capital</td><td id="capital"></td></tr>
-                                    <tr><td class="popIconTD"><i class="fas fa-money-bill-wave fa-2x popIcon"></i></td><td>Currency</td><td id="currencies"></td></tr>
-                                    <tr><td class="popIconTD"><i class="fas fa-dollar-sign fa-2x popIcon"></i></td><td>Exchange Rate</td><td id="exRate"></td></tr>
-                                    <tr><td class="popIconTD"><i class="fas fa-border-style fa-2x popIcon"></i></td><td>Borders</td><td><ul id="borders"></ul></td></tr>
-                                    <tr><td class="popIconTD"><i class="fas fa-language fa-2x popIcon"></i></td><td>Languages</td><td><ul id="languages"></ul></td></tr>
+                                    <tr><td class="popIconTD"><i class="fas fa-user-friends fa-2x popIcon"></i></td><td>Population</td><td id="population" class="tar"></td></tr>
+                                    <tr><td class="popIconTD"><i class="far fa-flag fa-2x popIcon"></i></td><td>Capital</td><td id="capital" class="tar"></td></tr>
+                                    <tr><td class="popIconTD"><i class="fas fa-money-bill-wave fa-2x popIcon"></i></td><td>Currency</td><td id="currencies" class="tar"></td></tr>
+                                    <tr><td class="popIconTD"><i class="fas fa-dollar-sign fa-2x popIcon"></i></td><td>Exchange Rate</td><td id="exRate" class="tar"></td></tr>
+                                    <tr><td class="popIconTD"><i class="fas fa-border-style fa-2x popIcon"></i></td><td>Borders</td><td><ul id="borders" class="tar"></ul></td></tr>
+                                    <tr><td class="popIconTD"><i class="fas fa-language fa-2x popIcon"></i></td><td>Languages</td><td><ul id="languages" class="tar"></ul></td></tr>
                                     
                                 </tbody>
                             </table>
@@ -129,7 +129,7 @@
                     <div class="modal-dialog">
                       <div class="modal-content countryDataDiv">
                         <div class="modal-header covidDataDiv2">
-                          <h5 id="covidCountryName" class="modal-title white">COVID-19 Statistics</h5>
+                          <h5 id="covidCountryName" class="modal-title white tac">COVID-19 Statistics</h5>
                           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true" class="white">&times;</span>
                           </button>
@@ -137,13 +137,13 @@
                         <div class="modal-body">
                             <table class="table table-striped">
                                 <tbody class="white faImg">
-                                    <tr><td>Date</td><td id="covidDate"></td></tr>
-                                    <tr><td>New Confirmed Cases</td><td id="covidNewCases"></td></tr>
-                                    <tr><td>New Deaths</td><td id="covidNewDeaths"></td></tr>
-                                    <tr><td>New Recovered</td><td id="covidNewRecovered"></td></tr>
-                                    <tr><td>Total Confirmed Cases</td><td id="covidTotalCases"></td></tr>
-                                    <tr><td>Total Deaths</td><td id="covidTotalDeaths"></td></tr>
-                                    <tr><td>Total Recovered</td><td id="covidTotalRecovered"></td></tr>
+                                    <tr><td>Date</td><td id="covidDate" class="tar"></td></tr>
+                                    <tr><td>New Confirmed Cases</td><td id="covidNewCases" class="tar"></td></tr>
+                                    <tr><td>New Deaths</td><td id="covidNewDeaths" class="tar"></td></tr>
+                                    <tr><td>New Recovered</td><td id="covidNewRecovered" class="tar"></td></tr>
+                                    <tr><td>Total Confirmed Cases</td><td id="covidTotalCases" class="tar"></td></tr>
+                                    <tr><td>Total Deaths</td><td id="covidTotalDeaths" class="tar"></td></tr>
+                                    <tr><td>Total Recovered</td><td id="covidTotalRecovered" class="tar"></td></tr>
                                 </tbody>
                             </table>
                         </div>
@@ -162,7 +162,7 @@
                             <span aria-hidden="true" class="white">&times;</span>
                           </button>
                         </div>
-                        <div class="modal-body">
+                        <div class="modal-body modal-body-scroll">
                             <!--table class="table table-striped">
                                 <tbody id="newsBody">-->
                                    <!-- <tr><td>Date</td><td id="newsDate"></td></tr> -->
@@ -185,7 +185,7 @@
                     <div class="modal-dialog">
                       <div class="modal-content countryDataDiv">
                         <div class="modal-header publicHolidayDataDiv2">
-                          <h5 id="publicHolidayCountryName" class="modal-title white phcnCenter">Public Holidays</h5>
+                          <h5 id="publicHolidayYear" class="modal-title white phcnCenter">Public Holidays</h5>
                           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true" class="white">&times;</span>
                           </button>

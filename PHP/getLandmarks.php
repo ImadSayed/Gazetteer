@@ -25,6 +25,17 @@ $south = $decode['geonames'][0]['south'];
 $east = $decode['geonames'][0]['east'];
 $west = $decode['geonames'][0]['west'];
 
+//lon_min='.$west
+//lat_min='.$south.'
+//lon_max='.$east
+//lat_max='.$north
+
+// -90 to 90 for latitude and -180 to 180 for longitude.
+
+if($west > $east) {
+    $east = 180;
+}
+
 
 $OpenAPIKEY = $openTripMapApiKey;
 

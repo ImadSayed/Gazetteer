@@ -149,7 +149,7 @@ $(document).ready(() => {
 
         var baseMaps = {
             "<div class='control featureGroups mapStyle'>Road Map</div>": map1,
-            "<div class='featureGroups mapStyle'>Named Places</div>": map4,
+            //"<div class='featureGroups mapStyle'>Named Places</div>": map4,
             "<div class='featureGroups mapStyle'>Night Time</div>": map5,
             "<div class='featureGroups mapStyle'>Railway Network</div>": map6,
             "<div class='featureGroups mapStyle'>Drawn Borders</div>": map9,
@@ -235,6 +235,10 @@ $(document).ready(() => {
         $globalUniversalLayerGroup.clearLayers();
         $globalOpenTripLayerGroup.clearLayers();
 
+        if($globalFeatureGroup) {
+            $globalFeatureGroup.clearLayers();
+        }
+
 
 
         $c = c; //assign to global variable
@@ -314,8 +318,14 @@ $(document).ready(() => {
 
         //allowance 1000 api requests per month (months starts 16th month)
 
-        let $continue2 = await getExchangeRates($currencyCode);  //get exchange rate data and store in global variable called currencyInfo
-        displayConversionRate($currencyCode);   //display exchangeRate
+
+
+        /////DONT FORGET XRATE
+
+
+
+        //let $continue2 = await getExchangeRates($currencyCode);  //get exchange rate data and store in global variable called currencyInfo
+        //displayConversionRate($currencyCode);   //display exchangeRate
 
         addProgress(10);                                                                                     //addProgress(10);
 
@@ -326,8 +336,8 @@ $(document).ready(() => {
 
         /**----------------------------------------CUSTOM ICON FOR ROUTES ------------------------------------------------- */
         
-        myDarkGreenIcon = new LeafIcon({iconUrl: 'Images/my_dark_green_svg_icon.svg'}),
-        myPurpleIcon2 = new LeafIcon({iconUrl: 'Images/my_purple2_svg_icon.svg'});
+        //myDarkGreenIcon = new LeafIcon({iconUrl: 'Images/my_dark_green_svg_icon.svg'}),
+        //myPurpleIcon2 = new LeafIcon({iconUrl: 'Images/my_purple2_svg_icon.svg'});
 
 
        /**-----------------------------------------------------------------GET CITIES & TOWNS for current location----------------------------------------------------- */
@@ -387,6 +397,9 @@ $(document).ready(() => {
         
         $globalFeatureGroup = featureGroup;
 
+
+        console.log("featureGroup");
+        console.dir(featureGroup);
         $mapControl.fitBounds(featureGroup.getBounds());
 
         addProgress(10);                                                                                     //addProgress(10);
@@ -1078,7 +1091,12 @@ $(document).ready(() => {
         if($results) {
             //console.log("Landmarks");
             //console.dir($results);
-            populateWithLandmarks($results.features);
+            if($results.features) {
+                populateWithLandmarks($results.features);
+            } else {
+                console.log("No Landmarks Found");
+                console.dir($results);
+            }
         }
 
     }

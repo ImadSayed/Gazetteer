@@ -398,8 +398,8 @@ $(document).ready(() => {
         $globalFeatureGroup = featureGroup;
 
 
-        console.log("featureGroup");
-        console.dir(featureGroup);
+        //console.log("featureGroup");
+        //console.dir(featureGroup);
         $mapControl.fitBounds(featureGroup.getBounds());
 
         addProgress(10);                                                                                     //addProgress(10);
